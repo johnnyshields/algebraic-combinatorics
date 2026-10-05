@@ -363,52 +363,8 @@ cancels with the sign from the column permutation.
 -/
 
 /-- Helper: card of Ioi for Fin n. -/
-lemma card_Ioi_fin' (m : ℕ) (i : Fin m) : (Finset.Ioi i).card = m - 1 - i.val := by
-  induction m with
-  | zero => exact i.elim0
-  | succ n ih =>
-    cases' Fin.eq_castSucc_or_eq_last i with hi hi
-    · obtain ⟨i', rfl⟩ := hi
-      simp only [Fin.val_castSucc]
-      have h1 : Finset.Ioi (Fin.castSucc i') =
-                (Finset.Ioi i').map ⟨Fin.castSucc, Fin.castSucc_injective n⟩ ∪ {Fin.last n} := by
-        ext j
-        simp only [Finset.mem_union, Finset.mem_map, Finset.mem_Ioi, Finset.mem_singleton]
-        constructor
-        · intro hj
-          cases' Fin.eq_castSucc_or_eq_last j with hj' hj'
-          · left
-            obtain ⟨j', rfl⟩ := hj'
-            refine ⟨j', ?_, rfl⟩
-            exact Fin.castSucc_lt_castSucc_iff.mp hj
-          · right
-            exact hj'
-        · intro hj
-          cases hj with
-          | inl h =>
-            obtain ⟨j', hj', rfl⟩ := h
-            exact Fin.castSucc_lt_castSucc_iff.mpr hj'
-          | inr h =>
-            rw [h]
-            exact Fin.castSucc_lt_last i'
-      rw [h1, Finset.card_union_of_disjoint]
-      · simp only [Finset.card_map, Finset.card_singleton]
-        rw [ih i']
-        omega
-      · simp only [Finset.disjoint_singleton_right, Finset.mem_map, not_exists, not_and]
-        intro j _ hj
-        exact Fin.castSucc_ne_last j hj
-    · rw [hi]
-      simp only [Fin.val_last]
-      have : Finset.Ioi (Fin.last n) = ∅ := by
-        ext j
-        simp only [Finset.mem_Ioi]
-        constructor
-        · intro h
-          exact absurd h (Fin.not_lt.mpr (Fin.le_last j))
-        · simp
-      rw [this, Finset.card_empty]
-      omega
+lemma card_Ioi_fin' (m : ℕ) (i : Fin m) : (Finset.Ioi i).card = m - 1 - i.val :=
+  Fin.card_Ioi i
 
 /-- Sum of Ioi cardinalities equals n(n-1)/2. -/
 lemma sum_card_Ioi_fin' (m : ℕ) : ∑ i : Fin m, (Finset.Ioi i).card = m * (m - 1) / 2 := by

@@ -140,11 +140,11 @@ For n = 3: The 6-term expansion over S₃
 
 /-- Determinant of 0×0 matrix is 1 -/
 theorem det_fin_zero' (A : Matrix (Fin 0) (Fin 0) K) : A.det = 1 :=
-  Matrix.det_isEmpty
+  Matrix.det_fin_zero
 
 /-- Determinant of 1×1 matrix is its single entry -/
 theorem det_fin_one' (A : Matrix (Fin 1) (Fin 1) K) : A.det = A 0 0 :=
-  Matrix.det_unique A
+  Matrix.det_fin_one A
 
 /-- Determinant of 2×2 matrix: ad - bc -/
 theorem det_fin_two' (A : Matrix (Fin 2) (Fin 2) K) :

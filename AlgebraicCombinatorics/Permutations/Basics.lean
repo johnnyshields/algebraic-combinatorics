@@ -180,7 +180,7 @@ In Mathlib, this is the group multiplication `α * β`. -/
 
 /-- The composition `α * β` sends `x` to `α(β(x))`. (def.perm.perm (c)) -/
 theorem perm_mul_apply {X : Type*} (α β : Equiv.Perm X) (x : X) :
-    (α * β) x = α (β x) := rfl
+    (α * β) x = α (β x) := Equiv.Perm.mul_apply α β x
 
 /-- Composition is associative: `(αβ)γ = α(βγ)`. -/
 theorem perm_mul_assoc {X : Type*} (α β γ : Equiv.Perm X) :

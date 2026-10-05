@@ -374,7 +374,7 @@ theorem derivative_X : d⁄dX (X : R⟦X⟧) = 1 :=
 /-- Derivative of 1 is 0. -/
 @[simp]
 theorem derivative_one : d⁄dX (1 : R⟦X⟧) = 0 :=
-  Derivation.map_one_eq_zero (d⁄dX)
+  PowerSeries.derivative_one
 
 /-- The derivative of a polynomial viewed as a power series equals
 the polynomial derivative viewed as a power series. -/

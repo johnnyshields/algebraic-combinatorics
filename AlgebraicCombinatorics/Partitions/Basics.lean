@@ -431,9 +431,8 @@ theorem parts_pos' {n : ℕ} (p : Partition n) (i : ℕ) (hi : i ∈ p.parts) : 
     (Consequence of Definition \ref{def.pars.parts})
 
     Since parts are positive and sum to n, each individual part is bounded by n. -/
-theorem parts_le {n : ℕ} (p : Partition n) (i : ℕ) (hi : i ∈ p.parts) : i ≤ n := by
-  calc i ≤ p.parts.sum := Multiset.single_le_sum (fun _ _ => Nat.zero_le _) _ hi
-    _ = n := p.parts_sum
+theorem parts_le {n : ℕ} (p : Partition n) (i : ℕ) (hi : i ∈ p.parts) : i ≤ n :=
+  le_of_mem_parts hi
 
 /-- The empty partition is the unique partition of 0.
     (Definition \ref{def.pars.parts} (a) - empty tuple case)
@@ -473,10 +472,8 @@ theorem ofList'_parts {n : ℕ} (l : List ℕ) (hl_pos : ∀ i ∈ l, 0 < i) (hl
 
 /-- Two partitions are equal iff their parts are equal.
     (Definition \ref{def.pars.parts} - partitions are determined by their parts) -/
-theorem eq_iff_parts_eq {n : ℕ} (p q : Partition n) : p = q ↔ p.parts = q.parts := by
-  constructor
-  · intro h; rw [h]
-  · intro h; exact Partition.ext h
+theorem eq_iff_parts_eq {n : ℕ} (p q : Partition n) : p = q ↔ p.parts = q.parts :=
+  Partition.ext_iff
 
 /-! ### Examples from the textbook (Example \ref{exa.pars.pars5})
 

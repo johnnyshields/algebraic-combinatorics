@@ -1327,15 +1327,11 @@ lemma leftCoShift_preserves_combined_sign {n : ℕ}
   exact h_neg_one
 
 /-- k * (k - 1) is always even (consecutive integers). -/
-lemma even_mul_pred (k : ℕ) : Even (k * (k - 1)) := by
-  rcases Nat.even_or_odd k with hk' | hk'
-  · exact Even.mul_right hk' _
-  · rcases hk' with ⟨m, rfl⟩
-    simp only [Nat.add_sub_cancel]
-    exact Even.mul_left (even_two_mul m) _
+lemma even_mul_pred (k : ℕ) : Even (k * (k - 1)) :=
+  Nat.even_mul_pred_self k
 
 /-- 2 divides k * (k - 1). -/
-lemma two_dvd_mul_pred (k : ℕ) : 2 ∣ k * (k - 1) := (even_mul_pred k).two_dvd
+lemma two_dvd_mul_pred (k : ℕ) : 2 ∣ k * (k - 1) := Nat.two_dvd_mul_sub_one k
 
 /-- Helper lemma: the index of orderEmbOfFin i in the sorted list is i.val. -/
 lemma orderEmbOfFin_idxOf_eq {α : Type*} [LinearOrder α] (s : Finset α) {k : ℕ} (h : s.card = k) 
