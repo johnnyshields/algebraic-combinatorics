@@ -404,7 +404,7 @@ noncomputable def equivPartition (n : ℕ) :
     let hp' : Multiset.card p'.parts ≤ N := toPartition_card_le mu
     ⟨hmu ▸ p', by subst hmu; exact hp'⟩
   left_inv := by
-    try simp only
+    simp only
     intro ⟨p, hp⟩
     simp only [Subtype.mk.injEq]
     -- Need: toPartition (ofPartition p hp) = p (up to the size equality cast)
@@ -471,7 +471,7 @@ theorem ofPartition_injective (n : ℕ) :
   intro ⟨p₁, hp₁⟩ ⟨p₂, hp₂⟩ heq
   simp only [Subtype.mk.injEq]
   have hparts : (ofPartition p₁ hp₁).parts = (ofPartition p₂ hp₂).parts := by
-    try simp only at heq
+    simp only at heq
     rw [heq]
   have hsorted : p₁.parts.sort (· ≥ ·) = p₂.parts.sort (· ≥ ·) := by
     have len1 : (p₁.parts.sort (· ≥ ·)).length = Multiset.card p₁.parts := Multiset.length_sort ..
@@ -549,7 +549,7 @@ def sortTuple (a : Fin N → ℕ) : NPartition N where
     if h : i.val < sorted.length then sorted.get ⟨i.val, h⟩ else 0
   antitone := by
     intro i j hij
-    try simp only
+    simp only
     split_ifs with hi hj hj
     · have hsorted : ((Finset.univ.val.map a).sort (· ≥ ·)).Pairwise (· ≥ ·) :=
         Multiset.pairwise_sort (r := (· ≥ ·)) (Finset.univ.val.map a)
@@ -818,7 +818,7 @@ lemma sortTuple_comp_perm (a : Fin N → ℕ) (σ : Perm (Fin N)) :
     sortTuple (a ∘ σ) = sortTuple a := by
   ext i
   unfold sortTuple
-  try simp only
+  simp only
   rw [map_comp_perm_eq a σ]
 
 /-- Applying rename σ to a monomial x^a gives x^(a ∘ σ⁻¹). -/
@@ -870,7 +870,7 @@ private lemma mem_sortPreimage_comp_perm {a : Fin N → ℕ} {mu : NPartition N}
 private lemma mem_sortPreimage_comp_perm' {a : Fin N → ℕ} {mu : NPartition N} (σ : Perm (Fin N))
     (ha : a ∈ sortPreimage mu) : (a ∘ σ) ∈ sortPreimage mu := by
   have h := mem_sortPreimage_comp_perm σ⁻¹ ha
-  convert h <;> rfl
+  convert h ; rfl
 
 /-- The monomial symmetric polynomial is symmetric.
     (Follows from Definition def.sf.m)
@@ -957,7 +957,7 @@ def onesThenZeros (n : ℕ) (_hn : n ≤ N) : NPartition N where
   parts := fun i => if i.val < n then 1 else 0
   antitone := by
     intro i j hij
-    try simp only
+    simp only
     split_ifs with hi hj hj
     · exact le_refl 1
     · omega
@@ -970,7 +970,7 @@ def singletonPartition (n : ℕ) (_hN : 0 < N) : NPartition N where
   antitone := by
     intro i j hij
     -- Goal: (if j.val = 0 then n else 0) ≤ (if i.val = 0 then n else 0)
-    try simp only
+    simp only
     split_ifs with h1 h2
     · -- h1 : j.val = 0, h2 : i.val = 0
       exact le_refl n
@@ -1684,9 +1684,8 @@ theorem sigma_coeff_permute (sigma : Perm (Fin N)) (f : MvPolynomial (Fin N) R)
     (a : Fin N → ℕ) :
     (rename sigma f).coeff (Finsupp.equivFunOnFinite.symm a) =
     f.coeff (Finsupp.equivFunOnFinite.symm (a ∘ sigma)) := by
-
-  -- coefficient function, so the upstream computation through `rename_eq` is replaced by
-  -- `coeff_rename_mapDomain` for the injective map `sigma`.
+  -- Write the exponent `a` as the image of `a ∘ sigma` under `sigma`, then use that
+  -- `rename sigma` maps coefficients along the injective map `sigma`.
   classical
   have hA : Finsupp.equivFunOnFinite.symm a =
       Finsupp.mapDomain sigma (Finsupp.equivFunOnFinite.symm (a ∘ sigma)) := by
@@ -2340,14 +2339,14 @@ noncomputable def monomialSymm_basis_homogeneous (n : ℕ) :
   -- v is linearly independent
   have hli : LinearIndependent R v := by
     apply linearIndependent_submodule_of_linearIndependent
-    convert monomialSymm_homogeneous_linearIndependent n <;> rfl
+    convert monomialSymm_homogeneous_linearIndependent n ; rfl
   -- v spans symmHomogeneous
   have hsp : ⊤ ≤ Submodule.span R (Set.range v) := by
     apply span_eq_top_of_subtype_span
     intro x
     obtain ⟨hx_symm, hx_hom⟩ := x.property
     have h := monomialSymm_homogeneous_spans n x.val ⟨hx_symm, hx_hom⟩
-    convert h <;> rfl
+    convert h ; rfl
   exact Module.Basis.mk hli hsp
 
 

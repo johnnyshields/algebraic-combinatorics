@@ -329,12 +329,12 @@ set_option backward.isDefEq.respectTransparency false in
 /-- The map `(a, b) ↦ (a + single i 1, b)` gives a bijection from `antidiagonal m` to
     the subset of `antidiagonal (m + single i 1)` where `single i 1 ≤ a`. -/
 lemma antidiag_shift_fst {σ : Type*} [DecidableEq σ] (i : σ) (m : σ →₀ ℕ) :
-    (Finset.HasAntidiagonal.antidiagonal m).map ⟨fun p => (p.1 + Finsupp.single i 1, p.2), fun p q h => by
+    (antidiagonal m).map ⟨fun p => (p.1 + Finsupp.single i 1, p.2), fun p q h => by
       simp only [Prod.mk.injEq] at h
       have h1 : p.1 = q.1 := add_right_cancel h.1
       have h2 : p.2 = q.2 := h.2
       ext <;> simp [h1, h2]⟩ =
-    (Finset.HasAntidiagonal.antidiagonal (m + Finsupp.single i 1)).filter (fun p => Finsupp.single i 1 ≤ p.1) := by
+    (antidiagonal (m + Finsupp.single i 1)).filter (fun p => Finsupp.single i 1 ≤ p.1) := by
   ext ⟨a, b⟩
   simp only [mem_map, mem_filter, Finset.HasAntidiagonal.mem_antidiagonal, Function.Embedding.coeFn_mk, Prod.mk.injEq,
     Prod.exists]
@@ -354,12 +354,12 @@ set_option backward.isDefEq.respectTransparency false in
 /-- The map `(a, b) ↦ (a, b + single i 1)` gives a bijection from `antidiagonal m` to
     the subset of `antidiagonal (m + single i 1)` where `single i 1 ≤ b`. -/
 lemma antidiag_shift_snd {σ : Type*} [DecidableEq σ] (i : σ) (m : σ →₀ ℕ) :
-    (Finset.HasAntidiagonal.antidiagonal m).map ⟨fun p => (p.1, p.2 + Finsupp.single i 1), fun p q h => by
+    (antidiagonal m).map ⟨fun p => (p.1, p.2 + Finsupp.single i 1), fun p q h => by
       simp only [Prod.mk.injEq] at h
       have h1 : p.1 = q.1 := h.1
       have h2 : p.2 = q.2 := add_right_cancel h.2
       ext <;> simp [h1, h2]⟩ =
-    (Finset.HasAntidiagonal.antidiagonal (m + Finsupp.single i 1)).filter (fun p => Finsupp.single i 1 ≤ p.2) := by
+    (antidiagonal (m + Finsupp.single i 1)).filter (fun p => Finsupp.single i 1 ≤ p.2) := by
   ext ⟨a, b⟩
   simp only [mem_map, mem_filter, Finset.HasAntidiagonal.mem_antidiagonal, Function.Embedding.coeFn_mk, Prod.mk.injEq,
     Prod.exists]
@@ -378,7 +378,7 @@ lemma antidiag_shift_snd {σ : Type*} [DecidableEq σ] (i : σ) (m : σ →₀ �
 /-- Terms where `p.1 i = 0` contribute zero to the first derivative sum. -/
 lemma sum_filter_zero_fst {σ : Type*} [DecidableEq σ] (i : σ) (m : σ →₀ ℕ)
     (f g : MvPowerSeries σ R) :
-    ∑ p ∈ (Finset.HasAntidiagonal.antidiagonal (m + Finsupp.single i 1)).filter (fun p => ¬(Finsupp.single i (1 : ℕ) ≤ p.1)),
+    ∑ p ∈ (antidiagonal (m + Finsupp.single i 1)).filter (fun p => ¬(Finsupp.single i (1 : ℕ) ≤ p.1)),
       (p.1 i : R) * coeff p.1 f * coeff p.2 g = 0 := by
   apply Finset.sum_eq_zero
   intro p hp
@@ -389,7 +389,7 @@ lemma sum_filter_zero_fst {σ : Type*} [DecidableEq σ] (i : σ) (m : σ →₀ 
 /-- Terms where `p.2 i = 0` contribute zero to the second derivative sum. -/
 lemma sum_filter_zero_snd {σ : Type*} [DecidableEq σ] (i : σ) (m : σ →₀ ℕ)
     (f g : MvPowerSeries σ R) :
-    ∑ p ∈ (Finset.HasAntidiagonal.antidiagonal (m + Finsupp.single i 1)).filter (fun p => ¬(Finsupp.single i (1 : ℕ) ≤ p.2)),
+    ∑ p ∈ (antidiagonal (m + Finsupp.single i 1)).filter (fun p => ¬(Finsupp.single i (1 : ℕ) ≤ p.2)),
       coeff p.1 f * ((p.2 i : R) * coeff p.2 g) = 0 := by
   apply Finset.sum_eq_zero
   intro p hp
@@ -410,7 +410,7 @@ theorem partialDeriv_mul {σ : Type*} [DecidableEq σ] (i : σ)
   rw [Finset.mul_sum]
   -- Split each term: (m' i) * f(a) * g(b) = (a i) * f(a) * g(b) + f(a) * (b i) * g(b)
   -- because m' i = a i + b i for (a, b) ∈ antidiagonal m'
-  have hsplit : ∀ p ∈ Finset.HasAntidiagonal.antidiagonal m',
+  have hsplit : ∀ p ∈ antidiagonal m',
       (DFunLike.coe m' i : R) * (coeff p.1 f * coeff p.2 g) =
       (p.1 i : R) * coeff p.1 f * coeff p.2 g + coeff p.1 f * ((p.2 i : R) * coeff p.2 g) := by
     intro p hp
@@ -420,16 +420,16 @@ theorem partialDeriv_mul {σ : Type*} [DecidableEq σ] (i : σ)
     rw [this]; push_cast; ring
   rw [Finset.sum_congr rfl hsplit, Finset.sum_add_distrib]
   -- Reindex using the bijections: terms with p.1 i = 0 or p.2 i = 0 vanish
-  have eq1 : ∑ x ∈ Finset.HasAntidiagonal.antidiagonal m', (x.1 i : R) * coeff x.1 f * coeff x.2 g =
-             ∑ x ∈ Finset.HasAntidiagonal.antidiagonal m, (DFunLike.coe (x.1 + Finsupp.single i 1) i : R) *
+  have eq1 : ∑ x ∈ antidiagonal m', (x.1 i : R) * coeff x.1 f * coeff x.2 g =
+             ∑ x ∈ antidiagonal m, (DFunLike.coe (x.1 + Finsupp.single i 1) i : R) *
                                    coeff (x.1 + Finsupp.single i 1) f * coeff x.2 g := by
-    rw [← Finset.sum_filter_add_sum_filter_not (Finset.HasAntidiagonal.antidiagonal m') (fun p => Finsupp.single i 1 ≤ p.1)]
+    rw [← Finset.sum_filter_add_sum_filter_not (antidiagonal m') (fun p => Finsupp.single i 1 ≤ p.1)]
     rw [sum_filter_zero_fst, add_zero, ← antidiag_shift_fst, Finset.sum_map]
     apply Finset.sum_congr rfl; intro x _; simp only [Function.Embedding.coeFn_mk]
-  have eq2 : ∑ x ∈ Finset.HasAntidiagonal.antidiagonal m', coeff x.1 f * ((x.2 i : R) * coeff x.2 g) =
-             ∑ x ∈ Finset.HasAntidiagonal.antidiagonal m, coeff x.1 f * ((DFunLike.coe (x.2 + Finsupp.single i 1) i : R) *
+  have eq2 : ∑ x ∈ antidiagonal m', coeff x.1 f * ((x.2 i : R) * coeff x.2 g) =
+             ∑ x ∈ antidiagonal m, coeff x.1 f * ((DFunLike.coe (x.2 + Finsupp.single i 1) i : R) *
                                                    coeff (x.2 + Finsupp.single i 1) g) := by
-    rw [← Finset.sum_filter_add_sum_filter_not (Finset.HasAntidiagonal.antidiagonal m') (fun p => Finsupp.single i 1 ≤ p.2)]
+    rw [← Finset.sum_filter_add_sum_filter_not (antidiagonal m') (fun p => Finsupp.single i 1 ≤ p.2)]
     rw [sum_filter_zero_snd, add_zero, ← antidiag_shift_snd, Finset.sum_map]
     apply Finset.sum_congr rfl; intro x _; simp only [Function.Embedding.coeFn_mk]
   rw [eq1, eq2]

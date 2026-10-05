@@ -159,7 +159,7 @@ theorem coeff_smul_fps (n : ℕ) (c : R) (f : R⟦X⟧) :
 /-- (d) Product of FPS uses convolution (eq. pf.thm.fps.ring.xn(ab)=2)
     Label: pf.thm.fps.ring.xn(ab)=2 -/
 theorem coeff_mul_fps (n : ℕ) (f g : R⟦X⟧) :
-    coeff n (f * g) = ∑ p ∈ Finset.HasAntidiagonal.antidiagonal n, coeff p.1 f * coeff p.2 g :=
+    coeff n (f * g) = ∑ p ∈ antidiagonal n, coeff p.1 f * coeff p.2 g :=
   coeff_mul n f g
 
 /-- Alternative form of product formula (eq. pf.thm.fps.ring.xn(ab)=3)
@@ -180,7 +180,7 @@ theorem coeff_C_fps (n : ℕ) (a : R) :
 theorem coeff_zero_mul_fps (f g : R⟦X⟧) :
     coeff 0 (f * g) = coeff 0 f * coeff 0 g := by
   rw [coeff_mul_fps]
-  simp [Finset.Nat.antidiagonal_zero]
+  simp 
 
 /-!
 ## Ring Structure (Theorem thm.fps.ring)
@@ -260,14 +260,14 @@ theorem mul_X_shift (f : R⟦X⟧) (n : ℕ) :
 theorem X_mul_coeff_zero (f : R⟦X⟧) :
     coeff 0 (X * f) = 0 := by
   rw [coeff_mul_fps]
-  simp [Finset.Nat.antidiagonal_zero]
+  simp 
 
 /-- The constant term of f * X is 0 -/
 @[simp]
 theorem mul_X_coeff_zero (f : R⟦X⟧) :
     coeff 0 (f * X) = 0 := by
   rw [coeff_mul_fps]
-  simp [Finset.Nat.antidiagonal_zero]
+  simp 
 
 /-- Complete characterization of multiplication by X (Lemma lem.fps.xa, unified form)
 
@@ -802,7 +802,7 @@ For a, b, n ∈ ℕ: C(a+b, n) = ∑_{k=0}^n C(a,k) C(b, n-k)
 /-- Vandermonde's identity for natural numbers (Proposition prop.binom.vandermonde.NN)
     Label: eq.prop.binom.vandermonde.NN.eq -/
 theorem vandermonde_nat (a b n : ℕ) :
-    (a + b).choose n = ∑ ij ∈ Finset.HasAntidiagonal.antidiagonal n, a.choose ij.1 * b.choose ij.2 :=
+    (a + b).choose n = ∑ ij ∈ antidiagonal n, a.choose ij.1 * b.choose ij.2 :=
   Nat.add_choose_eq a b n
 
 /-- Alternative form using range -/
@@ -827,7 +827,7 @@ that agree on ℕ × ℕ, hence they agree everywhere.
     This generalizes Vandermonde's identity from natural numbers to any binomial ring
     (including ℚ, ℝ, ℂ, and polynomial rings). -/
 theorem chuVandermonde {S : Type*} [CommRing S] [BinomialRing S] (a b : S) (n : ℕ) :
-    Ring.choose (a + b) n = ∑ ij ∈ Finset.HasAntidiagonal.antidiagonal n, Ring.choose a ij.1 * Ring.choose b ij.2 :=
+    Ring.choose (a + b) n = ∑ ij ∈ antidiagonal n, Ring.choose a ij.1 * Ring.choose b ij.2 :=
   Ring.add_choose_eq n (Commute.all a b)
 
 end FPS

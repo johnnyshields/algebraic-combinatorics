@@ -103,7 +103,7 @@ theorem alternatingSum_superset_eq_iverson_a {P Q : Finset α} (hPQ : P ⊆ Q) :
     simp only [coe_powerset] at hx hy
     have hxP : Disjoint x P := disjoint_of_subset_left hx disjoint_sdiff_self_left
     have hyP : Disjoint y P := disjoint_of_subset_left hy disjoint_sdiff_self_left
-    try simp only at hxy
+    simp only at hxy
     -- From P ∪ x = P ∪ y and disjointness, we get x = y
     have hx' : (P ∪ x) \ P = x := by rw [union_comm, union_sdiff_self, hxP.sdiff_eq_left]
     have hy' : (P ∪ y) \ P = y := by rw [union_comm, union_sdiff_self, hyP.sdiff_eq_left]

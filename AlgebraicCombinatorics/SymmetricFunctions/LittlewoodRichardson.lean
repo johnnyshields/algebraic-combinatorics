@@ -3297,7 +3297,7 @@ private lemma matchedFreeK_row_card {lam mu : Fin N → ℕ}
       exact hcond
   -- The goal after Fintype.card_subtype is: #{x | x ∈ {c | ...}} = ...
   convert h_filter_eq using 1
-  on_goal 1 => first | rfl | simp
+  on_goal 1 => rfl
   
   -- Step 4: Show the bijection between cells and columns in S
   have h_col_mem : ∀ c ∈ cells, c.val.2 ∈ S := by
@@ -3413,7 +3413,7 @@ private lemma matchedFreeKSucc_row_card {lam mu : Fin N → ℕ}
   -- The goal after Fintype.card_subtype is: #{x | x ∈ {c | ...}} = ...
   -- This is definitionally equal to (Finset.univ.filter (fun c => c.val.1 = i ∧ isMatchedFreeKSucc T k hk c)).card
   convert h_filter_eq using 1
-  on_goal 1 => first | rfl | simp
+  on_goal 1 => rfl
   
   -- Step 4: Show the bijection between cells and columns in S
   have h_col_mem : ∀ c ∈ cells, c.val.2 ∈ S := by
@@ -5098,7 +5098,7 @@ lemma benderKnuth_row_weak {lam mu : Fin N → ℕ}
                   have hmu_le : mu ⟨c₂.val.1.val - 1, by omega⟩ ≤ c₁_above.val.2 := by
                     have h_fin_eq : (⟨c₂.val.1.val - 1, by omega⟩ : Fin N) = c₁_above.val.1 := by
                       ext
-                      try simp only
+                      simp only
                       omega
                     rw [h_fin_eq]
                     exact le_of_lt hc₁a_prop.1
@@ -6080,7 +6080,7 @@ private lemma matchedFreeKPrefix_row_card {lam mu : Fin N → ℕ}
       exact hcond
   -- The goal after Fintype.card_subtype is: #{x | x ∈ {c | ...}} = ...
   convert h_filter_eq using 1
-  on_goal 1 => first | rfl | simp
+  on_goal 1 => rfl
   
   -- Step 5: Show the bijection between cells and columns in S
   have h_col_mem : ∀ c ∈ cells, c.val.2 ∈ S := by
@@ -7071,7 +7071,7 @@ private lemma freeKSuccCountPrefix_benderKnuthPrefixMatching {lam mu : Fin N →
       else T c := by
     intro c
     unfold benderKnuthPrefixMatching
-    try simp only
+    simp only
   -- Define the key sets
   let A : Set {c : Fin N × ℕ // c ∈ skewYoungDiagram lam mu} := 
     {c | c.val.1 = i ∧ isMatchedFreeKSuccPrefix T k hk j c}
@@ -7361,7 +7361,7 @@ private lemma row_forced_propagates_left' {lam mu : Fin N → ℕ}
     apply Fin.ext
     have h1' : k.val < (T c₁_below).val := h_col_strict
     have h2' : (T c₁_below).val ≤ k.val + 1 := h_row_weak
-    try simp only
+    simp only
     omega
   exact ⟨hc₁_k, c₁_below, rfl, rfl, h_c₁b_ksucc⟩
 
@@ -11222,7 +11222,7 @@ lemma alternant_sum_non_yamanouchi_eq_zero {lam mu nu : Fin N → ℕ}
     -- Extract T' = T from the subtype equality
     have hT'_eq_T : stembridgeInvolution nu T hT hnotYam = T := by
       have h := congrArg Subtype.val heq
-      try simp only at h
+      simp only at h
       exact h
     -- Use the new lemma: if T' = T, then the alternant is zero
     have hzero := stembridgeInvolution_fixed_point_implies_alternant_zero (R := R) nu hnu T hT hnotYam hT'_eq_T
@@ -11234,7 +11234,7 @@ lemma alternant_sum_non_yamanouchi_eq_zero {lam mu nu : Fin N → ℕ}
     intro ⟨T, hT, hnotYam⟩ _
     simp only [g]
     apply Subtype.ext
-    try simp only
+    simp only
     have invol := stembridgeInvolution_involutive hlam hmu nu hnu T hT hnotYam
     exact invol.choose_spec.choose_spec
 
@@ -11423,7 +11423,7 @@ private def contentColGeqEquiv (lam : Fin N → ℕ) (j : ℕ) (_hj : j > 0) (i 
     ⟨col, by
       simp only [restrictedCellsRow, Set.mem_setOf_eq]
       simp only [skewYoungDiagram, zeroTuple, Pi.zero_apply, Set.mem_setOf_eq] at hmem
-      try simp only at heq
+      simp only at heq
       refine ⟨hmem.2, hmem.1.1, ?_⟩
       rw [← heq]
       exact hmem.1.2⟩
@@ -11435,7 +11435,7 @@ private def contentColGeqEquiv (lam : Fin N → ℕ) (j : ℕ) (_hj : j > 0) (i 
   left_inv := by
     intro ⟨⟨⟨row, col⟩, hmem⟩, heq⟩
     simp only [contentColGeqType] at *
-    try simp only at heq
+    simp only at heq
     simp only [Subtype.mk.injEq]
     ext <;> simp only [heq]
   right_inv := by

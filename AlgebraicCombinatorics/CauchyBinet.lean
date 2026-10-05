@@ -321,7 +321,7 @@ private lemma orderEmbOfFin_symm {n m : ℕ} (S : Finset (Fin m)) (hcard : S.car
     S.orderEmbOfFin hcard ((S.orderIsoOfFin hcard).symm ⟨x, hx⟩) = x := by
   have h := (S.orderIsoOfFin hcard).apply_symm_apply ⟨x, hx⟩
   have h' : ((S.orderIsoOfFin hcard) ((S.orderIsoOfFin hcard).symm ⟨x, hx⟩)).val = x := by rw [h]
-  simp only [Finset.orderEmbOfFin]; convert h' <;> rfl
+  simp only [Finset.orderEmbOfFin]; convert h' ; rfl
 
 /-- Helper: orderIsoOfFin.symm applied to orderEmbOfFin gives back the original index. -/
 private lemma orderIsoOfFin_symm_orderEmbOfFin {n m : ℕ} (S : Finset (Fin m)) (hcard : S.card = n) 
@@ -1741,7 +1741,7 @@ lemma extractAlpha_prefixFinset_val {n k : ℕ} (hk : k ≤ n)
     exact h1
   have h := prefixFinset_orderIsoOfFin_symm hk ⟨σ (P.orderEmbOfFin rfl j), hσj_mem⟩
   simp only [Fin.ext_iff] at h
-  convert h using 1 <;> rfl
+  convert h using 1 ; rfl
 
 /-- For prefixFinset^c, extractBeta j gives the position of σ(Pᶜ.orderEmbOfFin j) in Pᶜ.
     Since Pᶜ = {k, ..., n-1}, this equals (σ(k+j)).val - k. -/
@@ -1756,7 +1756,7 @@ lemma extractBeta_prefixFinset_val {n k : ℕ} (hk : k ≤ n)
   have hσj_mem : σ (Pᶜ.orderEmbOfFin rfl j) ∈ Pᶜ := sigma_orderEmb_compl_mem_of_imageFinset P P σ hσ j
   have h := prefixFinset_compl_orderIsoOfFin_symm hk ⟨σ (Pᶜ.orderEmbOfFin rfl j), hσj_mem⟩
   simp only [P] at h
-  convert h using 1 <;> rfl
+  convert h using 1 ; rfl
 
 /-- Equivalence between Fin k and the subtype {i : Fin n // i.val < k}. -/
 noncomputable def finEquivSubtypeLt (n k : ℕ) (hk : k ≤ n) : 
@@ -3050,7 +3050,6 @@ lemma constructSigma_extract {n : ℕ} (P Q : Finset (Fin n)) (hcard : P.card = 
     -- First simplify P.orderEmbOfFin rfl ((P.orderIsoOfFin rfl).symm ⟨x, hx⟩) = x
     have hPiso : P.orderEmbOfFin rfl ((P.orderIsoOfFin rfl).symm ⟨x, hx⟩) = x := by
       have h := (P.orderIsoOfFin rfl).apply_symm_apply ⟨x, hx⟩
-      try simp only at h
       exact congrArg Subtype.val h
     -- Now we need Q.orderEmbOfFin _ ((Q.orderIsoOfFin _).symm ⟨σ x, _⟩) = σ x
     have hσx_mem : σ x ∈ Q := by
@@ -3059,7 +3058,6 @@ lemma constructSigma_extract {n : ℕ} (P Q : Finset (Fin n)) (hcard : P.card = 
       exact ⟨x, hx, rfl⟩
     have hQiso : Q.orderEmbOfFin (hcard.symm ▸ rfl) ((Q.orderIsoOfFin hcard.symm).symm ⟨σ x, hσx_mem⟩) = σ x := by
       have h := (Q.orderIsoOfFin hcard.symm).apply_symm_apply ⟨σ x, hσx_mem⟩
-      try simp only at h
       exact congrArg Subtype.val h
     -- Now connect the pieces
     simp only [hPiso]
@@ -3071,7 +3069,6 @@ lemma constructSigma_extract {n : ℕ} (P Q : Finset (Fin n)) (hcard : P.card = 
     simp only [extractBeta, Equiv.ofBijective_apply]
     have hPCiso : Pᶜ.orderEmbOfFin rfl ((Pᶜ.orderIsoOfFin rfl).symm ⟨x, hxC⟩) = x := by
       have h := (Pᶜ.orderIsoOfFin rfl).apply_symm_apply ⟨x, hxC⟩
-      try simp only at h
       exact congrArg Subtype.val h
     have hcardC : Pᶜ.card = Qᶜ.card := by simp only [Finset.card_compl, Fintype.card_fin, hcard]
     have hσx_mem : σ x ∈ Qᶜ := by
@@ -3085,7 +3082,6 @@ lemma constructSigma_extract {n : ℕ} (P Q : Finset (Fin n)) (hcard : P.card = 
       exact hx hy
     have hQCiso : Qᶜ.orderEmbOfFin hcardC.symm ((Qᶜ.orderIsoOfFin hcardC.symm).symm ⟨σ x, hσx_mem⟩) = σ x := by
       have h := (Qᶜ.orderIsoOfFin hcardC.symm).apply_symm_apply ⟨σ x, hσx_mem⟩
-      try simp only at h
       exact congrArg Subtype.val h
     simp only [hPCiso]
     simp only [Fin.val_inj]
@@ -3240,7 +3236,7 @@ theorem sum_perms_mapping_eq_det_product {n : ℕ} (A B : Matrix (Fin n) (Fin n)
         (extractAlpha_constructSigma P Q hcard p.1 p.2 (constructSigma_imageFinset P Q hcard p.1 p.2))
         (extractBeta_constructSigma P Q hcard p.1 p.2 (constructSigma_imageFinset P Q hcard p.1 p.2))
     · intro σ hσ
-      try simp only
+      simp only
       rw [constructSigma_extract P Q hcard σ (h_mem σ hσ)]
   
   rw [h_eq]

@@ -825,7 +825,7 @@ lemma coeff_mul_one_plus_higher {g f : PowerSeries K} {n : ℕ}
   have huniq : ∀ p ∈ Finset.HasAntidiagonal.antidiagonal k, p.2 = 0 → p = (k, 0) := by
     intro ⟨a, b⟩ hab hb
     simp only [Finset.HasAntidiagonal.mem_antidiagonal] at hab
-    try simp only at hb
+    simp only at hb
     subst hb
     simp only [add_zero] at hab
     simp [hab]

@@ -1705,10 +1705,10 @@ omit [Algebra ℚ K] [BinomialRing K] [CharZero K] in
     Proof: Since 2m is even, (-1)^j = (-1)^i for any (i,j) with i+j=2m.
     The sum becomes ∑_{i=0}^{2m} (-1)^i = 1 (by alternating_sum_range_even). -/
 private lemma alternating_sum_antidiagonal_even (m : ℕ) :
-    ∑ x ∈ Finset.HasAntidiagonal.antidiagonal (2*m), ((-1 : K) ^ x.2 : K) = 1 := by
+    ∑ x ∈ antidiagonal (2*m), ((-1 : K) ^ x.2 : K) = 1 := by
   have h2m_even : (-1 : K)^(2*m) = 1 := by rw [pow_mul]; simp
   -- Key: for x ∈ antidiagonal (2m), we have (-1)^x.2 = (-1)^x.1
-  have h_sym : ∀ x ∈ Finset.HasAntidiagonal.antidiagonal (2*m), ((-1 : K) ^ x.2 : K) = (-1)^x.1 := by
+  have h_sym : ∀ x ∈ antidiagonal (2*m), ((-1 : K) ^ x.2 : K) = (-1)^x.1 := by
     intro x hx
     rw [Finset.HasAntidiagonal.mem_antidiagonal] at hx
     have h : (-1 : K)^x.1 * (-1)^x.2 = (-1)^(x.1 + x.2) := by rw [← pow_add]
@@ -1729,7 +1729,7 @@ private lemma alternating_sum_antidiagonal_even (m : ℕ) :
       rw [h1, h2]
   rw [sum_congr rfl h_sym]
   -- Convert to range sum and apply the helper lemma
-  have h_range : ∑ x ∈ Finset.HasAntidiagonal.antidiagonal (2*m), ((-1 : K) ^ x.1 : K) =
+  have h_range : ∑ x ∈ antidiagonal (2*m), ((-1 : K) ^ x.1 : K) =
                  ∑ i ∈ range (2*m + 1), ((-1 : K) ^ i : K) := by
     rw [← Finset.Nat.sum_antidiagonal_eq_sum_range_succ (f := fun i _ => ((-1 : K) ^ i : K))]
   rw [h_range]
@@ -1909,7 +1909,7 @@ theorem key_product_identity' (n : K) :
           | inl he => rw [Even.neg_one_pow he]; ring
           | inr ho => rw [Odd.neg_one_pow ho]; ring
         rw [← pow_mul] at h; convert h using 1
-      have h_transform : ∀ x ∈ Finset.HasAntidiagonal.antidiagonal (m + m),
+      have h_transform : ∀ x ∈ antidiagonal (m + m),
           (-1 : K) ^ x.1 * Ring.choose (-n) x.1 * Ring.choose (-n) x.2 =
           (-1 : K) ^ x.2 * Ring.choose (n + x.1 - 1) x.1 * Ring.choose (n + x.2 - 1) x.2 := by
         intro x hx
@@ -1941,7 +1941,7 @@ theorem key_product_identity' (n : K) :
         rw [Ring.choose_neg]
         simp only [Units.smul_def, Int.negOnePow_def, zsmul_eq_mul]
         rw [h_negOnePow_cast]
-      have h_sum_eq_coeff : ∑ x ∈ Finset.HasAntidiagonal.antidiagonal (m + m),
+      have h_sum_eq_coeff : ∑ x ∈ antidiagonal (m + m),
           (-1 : K) ^ x.2 * Ring.choose (n + x.1 - 1) x.1 * Ring.choose (n + x.2 - 1) x.2 =
           coeff (m + m) (f' * g') := by
         rw [coeff_mul]
@@ -2111,7 +2111,7 @@ theorem key_product_identity' (n : K) :
               if k = 0 then 1 else (choosePoly k).comp (Polynomial.X + Polynomial.C ((k : ℚ) - 1))
             -- The polynomial for coeffFn:
             let coeffFnPoly : Polynomial ℚ :=
-              ∑ x ∈ Finset.HasAntidiagonal.antidiagonal (m.succ + m.succ),
+              ∑ x ∈ antidiagonal (m.succ + m.succ),
                 ((-1 : ℚ) ^ x.2) • (shiftedChoosePoly x.1 * shiftedChoosePoly x.2)
             -- The polynomial for chooseFn:
             let chooseFnPoly : Polynomial ℚ :=
@@ -2205,7 +2205,7 @@ theorem key_product_identity' (n : K) :
       -- Proof: pair (i, k-i) with (k-i, i). Their sum involves (-1)^i + (-1)^{k-i}.
       -- Since k is odd, i and k-i have opposite parities, so (-1)^i + (-1)^{k-i} = 0.
       have hodd : Odd k := Nat.not_even_iff_odd.mp hk
-      have hsym : ∀ x ∈ Finset.HasAntidiagonal.antidiagonal k,
+      have hsym : ∀ x ∈ antidiagonal k,
           (-1 : K) ^ x.1 * Ring.choose (-n) x.1 * Ring.choose (-n) x.2 +
           (-1 : K) ^ x.2 * Ring.choose (-n) x.2 * Ring.choose (-n) x.1 = 0 := by
         intro x hx
@@ -2225,21 +2225,21 @@ theorem key_product_identity' (n : K) :
            = Ring.choose (-n) x.1 * Ring.choose (-n) x.2 * ((-1) ^ x.1 + (-1) ^ x.2) := by ring
          _ = Ring.choose (-n) x.1 * Ring.choose (-n) x.2 * 0 := by rw [h]
          _ = 0 := by ring
-      have hswap : ∑ x ∈ Finset.HasAntidiagonal.antidiagonal k, (-1 : K) ^ x.1 * Ring.choose (-n) x.1 * Ring.choose (-n) x.2 =
-                   ∑ x ∈ Finset.HasAntidiagonal.antidiagonal k, (-1 : K) ^ x.2 * Ring.choose (-n) x.2 * Ring.choose (-n) x.1 := by
+      have hswap : ∑ x ∈ antidiagonal k, (-1 : K) ^ x.1 * Ring.choose (-n) x.1 * Ring.choose (-n) x.2 =
+                   ∑ x ∈ antidiagonal k, (-1 : K) ^ x.2 * Ring.choose (-n) x.2 * Ring.choose (-n) x.1 := by
         have := @Finset.Nat.sum_antidiagonal_swap K _ k
           (fun p => (-1 : K) ^ p.2 * Ring.choose (-n) p.2 * Ring.choose (-n) p.1)
         simp only [Prod.fst_swap, Prod.snd_swap] at this
         exact this
-      have h2sum : 2 * ∑ x ∈ Finset.HasAntidiagonal.antidiagonal k, (-1 : K) ^ x.1 * Ring.choose (-n) x.1 * Ring.choose (-n) x.2 = 0 := by
-        calc 2 * ∑ x ∈ Finset.HasAntidiagonal.antidiagonal k, (-1 : K) ^ x.1 * Ring.choose (-n) x.1 * Ring.choose (-n) x.2
-            = ∑ x ∈ Finset.HasAntidiagonal.antidiagonal k, (-1 : K) ^ x.1 * Ring.choose (-n) x.1 * Ring.choose (-n) x.2 +
-              ∑ x ∈ Finset.HasAntidiagonal.antidiagonal k, (-1 : K) ^ x.1 * Ring.choose (-n) x.1 * Ring.choose (-n) x.2 := by ring
-          _ = ∑ x ∈ Finset.HasAntidiagonal.antidiagonal k, (-1 : K) ^ x.1 * Ring.choose (-n) x.1 * Ring.choose (-n) x.2 +
-              ∑ x ∈ Finset.HasAntidiagonal.antidiagonal k, (-1 : K) ^ x.2 * Ring.choose (-n) x.2 * Ring.choose (-n) x.1 := by rw [hswap]
-          _ = ∑ x ∈ Finset.HasAntidiagonal.antidiagonal k, ((-1 : K) ^ x.1 * Ring.choose (-n) x.1 * Ring.choose (-n) x.2 +
+      have h2sum : 2 * ∑ x ∈ antidiagonal k, (-1 : K) ^ x.1 * Ring.choose (-n) x.1 * Ring.choose (-n) x.2 = 0 := by
+        calc 2 * ∑ x ∈ antidiagonal k, (-1 : K) ^ x.1 * Ring.choose (-n) x.1 * Ring.choose (-n) x.2
+            = ∑ x ∈ antidiagonal k, (-1 : K) ^ x.1 * Ring.choose (-n) x.1 * Ring.choose (-n) x.2 +
+              ∑ x ∈ antidiagonal k, (-1 : K) ^ x.1 * Ring.choose (-n) x.1 * Ring.choose (-n) x.2 := by ring
+          _ = ∑ x ∈ antidiagonal k, (-1 : K) ^ x.1 * Ring.choose (-n) x.1 * Ring.choose (-n) x.2 +
+              ∑ x ∈ antidiagonal k, (-1 : K) ^ x.2 * Ring.choose (-n) x.2 * Ring.choose (-n) x.1 := by rw [hswap]
+          _ = ∑ x ∈ antidiagonal k, ((-1 : K) ^ x.1 * Ring.choose (-n) x.1 * Ring.choose (-n) x.2 +
               (-1 : K) ^ x.2 * Ring.choose (-n) x.2 * Ring.choose (-n) x.1) := by rw [← Finset.sum_add_distrib]
-          _ = ∑ x ∈ Finset.HasAntidiagonal.antidiagonal k, 0 := by
+          _ = ∑ x ∈ antidiagonal k, 0 := by
               apply Finset.sum_congr rfl; intro x hx; exact hsym x hx
           _ = 0 := by simp
       have h2_inv : IsUnit (2 : K) := by

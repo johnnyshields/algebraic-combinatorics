@@ -79,7 +79,7 @@ The indeterminate x is defined as x = (δ_{i,1})_{i∈ℤ}, i.e., the sequence w
 position 1 and 0 elsewhere.
 
 In Mathlib, Laurent polynomials are represented as `LaurentPolynomial K = AddMonoidAlgebra K ℤ`,
-which is exactly `ℤ →₀ K` (finitely supported functions from ℤ to K). This matches the
+whose coefficient function `p.coeff : ℤ →₀ K` is finitely supported. This matches the
 definition of essentially finite families.
 -/
 
@@ -90,7 +90,7 @@ variable {K : Type*} [CommRing K]
 /-- **Definition of Laurent polynomials** (Definition def.fps.laure.laupol)
 
 A Laurent polynomial over K is an essentially finite family (aₙ)_{n∈ℤ}, represented
-in Mathlib as `LaurentPolynomial K = AddMonoidAlgebra K ℤ = ℤ →₀ K`.
+in Mathlib as `LaurentPolynomial K = AddMonoidAlgebra K ℤ`, with coefficients `p.coeff : ℤ →₀ K`.
 
 This definition captures the key property: only finitely many coefficients are nonzero. -/
 abbrev LaurentPoly (K : Type*) [CommRing K] := K[T;T⁻¹]
@@ -193,7 +193,7 @@ theorem laurentPoly_support_finite (p : LaurentPoly K) :
   ext n
   simp [Finsupp.mem_support_iff]
 
-/-- The support of a Laurent polynomial is exactly the Finsupp support. -/
+/-- The support of a Laurent polynomial is exactly the support of its coefficient `Finsupp`. -/
 theorem laurentPoly_support_eq (p : LaurentPoly K) :
     {n : ℤ | p.coeff n ≠ 0} = ↑p.coeff.support := by
   ext n
@@ -230,7 +230,7 @@ theorem laurentPoly_single_eq_C_mul_T (k : ℤ) (a : K) :
 
 /-- **Laurent polynomials are the essentially finite families**.
 
-This theorem explicitly states that Laurent polynomials (as `ℤ →₀ K`) are exactly
+This theorem explicitly states that Laurent polynomials (via `p.coeff : ℤ →₀ K`) are exactly
 the essentially finite families (aₙ)_{n∈ℤ}, formalizing Definition def.fps.laure.laupol. -/
 theorem laurentPoly_iff_essentiallyFinite (f : ℤ → K) :
     (∃ p : LaurentPoly K, ∀ n, p.coeff n = f n) ↔ {n : ℤ | f n ≠ 0}.Finite := by
@@ -637,7 +637,7 @@ def laurentPolynomialToSeries (p : K[T;T⁻¹]) : LaurentSeries K where
   coeff := p.coeff
   isPWO_support' := by
     apply Set.Finite.isPWO
-    exact Finsupp.finite_support p.coeff
+    exact Finsupp.hasFiniteSupport p.coeff
 
 /-- The embedding is additive. -/
 theorem laurentPolynomialToSeries_add (p q : K[T;T⁻¹]) :

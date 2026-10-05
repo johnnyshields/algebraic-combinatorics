@@ -2040,7 +2040,7 @@ private lemma wordProd_descendingWordRec_at_i (i k : ℕ) (h : i + k ≤ n - 1) 
     simp only [wordProd] at ih'
     rw [ih']
     have happ := simpleTransposition_apply_self' ⟨i + k, by omega⟩ hn
-    convert happ using 2 <;> first | rfl | omega | (ext <;> simp <;> omega) | (simp <;> omega) | simp
+    convert happ using 2
 
 /-- wordProd of descending word fixes positions outside [i, i+k] -/
 private lemma wordProd_descendingWordRec_outside (i k : ℕ) (h : i + k ≤ n - 1) (hn : n > 0)
@@ -2082,7 +2082,7 @@ private lemma wordProd_descendingWordRec_shift (i k j : ℕ) (h : i + k ≤ n - 
       simp only [wordProd] at hrest
       rw [hrest]
       have happ := simpleTransposition_apply_succ' ⟨i + k, by omega⟩ hn
-      convert happ using 2 <;> first | rfl | omega | (ext <;> simp <;> omega) | (simp <;> omega) | simp
+      convert happ using 2 ; rfl
     · have hj2' : j ≤ k := by omega
       have ih' := ih j (by omega : i + k ≤ n - 1) hj1 hj2'
       simp only [wordProd] at ih'
@@ -2091,7 +2091,7 @@ private lemma wordProd_descendingWordRec_shift (i k j : ℕ) (h : i + k ≤ n - 
       have hne2 : (i + j - 1) ≠ i + k + 1 := by omega
       have happ := simpleTransposition_apply_ne' ⟨i + k, by omega⟩ ⟨i + j - 1, by omega⟩ hn
         (by simp; omega) (by simp; omega)
-      convert happ using 2 <;> first | rfl | omega | (ext <;> simp <;> omega) | (simp <;> omega) | simp
+      convert happ using 2
 
 /-- The finRange-based definition of descending word -/
 private def descendingWordFinRange (i k : ℕ) (h : i + k ≤ n - 1) : Word n :=
@@ -2903,7 +2903,6 @@ private lemma position_after_blocks (σ : Perm (Fin n)) (p : Fin n) (j : ℕ) (h
     · -- Block j shifts q down by 1
       have hshift_cond : jfin.val < q.val ∧ q.val ≤ jfin.val + lehmerEntry σ jfin := by
         have := hshift_iff.mpr hσ
-        try simp only at this
         rw [hq_eq]; exact this
       have hblock_shift : wordProd (lehmerBlock σ jfin) q = ⟨q.val - 1, by omega⟩ := by
         exact block_shift_condition σ jfin q hn hshift_cond.1 hshift_cond.2
@@ -2958,7 +2957,6 @@ private lemma position_after_blocks (σ : Perm (Fin n)) (p : Fin n) (j : ℕ) (h
         intro hcond
         have hcontra : σ jfin > σ p := by
           have := hshift_iff.mp
-          try simp only at this
           apply this
           rw [← hq_eq]; exact hcond
         exact hσ hcontra

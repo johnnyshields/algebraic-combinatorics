@@ -238,7 +238,7 @@ def equivMathlib (n : ℕ) : Composition.ofSize n ≃ _root_.Composition n where
     simp only [size_eq_sum_toBlocks, toBlocks_ofBlocks]
     exact c.blocks_sum⟩
   left_inv := fun ⟨α, hα⟩ => by
-    try simp only
+    simp only
     congr 1
     exact ofBlocks_toBlocks α
   right_inv := fun c => by
@@ -269,11 +269,11 @@ def equivMathlibFiltered (n k : ℕ) :
     simp only [len, ofBlocks, List.length_pmap]
     exact hc⟩
   left_inv := fun ⟨α, hα⟩ => by
-    try simp only
+    simp only
     congr 1
     exact ofBlocks_toBlocks α
   right_inv := fun ⟨c, hc⟩ => by
-    try simp only
+    simp only
     apply Subtype.ext
     simp only [_root_.Composition.ext_iff]
     exact toBlocks_ofBlocks c.blocks c.blocks_pos
@@ -409,7 +409,7 @@ lemma compositionToFinset_card_add_one (n : ℕ) (hn : 0 < n) (c : _root_.Compos
   simp only [compositionToFinset, Equiv.trans_apply, compositionEquiv]
   have h := compositionAsSetEquiv_card_eq_length_sub_one n hn c.toCompositionAsSet
   convert h using 1
-  all_goals first | rfl | exact c.toCompositionAsSet_length.symm
+  exact c.toCompositionAsSet_length.symm
 
 /--
 **Theorem thm.fps.comps.num-comps-n-k** (using Mathlib's Composition):
@@ -791,11 +791,11 @@ def ofSizeIntoParts_equiv (n k : ℕ) : ofSizeIntoParts n k ≃ ofSizeIntoParts'
     rw [h1, ← list_sum_eq_finset_sum, hsize]⟩
   invFun := fun ⟨f, hsum⟩ => ⟨ofFun f, by simp [size, ofFun_sum, hsum], by simp [len, ofFun_length]⟩
   left_inv := fun ⟨α, hsize, hlen⟩ => by
-    try simp only
+    simp only
     apply Subtype.ext
     exact ofFun_toFun α k hlen
   right_inv := fun ⟨f, hsum⟩ => by
-    try simp only
+    simp only
     apply Subtype.ext
     exact toFun_ofFun f
 
@@ -1311,13 +1311,13 @@ private def binaryStringEquiv (k n : ℕ) :
     · intro h
       simp only [h, ↓reduceIte]⟩
   left_inv := fun ⟨f, hf⟩ => by
-    try simp only
+    simp only
     congr 1
     ext i
     simp only [Finset.mem_filter, Finset.mem_univ, true_and]
     rcases fin2_eq_zero_or_one (f i) with h | h <;> simp [h]
   right_inv := fun ⟨s, hs⟩ => by
-    try simp only
+    simp only
     congr 1
     ext i
     simp only [Finset.mem_filter, Finset.mem_univ, true_and]

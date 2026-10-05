@@ -481,7 +481,7 @@ consider the underlying undirected graph structure. -/
     (def.perm.notations (c)) -/
 def cycleDigraph {n : ℕ} (σ : Sn n) : SimpleGraph (Fin n) where
   Adj i j := i ≠ j ∧ (σ i = j ∨ σ j = i)
-  symm := ⟨fun i j ⟨hne, h⟩ => ⟨hne.symm, h.symm⟩⟩
+  symm := ⟨fun _ _ ⟨hne, h⟩ => ⟨hne.symm, h.symm⟩⟩
   loopless := ⟨fun _ ⟨hn, _⟩ => hn rfl⟩
 
 /-- Two vertices are adjacent in the cycle digraph iff one maps to the other under σ. -/
@@ -671,7 +671,7 @@ private noncomputable def swapToPair {X : Type*} [DecidableEq X] (σ : Equiv.Per
 private lemma swapToPair_spec {X : Type*} [DecidableEq X] (σ : Equiv.Perm X) (hσ : σ.IsSwap) :
     (swapToPair σ hσ).1 ≠ (swapToPair σ hσ).2 ∧ σ = Equiv.swap (swapToPair σ hσ).1 (swapToPair σ hσ).2 := by
   unfold swapToPair
-  try simp only
+  simp only
   exact Classical.choose_spec (Classical.choose_spec hσ)
 
 /-- The number of transpositions (2-cycles) in S_X is C(|X|, 2).

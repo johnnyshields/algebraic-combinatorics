@@ -782,7 +782,7 @@ theorem sum_reindex (n : ℕ) (_hn : n > 0) :
                Finset.HasAntidiagonal.mem_antidiagonal]
     constructor
     · intro ⟨⟨k, hk_ne, hk_le⟩, hp⟩
-      try simp only at hp
+      simp only at hp
       rw [← hp]
       refine ⟨?_, ?_, ?_⟩
       · omega
@@ -809,7 +809,7 @@ theorem sum_reindex (n : ℕ) (_hn : n > 0) :
   · rw [← Finset.sum_neg_distrib]
     apply Finset.sum_congr rfl
     intro ⟨k, hk_ne, hk_le⟩ _
-    try simp only
+    simp only
     rw [pentagonalCoeff_of_pentagonalNumber']
     rw [neg_mul_eq_mul_neg, mul_comm]
     congr 1
@@ -3249,7 +3249,7 @@ lemma partitionGenFunEval_constantCoeff (a : ℤ) (u : ℚ) (ha : a > 0) :
   have hp0_unique : ∀ p : Σ n, Nat.Partition n, p.1 = 0 → p = p0 := by
     intro p hp
     obtain ⟨n, part⟩ := p
-    try simp only at hp
+    simp only at hp
     subst hp
     congr 1
     ext
@@ -3315,7 +3315,7 @@ lemma partitionGenFunEval_constantCoeff (a : ℤ) (u : ℚ) (ha : a > 0) :
       constructor
       · intro hp
         obtain ⟨m, part⟩ := p
-        try simp only at hp
+        simp only at hp
         subst hp
         exact ⟨part, rfl⟩
       · rintro ⟨part, rfl⟩
@@ -3782,7 +3782,7 @@ private lemma summable_partitionGenFunEval_terms (a : ℤ) (u : ℚ) (ha : a > 0
     constructor
     · intro hp
       obtain ⟨m, part⟩ := p
-      try simp only at hp
+      simp only at hp
       subst hp
       exact ⟨part, rfl⟩
     · rintro ⟨part, rfl⟩
@@ -4085,7 +4085,6 @@ private lemma coeff_geom_factor (u : ℚ) (k : ℕ) (e : ℕ) (he : e > 0) (d : 
       rw [← pow_mul]
     rw [h1, PowerSeries.coeff_X_pow]
     ring_nf
-    try (split_ifs with h <;> ring)
   simp_rw [hterm]
   by_cases hd : e ∣ d
   · obtain ⟨q, rfl⟩ := hd
@@ -4474,7 +4473,7 @@ lemma partitionGenFunEval_mul_eulerProductParam (a : ℤ) (u : ℚ) (ha : a > 0)
           constructor
           · intro hp
             obtain ⟨m, part⟩ := p
-            try simp only at hp
+            simp only at hp
             subst hp
             exact ⟨part, rfl⟩
           · rintro ⟨part, rfl⟩
@@ -4606,7 +4605,7 @@ lemma partitionGenFunEval_mul_eulerProductParam (a : ℤ) (u : ℚ) (ha : a > 0)
               split_ifs at hp with h
               · simp only [Set.mem_range]
                 obtain ⟨m, part⟩ := p
-                try simp only at h
+                simp only at h
                 subst h
                 exact ⟨part, rfl⟩
               · exact absurd rfl hp)
@@ -4620,7 +4619,7 @@ lemma partitionGenFunEval_mul_eulerProductParam (a : ℤ) (u : ℚ) (ha : a > 0)
             simp only [Finset.mem_image, Finset.mem_univ, true_and, not_exists] at hp
             split_ifs with h
             · obtain ⟨m, part⟩ := p
-              try simp only at h
+              simp only at h
               subst h
               exact absurd rfl (hp part)
             · rfl
@@ -5162,7 +5161,7 @@ lemma finset_prod_param_aZ (a b : ℤ) (u v : ℚ) (P : Finset ℕ) :
     (∏ n ∈ P, aZ n) = 
       (u^(∑ n ∈ P, (2*n + 1)) * v^P.card : ℚ) • 
       PowerSeries.X ^ (∑ n ∈ P, ((2*n + 1) * a + b).toNat) := by
-  try simp only
+  simp only
   induction P using Finset.induction_on with
   | empty => simp
   | @insert a s ha ih =>
@@ -5182,7 +5181,7 @@ lemma finset_prod_param_aZInv (a b : ℤ) (u v : ℚ) (N : Finset ℕ) :
     (∏ n ∈ N, aZInv n) = 
       (u^(∑ n ∈ N, (2*n + 1)) * v⁻¹^N.card : ℚ) • 
       PowerSeries.X ^ (∑ n ∈ N, ((2*n + 1) * a - b).toNat) := by
-  try simp only
+  simp only
   induction N using Finset.induction_on with
   | empty => simp
   | @insert a s ha ih =>
@@ -5206,7 +5205,7 @@ lemma double_sum_term_param_explicit (a b : ℤ) (u v : ℚ) (hv : v ≠ 0) (P N
     (∏ n ∈ P, aZ n) * (∏ n ∈ N, aZInv n) = 
       (u^(∑ n ∈ P, (2*n + 1) + ∑ n ∈ N, (2*n + 1)) * v^((P.card : ℤ) - N.card) : ℚ) • 
       PowerSeries.X ^ (∑ n ∈ P, ((2*n + 1) * a + b).toNat + ∑ n ∈ N, ((2*n + 1) * a - b).toNat) := by
-  try simp only
+  simp only
   rw [finset_prod_param_aZ, finset_prod_param_aZInv]
   rw [smul_mul_smul_comm]
   congr 1
@@ -5293,7 +5292,7 @@ lemma factorZ_sub_one_eq (a b : ℤ) (u v : ℚ) (k : ℕ) :
     let coeff1 := u^(2*k + 1) * v
     ((1 : ℚ⟦X⟧) + (coeff1 : ℚ) • PowerSeries.X ^ exp1) - 1 =
     (u^(2*k + 1) * v : ℚ) • PowerSeries.X ^ ((2*k + 1) * a + b).toNat := by
-  try simp only
+  simp only
   have h_exp : ((2 * (↑k + 1 : ℤ) - 1) * a + b).toNat = ((2*k + 1) * a + b).toNat := by
     congr 1; ring
   rw [h_exp]
@@ -5306,7 +5305,7 @@ lemma factorZInv_sub_one_eq (a b : ℤ) (u v : ℚ) (k : ℕ) :
     let coeff2 := u^(2*k + 1) * v⁻¹
     ((1 : ℚ⟦X⟧) + (coeff2 : ℚ) • PowerSeries.X ^ exp2) - 1 =
     (u^(2*k + 1) * v⁻¹ : ℚ) • PowerSeries.X ^ ((2*k + 1) * a - b).toNat := by
-  try simp only
+  simp only
   have h_exp : ((2 * (↑k + 1 : ℤ) - 1) * a - b).toNat = ((2*k + 1) * a - b).toNat := by
     congr 1; ring
   rw [h_exp]
@@ -6524,7 +6523,7 @@ lemma intermediateState_eq_jump (ell : ℤ) (parts : List ℕ) (i : ℕ) (hi : i
   have h_levels_eq : (intermediateState ell parts (i + 1) hi).levels = 
       ((intermediateState ell parts i (le_of_lt hi)).jump (ell - 1 - i) (parts.get ⟨i, hi⟩) hp hpq hq).levels := by
     unfold intermediateState jump
-    try simp only
+    simp only
     -- Use intermediateStateLevels_succ
     rw [intermediateStateLevels_succ ell parts i hi hparts_pos hsorted]
   -- States with equal levels are equal
@@ -6560,7 +6559,7 @@ theorem excitedState_reachable (ell : ℤ) {n : ℕ} (mu : Nat.Partition n) :
     -- For a partition with 0 parts, excitedStateLevels = {p | p < ell} = groundState.levels
     have h_levels_eq : (excitedState ell mu).levels = (groundState ell).levels := by
       unfold excitedState groundState excitedStateLevels
-      try simp only
+      simp only
       have h' : (mu.parts.sort (· ≥ ·)).length = 0 := h
       simp only [h', Nat.cast_zero, sub_zero]
       ext p
@@ -6666,7 +6665,7 @@ theorem excitedState_reachable_with_total (ell : ℤ) {n : ℕ} (mu : Nat.Partit
       exact h_sum.symm
     have h_levels_eq : (excitedState ell mu).levels = (groundState ell).levels := by
       unfold excitedState groundState excitedStateLevels
-      try simp only
+      simp only
       have h' : (mu.parts.sort (· ≥ ·)).length = 0 := h
       simp only [h', Nat.cast_zero, sub_zero]
       ext p
@@ -7816,7 +7815,7 @@ theorem intPartitionToState_bijective :
   constructor
   -- Injectivity: different (ℓ, μ) pairs give different states
   · intro ⟨ℓ₁, n₁, μ₁⟩ ⟨ℓ₂, n₂, μ₂⟩ h
-    try simp only at h
+    simp only at h
     simp only [Prod.mk.injEq, Sigma.mk.inj_iff]
     -- First show ℓ₁ = ℓ₂ using parnum
     have h_parnum : (excitedState ℓ₁ μ₁).parnum = (excitedState ℓ₂ μ₂).parnum := by rw [h]
@@ -8693,7 +8692,7 @@ theorem finsetPair_sum_eq_partition_sum_param (a b : ℤ) (ha : a > 0) (hab : a 
       rw [Set.Finite.mem_toFinset, Set.mem_setOf_eq] at hp ⊢
       simp only [expFn]
       have h := exponent_preserved_by_bijection a b ha hab P N
-      try simp only at h
+      simp only at h
       rw [fromFinsetPair_energy, fromFinsetPair_parnum]
       have h_exp := exponent_formula a b ha hab P N
       rw [← h_exp]
@@ -8726,7 +8725,7 @@ theorem finsetPair_sum_eq_partition_sum_param (a b : ℤ) (ha : a > 0) (hab : a 
           have := fromFinsetPair_parnum (toP S) (toN S)
           rw [fromFinsetPair_toP_toN] at this
           exact this.symm
-        try simp only at h
+        simp only at h
         simp only [expFn] at hS
         rw [h_energy, h_parnum] at h
         rw [← hS, h]
@@ -8773,7 +8772,7 @@ theorem finsetPair_sum_eq_partition_sum_param (a b : ℤ) (ha : a > 0) (hab : a 
         -- Need to show: (a * (S.parnum.natAbs^2 + 2*n) + b * S.parnum).toNat = d
         -- h says: S.energy = S.parnum.natAbs^2 + 2*n
         -- hS says: (a * S.energy + b * S.parnum).toNat = d
-        try simp only
+        simp only
         convert hS using 2
         simp only [h, Nat.cast_add, Nat.cast_mul, Nat.cast_ofNat, Nat.cast_pow]
       · simp only; exact hμ
@@ -10417,7 +10416,7 @@ lemma sum_intPartition_eq_sum_states (d : ℕ)
     rw [Set.Finite.mem_toFinset] at hS
     simp only [Set.mem_setOf_eq, statesWithEnergy] at hS
     obtain ⟨⟨ℓ, n, μ⟩, hμ⟩ := State.intPartitionToState_bijective.2 S
-    try simp only at hμ
+    simp only at hμ
     use (ℓ, ⟨n, μ⟩)
     refine ⟨?_, ?_⟩
     · rw [Set.Finite.mem_toFinset]
@@ -11962,7 +11961,7 @@ private lemma sum_antidiagonal_eq_tsum_pentagonal (n : ℕ) :
                Finset.HasAntidiagonal.mem_antidiagonal]
     constructor
     · intro ⟨⟨k, hk⟩, hp⟩
-      try simp only at hp
+      simp only at hp
       rw [← hp]
       refine ⟨?_, ?_, ?_⟩
       · omega
@@ -11987,7 +11986,7 @@ private lemma sum_antidiagonal_eq_tsum_pentagonal (n : ℕ) :
   rw [Finset.sum_image]
   · apply Finset.sum_congr rfl
     intro ⟨k, hk⟩ _
-    try simp only
+    simp only
     rw [pentagonalCoeff_of_pentagonalNumber]
   · intro ⟨k1, hk1⟩ _ ⟨k2, hk2⟩ _ heq
     simp only [Prod.mk.injEq] at heq

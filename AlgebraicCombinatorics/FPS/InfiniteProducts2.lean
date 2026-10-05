@@ -232,7 +232,7 @@ example : ¬ EssentiallyFinite (fun n : ℕ => if n % 2 = 0 then 0 else 1) := by
   have hinf : {n : ℕ | n % 2 = 1}.Infinite := by
     apply Set.infinite_of_injective_forall_mem (f := fun n => 2 * n + 1)
     · intro m n hmn
-      try simp only at hmn
+      simp only at hmn
       omega
     · intro n
       simp only [Set.mem_setOf_eq]
@@ -408,11 +408,11 @@ lemma summable_prod_of_summable_discrete [DiscreteTopology K] {α β : Type*}
     intro n
     have := (PowerSeries.WithPiTopology.summable_iff_summable_coeff (f := g)).mp hg n
     exact this.finite_support_of_discreteTopology
-  let S := ⋃ (p : ℕ × ℕ) (_ : p ∈ Finset.HasAntidiagonal.antidiagonal d), 
+  let S := ⋃ (p : ℕ × ℕ) (_ : p ∈ antidiagonal d), 
       (Function.support (fun a => coeff p.1 (f a))) ×ˢ 
       (Function.support (fun b => coeff p.2 (g b)))
   have hS_finite : S.Finite := by
-    apply Set.Finite.biUnion (Finset.HasAntidiagonal.antidiagonal d).finite_toSet
+    apply Set.Finite.biUnion (antidiagonal d).finite_toSet
     intro ⟨i, j⟩ _
     exact Set.Finite.prod (hf_coeff i) (hg_coeff j)
   apply hS_finite.subset
@@ -612,7 +612,6 @@ theorem prod_tsum_eq_tsum_prod_finset [DiscreteTopology K] {n : ℕ} {S : Fin n 
   induction n with
   | zero =>
     -- Base case: empty product = 1, sum over unique element = 1
-    try simp only [Fintype.univ_ofIsEmpty, Finset.prod_empty]
     haveI : Unique ((i : Fin 0) → S i) := Pi.uniqueOfIsEmpty S
     simp
   | succ n ih =>
@@ -723,7 +722,6 @@ theorem prod_tsum_eq_tsum_prod_finset_discrete [DiscreteTopology K] {n : ℕ} {S
     ∑' f : (i : Fin n) → S i, ∏ i : Fin n, p i (f i) := by
   induction n with
   | zero =>
-    try simp only [Fintype.univ_ofIsEmpty, Finset.prod_empty]
     haveI : Unique ((i : Fin 0) → S i) := Pi.uniqueOfIsEmpty S
     simp
   | succ n ih =>
@@ -1342,7 +1340,7 @@ lemma multipliable_tsum_fiber_discrete [DiscreteTopology K]
     obtain ⟨g, hg⟩ := h_prod_eq
     rw [hg] at hs
     rw [coeff_mul] at hs
-    have h_all_zero : ∀ x ∈ Finset.HasAntidiagonal.antidiagonal n,
+    have h_all_zero : ∀ x ∈ antidiagonal n,
         coeff x.1 (∑' k : { k : S i // k ≠ 0 }, p i k.val) * coeff x.2 g = 0 := by
       intro x hx
       have hx1_le : x.1 ≤ n := by simp only [Finset.HasAntidiagonal.mem_antidiagonal] at hx; omega
@@ -2406,8 +2404,8 @@ theorem coeff_mul_tprod_one_add_eq_coeff [T2Space K]
     have hcoeff_prod : ∀ k ≤ n, coeff k (∏' i, (1 + f i)) = coeff k (1 : K⟦X⟧) :=
       coeff_tprod_one_add_eq_coeff_one f hmult n horder
     rw [coeff_mul]
-    have h_sum : ∑ x ∈ Finset.HasAntidiagonal.antidiagonal m, coeff x.1 a * coeff x.2 (∏' i, (1 + f i)) =
-        ∑ x ∈ Finset.HasAntidiagonal.antidiagonal m, coeff x.1 a * coeff x.2 1 := by
+    have h_sum : ∑ x ∈ antidiagonal m, coeff x.1 a * coeff x.2 (∏' i, (1 + f i)) =
+        ∑ x ∈ antidiagonal m, coeff x.1 a * coeff x.2 1 := by
       apply Finset.sum_congr rfl
       intro x hx
       have hx2 : x.2 ≤ n := by
@@ -2816,10 +2814,10 @@ theorem binary_product_rule (a : ℕ → K⟦X⟧) (ha : Summable a) [DiscreteTo
       rw [← prod_erase_mul s (fun j => a j) hi, mul_comm]
     rw [h_prod_eq] at hs
     have h_coeff_mul : coeff n (a i * ∏ j ∈ s.erase i, a j) =
-        ∑ p ∈ Finset.HasAntidiagonal.antidiagonal n, coeff p.1 (a i) * coeff p.2 (∏ j ∈ s.erase i, a j) := by
+        ∑ p ∈ antidiagonal n, coeff p.1 (a i) * coeff p.2 (∏ j ∈ s.erase i, a j) := by
       rw [coeff_mul]
     rw [h_coeff_mul] at hs
-    have h_all_zero : ∀ p ∈ Finset.HasAntidiagonal.antidiagonal n, coeff p.1 (a i) * coeff p.2 (∏ j ∈ s.erase i, a j) = 0 := by
+    have h_all_zero : ∀ p ∈ antidiagonal n, coeff p.1 (a i) * coeff p.2 (∏ j ∈ s.erase i, a j) = 0 := by
       intro p hp
       have hp1_le : p.1 ≤ n := by simp only [Finset.HasAntidiagonal.mem_antidiagonal] at hp; omega
       rw [hi_coeff_zero p.1 hp1_le, zero_mul]

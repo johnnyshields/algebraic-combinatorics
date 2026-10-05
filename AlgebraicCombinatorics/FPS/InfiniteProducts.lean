@@ -892,7 +892,7 @@ theorem multipliable_of_union {a : I → PowerSeries R} {J : Set I}
     obtain ⟨⟨y', hy'⟩, _, hy_eq⟩ := hy
     simp only [Set.mem_diff, Set.mem_univ, true_and] at hy'
     rw [← hx_eq, ← hy_eq] at hxy
-    try simp only at hxy
+    simp only at hxy
     rw [hxy] at hx'
     exact hy' hx'
   have hM_prod : ∏ i ∈ MJ' ∪ MIJ', a i = (∏ i ∈ MJ', a i) * (∏ i ∈ MIJ', a i) := by
@@ -974,7 +974,7 @@ theorem tprod_eq_tprod_mul_tprod {a : I → PowerSeries R} {J : Set I}
     obtain ⟨⟨y', hy'⟩, _, hy_eq⟩ := hy
     simp only [Set.mem_diff, Set.mem_univ, true_and] at hy'
     rw [← hx_eq, ← hy_eq] at hxy
-    try simp only at hxy
+    simp only at hxy
     rw [hxy] at hx'
     exact hy' hx'
   have hMJ'_eq : ∏ i ∈ MJ', a i = ∏ i ∈ MJ, a i := by
@@ -2916,7 +2916,7 @@ theorem fubini_prod_invertible {I J : Type*} {a : I × J → PowerSeries R}
     have hf : Function.Bijective f := ⟨
       fun j1 j2 hj => congrArg (fun x => x.val.2) hj,
       fun ⟨⟨i', j⟩, hi'⟩ => ⟨j, by ext; exact hi'.symm; rfl⟩⟩
-    convert multipliable_reindex hf h using 1 <;> rfl
+    convert multipliable_reindex hf h using 1 ; rfl
   · intro j
     have h : Multipliable (fun p : {p : I × J // p.2 = j} => a p) :=
       multipliable_subfamily ha ha_inv {p : I × J | p.2 = j}
@@ -2924,7 +2924,7 @@ theorem fubini_prod_invertible {I J : Type*} {a : I × J → PowerSeries R}
     have hf : Function.Bijective f := ⟨
       fun i1 i2 hi => congrArg (fun x => x.val.1) hi,
       fun ⟨⟨i, j'⟩, hj'⟩ => ⟨i, by ext; rfl; exact hj'.symm⟩⟩
-    convert multipliable_reindex hf h using 1 <;> rfl
+    convert multipliable_reindex hf h using 1 ; rfl
 
 /-!
 ### Approximator Properties

@@ -462,13 +462,13 @@ private lemma endpoint_eq (path : LatticePath) (a : LatticePoint) :
       have h1 : LatticeStep.east ≠ LatticeStep.north := by decide
       simp only [LatticeStep.apply, List.count_cons_self, List.count_cons_of_ne h1]
       specialize ih (a.1 + 1, a.2)
-      convert ih using 2 <;> first | rfl | simp | (funext p s; cases s <;> simp [LatticeStep.apply, add_comm])
+      convert ih using 2 <;> first | rfl | simp
       all_goals push_cast; ring
     | north =>
       have h1 : LatticeStep.north ≠ LatticeStep.east := by decide
       simp only [LatticeStep.apply, List.count_cons_self, List.count_cons_of_ne h1]
       specialize ih (a.1, a.2 + 1)
-      convert ih using 2 <;> first | rfl | simp | (funext p s; cases s <;> simp [LatticeStep.apply, add_comm])
+      convert ih using 2 <;> first | rfl | simp
       all_goals push_cast; ring
 
 /-- A path's length equals the sum of east and north step counts. -/
@@ -570,12 +570,14 @@ private lemma endpoint_formula (path : LatticePath) (start : LatticePoint) :
       rw [show LatticeStep.east.apply start = (start.1 + 1, start.2) from rfl, ih,
         List.count_cons_self,
         List.count_cons_of_ne (by decide : LatticeStep.east ≠ LatticeStep.north)]
-      ext <;> simp <;> ring
+      ext <;> simp
+      ring
     | north =>
       rw [show LatticeStep.north.apply start = (start.1, start.2 + 1) from rfl, ih,
         List.count_cons_of_ne (by decide : LatticeStep.north ≠ LatticeStep.east),
         List.count_cons_self]
-      ext <;> simp <;> ring
+      ext <;> simp
+      ring
 
 /-- Helper: characterization of isPathFromTo in terms of step counts. -/
 private lemma isPathFromTo_iff' (path : LatticePath) (a b : LatticePoint) :
@@ -1232,7 +1234,7 @@ lemma firstIntersection_mem_path1 {A A' B B' : LatticePoint}
     (spt : SignedPathTuple2 A A' B B') (h : spt.isIntersecting) :
     firstIntersection spt h ∈ spt.path1.vertices A' := by
   unfold firstIntersection firstIntersectionIdx
-  try simp only
+  simp only
   have hidx := firstIntersectionIdx_lt spt h
   have hfound := @List.findIdx_getElem _ (fun v => decide (v ∈ spt.path1.vertices A'))
                   (spt.path0.vertices A) hidx
@@ -1249,7 +1251,7 @@ private lemma findIdx_le_of_getElem {α : Type*} (l : List α) (p : α → Bool)
     cases hp' : p x with
     | true => simp
     | false =>
-      simp only [cond_false, Bool.false_eq_true, ↓reduceIte]
+      simp only [Bool.false_eq_true, ↓reduceIte]
       cases i with
       | zero =>
         simp only [List.getElem_cons_zero] at hp
@@ -1293,7 +1295,7 @@ lemma firstIntersection_is_first {A A' B B' : LatticePoint}
       have hle := hfind hcontra
       -- firstIntersectionIdx is defined as findIdx
       unfold firstIntersectionIdx at hi
-      try simp only at hi
+      simp only at hi
       exact Nat.not_lt.mpr hle hi
     simp at hnotfound
     exact hnotfound
@@ -1368,7 +1370,7 @@ private lemma vertices_not_mem_drop_after_findIdx (path : LatticePath) (start : 
     (v : LatticePoint) (hv : v ∈ path.vertices start) :
     let idx := (path.vertices start).findIdx (· == v)
     v ∉ (path.vertices start).drop (idx + 1) := by
-  try simp only
+  simp only
   intro hmem
   have hidx : (path.vertices start).findIdx (· == v) < (path.vertices start).length :=
     List.findIdx_lt_length_of_exists ⟨v, hv, by simp⟩
@@ -1427,7 +1429,7 @@ private lemma findIdx_eq_of_getElem {α : Type*} (l : List α) (p : α → Bool)
     | succ m =>
       subst hn'
       have hpx : p x = false := hmin 0 (by omega)
-      simp only [hpx, cond_false, Bool.false_eq_true, ↓reduceIte]
+      simp only [hpx, Bool.false_eq_true, ↓reduceIte]
       have hm : m < xs.length := by simp at hn; omega
       have hpm : p (xs[m]'hm) = true := by simp only [List.getElem_cons_succ] at hp; exact hp
       have hmin' : ∀ j (hj : j < m), p (xs[j]'(Nat.lt_trans hj hm)) = false := by
@@ -1585,7 +1587,7 @@ private lemma splitPathAt_head_endpoint (path : LatticePath) (start v : LatticeP
     let verts := path.vertices start
     let idx := verts.findIdx (· == v)
     LatticePath.endpoint (path.take idx) start = v := by
-  try simp only
+  simp only
   have hidx : (path.vertices start).findIdx (· == v) < (path.vertices start).length := by
     exact List.findIdx_lt_length_of_exists ⟨v, hv, by simp⟩
   have hget : (path.vertices start)[(path.vertices start).findIdx (· == v)] = v := by
@@ -1605,7 +1607,7 @@ private lemma findIdx_beq_newPath1_eq {A A' B B' : LatticePoint}
     let idx1 := (spt.path1.vertices A').findIdx (· == v)
     let newPath1 := spt.path1.take idx1 ++ spt.path0.drop idx0
     (LatticePath.vertices newPath1 A').findIdx (· == v) = idx1 := by
-  try simp only
+  simp only
   let v := firstIntersection spt h
   let idx0 := firstIntersectionIdx spt h
   let hv1 := firstIntersection_mem_path1 spt h
@@ -1678,7 +1680,7 @@ private lemma findIdx_beq_newPath0_eq {A A' B B' : LatticePoint}
     let idx1 := (spt.path1.vertices A').findIdx (· == v)
     let newPath0 := spt.path0.take idx0 ++ spt.path1.drop idx1
     (LatticePath.vertices newPath0 A).findIdx (· == v) = idx0 := by
-  try simp only
+  simp only
   let v := firstIntersection spt h
   let idx0 := firstIntersectionIdx spt h
   let hv0 := firstIntersection_mem_path0 spt h
@@ -1753,7 +1755,7 @@ private lemma findIdx_beq_eq_firstIntersectionIdx {A A' B B' : LatticePoint}
     let v := firstIntersection spt h
     let idx0 := firstIntersectionIdx spt h
     (spt.path0.vertices A).findIdx (· == v) = idx0 := by
-  try simp only
+  simp only
   have hidx0_lt := firstIntersectionIdx_lt spt h
   -- We need to show findIdx (· == v) = idx0
   -- This follows because v = verts0[idx0] and for j < idx0, verts0[j] ≠ v
@@ -1823,7 +1825,7 @@ noncomputable def ipatInvolution {A A' B B' : LatticePoint}
       have hsplit1 := LatticePath.isPathFromTo_take_drop spt.path1 idx1 A' (if spt.toBB' then B' else B) spt.valid1
       have hhead1_eq_v : LatticePath.endpoint head1 A' = v :=
         splitPathAt_head_endpoint spt.path1 A' v hv1
-      try simp only at hsplit1
+      simp only at hsplit1
       rw [hhead1_eq_v] at hsplit1
       have htail1 : LatticePath.isPathFromTo tail1 v (if spt.toBB' then B' else B) := hsplit1.2
       -- newPath0 = head0 ++ tail1 goes A → v → (if spt.toBB' then B' else B)
@@ -1845,7 +1847,7 @@ noncomputable def ipatInvolution {A A' B B' : LatticePoint}
       have hsplit0 := LatticePath.isPathFromTo_take_drop spt.path0 idx0 A (if spt.toBB' then B else B') spt.valid0
       have hhead0_eq_v : LatticePath.endpoint head0 A = v :=
         splitPathAt_head_endpoint spt.path0 A v hv0
-      try simp only at hsplit0
+      simp only at hsplit0
       rw [hhead0_eq_v] at hsplit0
       have htail0 : LatticePath.isPathFromTo tail0 v (if spt.toBB' then B else B') := hsplit0.2
       -- newPath1 = head1 ++ tail0 goes A' → v → (if spt.toBB' then B else B')
@@ -1873,7 +1875,7 @@ theorem ipatInvolution_isIntersecting {A A' B B' : LatticePoint}
     (ipatInvolution spt h).isIntersecting := by
   -- The first intersection point v is still shared after exchanging tails
   unfold ipatInvolution SignedPathTuple2.isIntersecting
-  try simp only
+  simp only
   -- Use the deterministic first intersection point
   let v := firstIntersection spt h
   let hv0 := firstIntersection_mem_path0 spt h
@@ -2020,7 +2022,7 @@ lemma firstIntersection_preserved {A A' B B' : LatticePoint}
   -- Key: findIdx (· == v) on path0.vertices equals idx0 = firstIntersectionIdx
   have h_path0_eq : (ipatInvolution spt h).path0 = newPath0 := by
     unfold ipatInvolution
-    try simp only
+    simp only
     -- The LHS uses findIdx (· == v) for indices, we need to show these equal idx0 and idx1
     have h_idx0_eq := findIdx_beq_eq_firstIntersectionIdx spt h
     -- idx1 is defined as findIdx (· == v) on path1.vertices, so it's definitionally equal
@@ -2029,7 +2031,7 @@ lemma firstIntersection_preserved {A A' B B' : LatticePoint}
     rfl
   have h_path1_eq : (ipatInvolution spt h).path1 = newPath1 := by
     unfold ipatInvolution
-    try simp only
+    simp only
     have h_idx0_eq := findIdx_beq_eq_firstIntersectionIdx spt h
     simp only [h_idx0_eq]
     rfl

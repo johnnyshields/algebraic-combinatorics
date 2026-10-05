@@ -1156,7 +1156,7 @@ These are implemented in Mathlib as `MvPolynomial.mul_esymm_eq_sum` and related 
     Label: thm.sf.NG -/
 theorem newtonGirard_esymm (k : ℕ) :
     (k : P K N) * e k = (-1 : P K N) ^ (k + 1) *
-      ∑ a ∈ Finset.HasAntidiagonal.antidiagonal k with a.1 < k, (-1 : P K N) ^ a.1 * e a.1 * p a.2 :=
+      ∑ a ∈ antidiagonal k with a.1 < k, (-1 : P K N) ^ a.1 * e a.1 * p a.2 :=
   mul_esymm_eq_sum (Fin N) K k
 
 /-- Newton-Girard formula: recurrence for power sums.
@@ -1165,7 +1165,7 @@ theorem newtonGirard_esymm (k : ℕ) :
     Label: thm.sf.NG -/
 theorem newtonGirard_psum (k : ℕ) (hk : 0 < k) :
     p (K := K) (N := N) k = (-1 : P K N) ^ (k + 1) * (k : P K N) * e k -
-      ∑ a ∈ Finset.HasAntidiagonal.antidiagonal k with a.1 ∈ Set.Ioo 0 k, (-1 : P K N) ^ a.fst * e a.1 * p a.2 :=
+      ∑ a ∈ antidiagonal k with a.1 ∈ Set.Ioo 0 k, (-1 : P K N) ^ a.fst * e a.1 * p a.2 :=
   psum_eq_mul_esymm_sub_sum (Fin N) K k hk
 
 section WithDecidableEq'
@@ -1188,7 +1188,7 @@ private lemma coeff_one_sub_X_mul_C (i : Fin N) (a : ℕ) :
     | zero =>
       rw [PowerSeries.coeff_mul]
       simp only [PowerSeries.coeff_X, PowerSeries.coeff_C]
-      rw [show Finset.HasAntidiagonal.antidiagonal 1 = {(0, 1), (1, 0)} by decide]
+      rw [show antidiagonal 1 = {(0, 1), (1, 0)} by decide]
       simp only [Finset.sum_pair (by decide : (0, 1) ≠ (1, 0))]
       simp
     | succ a =>
@@ -1221,10 +1221,10 @@ lemma geom_series_mul_one_sub (i : Fin N) :
   | succ n =>
     simp only [if_neg (Nat.succ_ne_zero n)]
     simp_rw [coeff_one_sub_X_mul_C]
-    have h0 : (0, n + 1) ∈ Finset.HasAntidiagonal.antidiagonal (n + 1) := by simp [Finset.HasAntidiagonal.mem_antidiagonal]
-    have h1 : (1, n) ∈ Finset.HasAntidiagonal.antidiagonal (n + 1) := by simp [Finset.HasAntidiagonal.mem_antidiagonal]; omega
-    rw [← Finset.sum_filter_add_sum_filter_not (Finset.HasAntidiagonal.antidiagonal (n + 1)) (fun x => x.1 = 0)]
-    have hfilt0 : Finset.filter (fun x => x.1 = 0) (Finset.HasAntidiagonal.antidiagonal (n + 1)) = {(0, n + 1)} := by
+    have h0 : (0, n + 1) ∈ antidiagonal (n + 1) := by simp [Finset.HasAntidiagonal.mem_antidiagonal]
+    have h1 : (1, n) ∈ antidiagonal (n + 1) := by simp [Finset.HasAntidiagonal.mem_antidiagonal]; omega
+    rw [← Finset.sum_filter_add_sum_filter_not (antidiagonal (n + 1)) (fun x => x.1 = 0)]
+    have hfilt0 : Finset.filter (fun x => x.1 = 0) (antidiagonal (n + 1)) = {(0, n + 1)} := by
       ext x
       simp only [Finset.mem_filter, Finset.HasAntidiagonal.mem_antidiagonal, Finset.mem_singleton, Prod.ext_iff]
       constructor
@@ -1233,9 +1233,9 @@ lemma geom_series_mul_one_sub (i : Fin N) :
     rw [hfilt0, Finset.sum_singleton]
     simp only [if_true, one_mul]
     rw [← Finset.sum_filter_add_sum_filter_not
-        (Finset.filter (fun x => ¬x.1 = 0) (Finset.HasAntidiagonal.antidiagonal (n + 1))) (fun x => x.1 = 1)]
+        (Finset.filter (fun x => ¬x.1 = 0) (antidiagonal (n + 1))) (fun x => x.1 = 1)]
     have hfilt1 : Finset.filter (fun x => x.1 = 1)
-        (Finset.filter (fun x => ¬x.1 = 0) (Finset.HasAntidiagonal.antidiagonal (n + 1))) = {(1, n)} := by
+        (Finset.filter (fun x => ¬x.1 = 0) (antidiagonal (n + 1))) = {(1, n)} := by
       ext x
       simp only [Finset.mem_filter, Finset.HasAntidiagonal.mem_antidiagonal, Finset.mem_singleton, Prod.ext_iff]
       constructor
@@ -1244,7 +1244,7 @@ lemma geom_series_mul_one_sub (i : Fin N) :
     rw [hfilt1, Finset.sum_singleton]
     simp only [if_neg (by decide : (1 : ℕ) ≠ 0), if_true, neg_mul]
     have hrest : ∑ x ∈ Finset.filter (fun x => ¬x.1 = 1)
-        (Finset.filter (fun x => ¬x.1 = 0) (Finset.HasAntidiagonal.antidiagonal (n + 1))),
+        (Finset.filter (fun x => ¬x.1 = 0) (antidiagonal (n + 1))),
         (if x.1 = 0 then 1 else if x.1 = 1 then -(X i : P K N) else 0) * (X i) ^ x.2 = 0 := by
       apply Finset.sum_eq_zero
       intro x hx
@@ -1532,7 +1532,7 @@ theorem newtonGirard_eh (n : ℕ) (hn : 0 < n) :
     rw [coeff_E p.1, coeff_H p.2]
 
   -- Simplify: for j > N, e_j = 0, so we can drop the condition
-  have h_simp : ∀ p ∈ Finset.HasAntidiagonal.antidiagonal n,
+  have h_simp : ∀ p ∈ antidiagonal n,
       (if p.1 ≤ N then (-1 : P K N) ^ p.1 * e (K := K) (N := N) p.1 else 0) * h (K := K) (N := N) p.2 =
       (-1 : P K N) ^ p.1 * e (K := K) (N := N) p.1 * h (K := K) (N := N) p.2 := by
     intro p _
@@ -1545,7 +1545,7 @@ theorem newtonGirard_eh (n : ℕ) (hn : 0 < n) :
 
   -- Convert antidiagonal sum to range sum
   have h_eq : ∑ j ∈ range (n + 1), (-1 : P K N) ^ j * e (K := K) (N := N) j * h (K := K) (N := N) (n - j) =
-      ∑ x ∈ Finset.HasAntidiagonal.antidiagonal n, (-1 : P K N) ^ x.1 * e (K := K) (N := N) x.1 * h (K := K) (N := N) x.2 := by
+      ∑ x ∈ antidiagonal n, (-1 : P K N) ^ x.1 * e (K := K) (N := N) x.1 * h (K := K) (N := N) x.2 := by
     rw [← Finset.Nat.sum_antidiagonal_eq_sum_range_succ
         (fun i j => (-1 : P K N) ^ i * e (K := K) (N := N) i * h (K := K) (N := N) j)]
   rw [h_eq, h_coeff]
@@ -1965,17 +1965,17 @@ theorem hsymm_genfunc [DecidableEq (Fin N)] :
     rw [h_zero, e_zero]; ring
   · -- Case n > 0
     simp only [ite_false, hn.ne']
-    have hsum : ∑ p ∈ Finset.HasAntidiagonal.antidiagonal n, h (K := K) (N := N) p.1 *
+    have hsum : ∑ p ∈ antidiagonal n, h (K := K) (N := N) p.1 *
         (if p.2 ≤ N then (-1 : P K N) ^ p.2 * e (K := K) (N := N) p.2 else 0) =
-        ∑ p ∈ Finset.HasAntidiagonal.antidiagonal n, (if p.2 ≤ N then h (K := K) (N := N) p.1 *
+        ∑ p ∈ antidiagonal n, (if p.2 ≤ N then h (K := K) (N := N) p.1 *
           (-1 : P K N) ^ p.2 * e (K := K) (N := N) p.2 else 0) := by
       apply sum_congr rfl
       intro p _
       split_ifs with h <;> ring
     rw [hsum]
-    have hdrop : ∑ p ∈ Finset.HasAntidiagonal.antidiagonal n, (if p.2 ≤ N then h (K := K) (N := N) p.1 *
+    have hdrop : ∑ p ∈ antidiagonal n, (if p.2 ≤ N then h (K := K) (N := N) p.1 *
         (-1 : P K N) ^ p.2 * e (K := K) (N := N) p.2 else 0) =
-        ∑ p ∈ Finset.HasAntidiagonal.antidiagonal n, h (K := K) (N := N) p.1 *
+        ∑ p ∈ antidiagonal n, h (K := K) (N := N) p.1 *
           (-1 : P K N) ^ p.2 * e (K := K) (N := N) p.2 := by
       apply sum_congr rfl
       intro p _
@@ -2760,7 +2760,7 @@ private lemma esymm_triangular_poly_aux (psumAeval' : MvPolynomial (Fin N) K →
       obtain ⟨u, hu⟩ := h_inv
       
       -- The antidiagonal set and its split
-      let S := (Finset.HasAntidiagonal.antidiagonal (k + 1)).filter (fun a => a.1 < k + 1)
+      let S := (antidiagonal (k + 1)).filter (fun a => a.1 < k + 1)
       let S' := S.filter (fun a => 0 < a.1)
       
       have h_mem_0 : (0, k + 1) ∈ S := by simp [S, Finset.HasAntidiagonal.mem_antidiagonal]
@@ -3057,7 +3057,7 @@ theorem psum_algebraicIndependent :
         | zero => use 1; simp only [esymm_zero, map_one]
         | succ k =>
           have newton := mul_esymm_eq_sum (Fin N) K (k + 1)
-          let S := (Finset.HasAntidiagonal.antidiagonal (k + 1)).filter (fun a => a.1 < k + 1)
+          let S := (antidiagonal (k + 1)).filter (fun a => a.1 < k + 1)
           have h_term : ∀ a ∈ S, ∃ Q : MvPolynomial (Fin N) K, 
               psumAeval' Q = (-1 : P K N) ^ a.1 * esymm (Fin N) K a.1 * psum (Fin N) K a.2 := by
             intro a ha
@@ -3344,7 +3344,7 @@ private lemma esymm_mem_psumRange (k : ℕ) (hk : k ≤ N) : esymm (Fin N) K k �
       have newton := mul_esymm_eq_sum (Fin N) K (k + 1)
       -- The RHS is in psumRange
       have h_rhs_mem : (-1 : P K N) ^ (k + 1 + 1) *
-          ∑ a ∈ Finset.HasAntidiagonal.antidiagonal (k + 1) with a.1 < k + 1,
+          ∑ a ∈ antidiagonal (k + 1) with a.1 < k + 1,
             (-1) ^ a.1 * esymm (Fin N) K a.1 * psum (Fin N) K a.2 ∈ psumRange := by
         apply Subalgebra.mul_mem
         · exact Subalgebra.pow_mem _ (Subalgebra.neg_mem _ (Subalgebra.one_mem _)) _
@@ -3370,7 +3370,7 @@ private lemma esymm_mem_psumRange (k : ℕ) (hk : k ≤ N) : esymm (Fin N) K k �
       obtain ⟨u, hu⟩ := h_inv
       have h_esymm_eq : esymm (Fin N) K (k + 1) =
           (↑u⁻¹ : K) • ((-1 : P K N) ^ (k + 1 + 1) *
-            ∑ a ∈ Finset.HasAntidiagonal.antidiagonal (k + 1) with a.1 < k + 1,
+            ∑ a ∈ antidiagonal (k + 1) with a.1 < k + 1,
               (-1) ^ a.1 * esymm (Fin N) K a.1 * psum (Fin N) K a.2) := by
         have h1 : (u : K) • esymm (Fin N) K (k + 1) = (k + 1 : ℕ) • esymm (Fin N) K (k + 1) := by
           simp only [Algebra.smul_def, MvPolynomial.algebraMap_eq, MvPolynomial.C_eq_coe_nat, hu]

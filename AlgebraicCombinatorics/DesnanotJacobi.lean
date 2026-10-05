@@ -1490,7 +1490,7 @@ private lemma card_pairs_lt {m : ℕ} (P : Finset (Fin m)) :
         simp [hkj.2.ne]
     · intro ⟨k1, j1⟩ hkj1 ⟨k2, j2⟩ hkj2 heq
       simp only [mem_filter, mem_product] at hkj1 hkj2
-      try simp only at heq
+      simp only at heq
       have h1 : k1 ∈ ({k2, j2} : Finset (Fin m)) := by rw [← heq]; simp
       have h2 : j1 ∈ ({k2, j2} : Finset (Fin m)) := by rw [← heq]; simp
       simp only [mem_insert, mem_singleton] at h1 h2
@@ -1744,7 +1744,6 @@ private noncomputable def restrictToPerm {m : ℕ} (P Q : Finset (Fin m)) (hPQ :
     have hσ2 : σ ↑(eP k2) ∈ Q := hσ' (eP k2) (Finset.coe_mem _)
     have h1 : (eQ.symm ⟨σ (eP k1), hσ1⟩).val = (eQ.symm ⟨σ (eP k2), hσ2⟩).val := by
       have := congrArg Fin.val hk
-      try simp only at this
       exact this
     have h2 : eQ.symm ⟨σ (eP k1), hσ1⟩ = eQ.symm ⟨σ (eP k2), hσ2⟩ := Fin.ext h1
     have h3 : (⟨σ (eP k1), hσ1⟩ : Q) = ⟨σ (eP k2), hσ2⟩ := eQ.symm.injective h2
@@ -1862,7 +1861,7 @@ private noncomputable def permsMappingEquiv {m : ℕ} (P Q : Finset (Fin m))
       simp only [PermFinset.permsMapping, Finset.mem_filter, Finset.mem_univ, true_and]
       exact constructPermFromPair_image P Q hPQ τ ρ⟩
   left_inv := fun ⟨σ, hσ⟩ => by
-    try simp only
+    simp only
     -- Need to show: constructPermFromPair P Q hPQ (restrictToPerm ...) (restrictToPermCompl ...) = σ
     have hσ' : PermFinset.imageFinset σ P = Q := by simp only [PermFinset.permsMapping, Finset.mem_filter] at hσ; exact hσ.2
     ext x
@@ -1903,7 +1902,7 @@ private noncomputable def permsMappingEquiv {m : ℕ} (P Q : Finset (Fin m))
       rw [← Finset.coe_orderIsoOfFin_apply Qᶜ rfl]
       simp only [hspec]
   right_inv := fun ⟨τ, ρ⟩ => by
-    try simp only
+    simp only
     -- Need to show: (restrictToPerm ..., restrictToPermCompl ...) = (τ, ρ)
     -- This requires showing both components are equal
     have hPcQc : Pᶜ.card = Qᶜ.card := by rw [Finset.card_compl, Finset.card_compl, hPQ]
@@ -2102,7 +2101,7 @@ private lemma sign_relabel_eq {m : ℕ} (P Q : Finset (Fin m)) (hPQ : P.card = Q
       rw [h_ePsum_symm, Equiv.sumCongr_apply, Sum.map_inl, finSumEquivOfFinset_inl]
       rw [hx_eq]
       have h := relabel_eq_sortP_sortQ_inv' P Q hPQ k
-      try simp only at h
+      simp only at h
       rw [← h]
       rfl
     · -- x ∈ Pᶜ case
@@ -2119,7 +2118,7 @@ private lemma sign_relabel_eq {m : ℕ} (P Q : Finset (Fin m)) (hPQ : P.card = Q
       rw [h_ePsum_symm, Equiv.sumCongr_apply, Sum.map_inr, finSumEquivOfFinset_inr]
       rw [hx_eq]
       have h := relabel_eq_sortP_sortQ_inv_compl' P Q hPQ hPcQc k
-      try simp only at h
+      simp only at h
       rw [← h]
       rfl
   -- Compute sign using the equality
@@ -2172,7 +2171,7 @@ private lemma permsMappingEquiv_sign_spec {m : ℕ} (P Q : Finset (Fin m)) (hPQ 
   4. Combining: sign(σ) = sign(τ) * sign(ρ) * sign(sortP) * sign(sortQ)
                        = sign(sortP) * sign(sortQ) * sign(τ) * sign(ρ) (commutative)
   -/
-  try simp only
+  simp only
   -- Get τ and ρ from the equivalence
   set pair := (permsMappingEquiv P Q hPQ) ⟨σ, hσ⟩ with hpair
   obtain ⟨τ, ρ⟩ := pair
@@ -2254,7 +2253,7 @@ private lemma sign_decomposition' {m : ℕ} (P Q : Finset (Fin m)) (hPQ : P.card
       (Equiv.Perm.sign ((permsMappingEquiv P Q hPQ) ⟨σ, hσ⟩).1 : ℤ) * 
       (Equiv.Perm.sign ((permsMappingEquiv P Q hPQ) ⟨σ, hσ⟩).2 : ℤ) := by
   have h := sign_decomposition P Q hPQ σ hσ
-  try simp only at h
+  simp only at h
   exact h
 
 /-- Key lemma: constructPermFromPair maps elements of P to elements of Q via τ.
@@ -3196,7 +3195,7 @@ lemma desnanot_jacobi_5x5 (A : Matrix (Fin 5) (Fin 5) R) :
                A 2 3 * (A 3 1 * A 4 2 - A 3 2 * A 4 1)) := by
     have h := det_fin_four' (submatrixRemove A 0 0)
     simp only [submatrixRemove, submatrix_apply] at h ⊢
-    convert h using 2 <;> first | rfl | simp [Fin.succAbove]
+    convert h using 2 <;> rfl
   -- Expand submatrixRemove A (Fin.last 4) (Fin.last 4) (4×4 with rows/cols 0,1,2,3)
   have hll : (submatrixRemove A (Fin.last 4) (Fin.last 4)).det =
       A 0 0 * (A 1 1 * (A 2 2 * A 3 3 - A 2 3 * A 3 2) -
@@ -3213,7 +3212,7 @@ lemma desnanot_jacobi_5x5 (A : Matrix (Fin 5) (Fin 5) R) :
                A 1 2 * (A 2 0 * A 3 1 - A 2 1 * A 3 0)) := by
     have h := det_fin_four' (submatrixRemove A (Fin.last 4) (Fin.last 4))
     simp only [submatrixRemove, submatrix_apply] at h ⊢
-    convert h using 2 <;> first | rfl | simp [Fin.succAbove]
+    convert h using 2 <;> rfl
   -- Expand submatrixRemove A 0 (Fin.last 4) (4×4 with rows 1,2,3,4 and cols 0,1,2,3)
   have h0l : (submatrixRemove A 0 (Fin.last 4)).det =
       A 1 0 * (A 2 1 * (A 3 2 * A 4 3 - A 3 3 * A 4 2) -
@@ -3230,7 +3229,7 @@ lemma desnanot_jacobi_5x5 (A : Matrix (Fin 5) (Fin 5) R) :
                A 2 2 * (A 3 0 * A 4 1 - A 3 1 * A 4 0)) := by
     have h := det_fin_four' (submatrixRemove A 0 (Fin.last 4))
     simp only [submatrixRemove, submatrix_apply] at h ⊢
-    convert h using 2 <;> first | rfl | simp [Fin.succAbove]
+    convert h using 2 <;> rfl
   -- Expand submatrixRemove A (Fin.last 4) 0 (4×4 with rows 0,1,2,3 and cols 1,2,3,4)
   have hl0 : (submatrixRemove A (Fin.last 4) 0).det =
       A 0 1 * (A 1 2 * (A 2 3 * A 3 4 - A 2 4 * A 3 3) -
@@ -3247,7 +3246,7 @@ lemma desnanot_jacobi_5x5 (A : Matrix (Fin 5) (Fin 5) R) :
                A 1 3 * (A 2 1 * A 3 2 - A 2 2 * A 3 1)) := by
     have h := det_fin_four' (submatrixRemove A (Fin.last 4) 0)
     simp only [submatrixRemove, submatrix_apply] at h ⊢
-    convert h using 2 <;> first | rfl | simp [Fin.succAbove]
+    convert h using 2 <;> rfl
   -- Expand the 5×5 determinant
   have hdet : A.det =
       A 0 0 * (A 1 1 * (A 2 2 * (A 3 3 * A 4 4 - A 3 4 * A 4 3) -
@@ -3509,7 +3508,7 @@ lemma submatrixRemove_last_last_det_6x6 (A : Matrix (Fin 6) (Fin 6) R) :
                         A 2 2 * (A 3 0 * A 4 1 - A 3 1 * A 4 0))) := by
   have h := det_fin_five' (submatrixRemove A (Fin.last 5) (Fin.last 5))
   simp only [submatrixRemove, submatrix_apply] at h ⊢
-  convert h using 2 <;> first | rfl | simp [Fin.succAbove]
+  convert h using 2 <;> rfl
 
 -- Note: desnanot_jacobi_6x6 is defined later in the file, after desnanot_jacobi_field,
 -- to avoid circular dependencies. See the lemma below desnanot_jacobi_field.
@@ -3544,7 +3543,7 @@ private def finCornerPerm (m : ℕ) : Fin (m + 2) ≃ Fin 2 ⊕ Fin m where
     | Sum.inr k => ⟨k.val + 1, by omega⟩
   left_inv := by
     intro i
-    try simp only
+    simp only
     split_ifs with h0 hlast
     · simp [h0]
     · simp [hlast]
@@ -5698,7 +5697,7 @@ private lemma submatrix_adjugate_det_pair {m : ℕ} (A : Matrix (Fin m) (Fin m) 
     (A.adjugate.submatrix (P.orderEmbOfFin hPcard) 
                           (fun i => Q.orderEmbOfFin hQcard i)).det = 
       A.adjugate u p * A.adjugate v q - A.adjugate u q * A.adjugate v p := by
-  try simp only
+  simp only
   have hP := orderEmbOfFin_pair u v huv
   have hQ := orderEmbOfFin_pair p q hpq
   rw [det_fin_two]
@@ -5724,7 +5723,7 @@ private lemma submatrix_inv_det_pair {K : Type*} [Field K] {m : ℕ} (A : Matrix
     (A⁻¹.submatrix (P.orderEmbOfFin hPcard)
                    (fun i => Q.orderEmbOfFin hQcard i)).det =
       A⁻¹ u p * A⁻¹ v q - A⁻¹ u q * A⁻¹ v p := by
-  try simp only
+  simp only
   have hP := orderEmbOfFin_pair u v huv
   have hQ := orderEmbOfFin_pair p q hpq
   rw [det_fin_two]
@@ -6038,16 +6037,16 @@ private lemma desnanot_jacobi_direct {m : ℕ} (A : Matrix (Fin (m + 2)) (Fin (m
           have hQpair := orderEmbOfFin_pair p q hpq
           have hP0 : finsetOrderEmb P ⟨0, by rw [hPcard]; omega⟩ = u := by
             simp only [finsetOrderEmb, Function.Embedding.trans_apply, RelIso.coe_toEmbedding]
-            convert hPpair.1 <;> exact rfl
+            convert hPpair.1 ; exact rfl
           have hP1 : finsetOrderEmb P ⟨1, by rw [hPcard]; omega⟩ = v := by
             simp only [finsetOrderEmb, Function.Embedding.trans_apply, RelIso.coe_toEmbedding]
-            convert hPpair.2 <;> exact rfl
+            convert hPpair.2 ; exact rfl
           have hQ0 : finsetOrderEmb Q ⟨0, by rw [hQcard]; omega⟩ = p := by
             simp only [finsetOrderEmb, Function.Embedding.trans_apply, RelIso.coe_toEmbedding]
-            convert hQpair.1 <;> exact rfl
+            convert hQpair.1 ; exact rfl
           have hQ1 : finsetOrderEmb Q ⟨1, by rw [hQcard]; omega⟩ = q := by
             simp only [finsetOrderEmb, Function.Embedding.trans_apply, RelIso.coe_toEmbedding]
-            convert hQpair.2 <;> exact rfl
+            convert hQpair.2 ; exact rfl
           have hreindex : (A''⁻¹.submatrix (finsetOrderEmb P) 
               (fun i => finsetOrderEmb Q (finCongr hPQ i))).det = 
               ((A''⁻¹.submatrix (finsetOrderEmb P) 
@@ -6209,7 +6208,6 @@ theorem desnanot_jacobi_general {m : ℕ} (A : Matrix (Fin (m + 2)) (Fin (m + 2)
        (submatrixRemove A q u).det * (submatrixRemove A p v).det =
        A.det * (submatrixRemove2 A p q u v hpq huv).det := by
     have := congr_arg (fun x => (-1 : R) ^ (p.val + u.val + q.val + v.val) * x) h3
-    try simp only at this
     rw [← mul_assoc, neg_one_sq, one_mul] at this
     rw [← mul_assoc, ← mul_assoc, neg_one_sq, one_mul] at this
     exact this

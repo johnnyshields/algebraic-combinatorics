@@ -2549,8 +2549,8 @@ theorem qBinomial_subspace_count (n k : ℕ) (hn : Module.finrank F V = n) :
       refine prod_bij' (fun i _ => k - 1 - i) (fun j _ => k - 1 - j) ?_ ?_ ?_ ?_ ?_
       · intro i hi; simp only [mem_range] at hi ⊢; omega
       · intro j hj; simp only [mem_range] at hj ⊢; omega
-      · intro i hi; simp only [mem_range] at hi; (try simp only); omega
-      · intro j hj; simp only [mem_range] at hj; (try simp only); omega
+      · intro i hi; simp only [mem_range] at hi; omega
+      · intro j hj; simp only [mem_range] at hj; omega
       · intro i hi
         simp only [mem_range] at hi
         have h1 : k - 1 - i + 1 = k - i := by omega
@@ -2922,7 +2922,7 @@ private noncomputable def conjugatePartition' (m : ℕ) (p : Nat.Partition m) : 
 private lemma conjugatePartition_parts_card' (m : ℕ) (p : Nat.Partition m) :
     (conjugatePartition' m p).parts.card = (partitionToYoungDiagram' m p).rowLen 0 := by
   unfold conjugatePartition'
-  try simp only
+  simp only
   exact transpose_rowLens_length' _
 
 -- If all parts ≤ k, then conjugate has ≤ k parts

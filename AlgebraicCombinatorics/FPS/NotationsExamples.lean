@@ -853,7 +853,7 @@ private lemma one_sub_smul_X_mul_geom (α : ℚ) :
         · simp only [map_sub, PowerSeries.coeff_one, Nat.add_one_ne_zero, ↓reduceIte,
             PowerSeries.coeff_smul, PowerSeries.coeff_X, smul_eq_mul]
           norm_num]
-    have hfilter : (Finset.HasAntidiagonal.antidiagonal n).filter (fun x => x.1 = 0) = {(0, n)} := by
+    have hfilter : (antidiagonal n).filter (fun x => x.1 = 0) = {(0, n)} := by
       ext x
       simp only [Finset.mem_filter, Finset.HasAntidiagonal.mem_antidiagonal, Finset.mem_singleton]
       constructor
@@ -861,9 +861,9 @@ private lemma one_sub_smul_X_mul_geom (α : ℚ) :
         ext <;> omega
       · intro h
         simp [h]
-    rw [← Finset.sum_filter_add_sum_filter_not (Finset.HasAntidiagonal.antidiagonal n) (fun x => x.1 = 0)]
+    rw [← Finset.sum_filter_add_sum_filter_not (antidiagonal n) (fun x => x.1 = 0)]
     simp only [hfilter, Finset.sum_singleton, ↓reduceIte, neg_mul]
-    have hzero : ∑ x ∈ (Finset.HasAntidiagonal.antidiagonal n).filter (fun x => ¬x.1 = 0),
+    have hzero : ∑ x ∈ (antidiagonal n).filter (fun x => ¬x.1 = 0),
         (if x.1 = 0 then -α else 0) * α ^ x.2 = 0 := by
       apply Finset.sum_eq_zero
       intro x hx

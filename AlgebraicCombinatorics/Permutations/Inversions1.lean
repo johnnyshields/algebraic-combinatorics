@@ -996,7 +996,7 @@ private lemma card_typeB_helper (m : ℕ) :
   rw [Finset.card_image_of_injective]
   · simp
   · intro i j hij
-    try simp only at hij
+    simp only at hij
     apply Fin.ext
     by_contra hne
     have h_or : i.val < j.val ∨ j.val < i.val := by
@@ -3382,7 +3382,7 @@ theorem Perm.lehmerCode_preserves_lexLt {n : ℕ} (σ τ : Equiv.Perm (Fin n))
       intro j hj
       have hji : j < k := lt_of_le_of_lt hj hi
       have h_eq_val : (σ j).val = (τ j).val := by
-        try simp only at h_agree
+        simp only at h_agree
         exact Int.ofNat_inj.mp (h_agree j hji)
       exact Fin.ext h_eq_val
     have := lehmerEntry_eq_of_agree_on σ τ i h_agree_le
@@ -3392,14 +3392,14 @@ theorem Perm.lehmerCode_preserves_lexLt {n : ℕ} (σ τ : Equiv.Perm (Fin n))
     have h_agree_fin : ∀ i : Fin n, i < k → σ i = τ i := by
       intro i hi
       have h_eq_val : (σ i).val = (τ i).val := by
-        try simp only at h_agree
+        simp only at h_agree
         exact Int.ofNat_inj.mp (h_agree i hi)
       exact Fin.ext h_eq_val
     have h_lt_fin : σ k < τ k := by
       simp only [Fin.lt_def]
       exact Int.ofNat_lt.mp h_lt
     have := lehmerEntry_lt_of_agree_below_and_lt σ τ k h_agree_fin h_lt_fin
-    try simp only
+    simp only
     exact Int.ofNat_lt.mpr this
 
 /-! ### Generating function for length -/

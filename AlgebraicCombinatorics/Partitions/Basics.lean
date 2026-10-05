@@ -1412,7 +1412,7 @@ theorem partitionCount_genFun :
 theorem partitionCount_genFun_partsLeq (m : ℕ) :
     HasProd (fun k => if k + 1 ≤ m then ∑' j : ℕ, (X : R⟦X⟧) ^ ((k + 1) * j) else 1)
       (PowerSeries.mk fun n => (partsLeqCount m n : R)) := by
-  convert hasProd_powerSeriesMk_card_restricted R (· ≤ m) using 1 <;> rfl
+  convert hasProd_powerSeriesMk_card_restricted R (· ≤ m) using 1 ; rfl
 
 /-- The generating function for partitions with parts ≤ m, expressed as a finite product:
     `∑_{n≥0} p_{parts≤m}(n) x^n = ∏_{k=1}^m (∑_{j≥0} x^{kj})`.
@@ -1470,7 +1470,7 @@ theorem partsLeqCount_eq_coeff (m n : ℕ) :
 theorem partitionCount_genFun_partsIn (I : Set ℕ) [DecidablePred (· ∈ I)] :
     HasProd (fun k => if (k + 1) ∈ I then ∑' j : ℕ, (X : R⟦X⟧) ^ ((k + 1) * j) else 1)
       (PowerSeries.mk fun n => (partsInCount I n : R)) := by
-  convert hasProd_powerSeriesMk_card_restricted R (· ∈ I) using 1 <;> rfl
+  convert hasProd_powerSeriesMk_card_restricted R (· ∈ I) using 1 ; rfl
 
 /-- The infinite product form of the generating function for partitions with parts in I.
     This is the `tprod` version of `partitionCount_genFun_partsIn`.
@@ -1974,7 +1974,7 @@ theorem transpose_transpose {n : ℕ} (p : Partition n) : p.transpose.transpose 
         -- Show that p.transpose.parts = tp
         have h_tp_eq : p.transpose.parts = tp := by
           unfold transpose
-          try simp only
+          simp only
           rw [h_largest]
           -- Need to show the multisets are equal
           have hmap_eq : (Finset.range (sl[0]'h0)).val.map
@@ -2070,7 +2070,7 @@ theorem transpose_transpose {n : ℕ} (p : Partition n) : p.transpose.transpose 
               ⟨(Finset.range (p.transpose.parts.fold max 0)).val.map
                 (fun i => (p.transpose.parts.filter (· > i)).card) |>.filter (· > 0), 
                p.transpose.transpose.parts_pos, p.transpose.transpose.parts_sum⟩ from rfl]
-          try simp only
+          simp only
           rw [h_tp_eq]
           rw [Finset.range_val]
           rw [show Multiset.range tp_largest = ↑(List.range tp_largest) from rfl]
@@ -2111,7 +2111,7 @@ lemma filter_card_pos_of_lt_largest {n : ℕ} (p : Partition n) (i : ℕ)
 theorem transpose_length_eq_largestPart {n : ℕ} (p : Partition n) :
     p.transpose.numParts = p.largestPart := by
   unfold transpose numParts largestPart
-  try simp only
+  simp only
   set largest := p.parts.fold max 0 with h_largest
   set newParts := Multiset.map (fun i => (p.parts.filter (· > i)).card) (range largest).val
   have hall_pos : ∀ x ∈ newParts, x > 0 := by
@@ -2160,7 +2160,7 @@ lemma filter_gt_zero_card_eq {n : ℕ} (p : Partition n) :
 theorem transpose_largestPart_eq_length {n : ℕ} (p : Partition n) :
     p.transpose.largestPart = p.numParts := by
   unfold transpose largestPart numParts
-  try simp only
+  simp only
   by_cases hn : p.parts.fold max 0 = 0
   · -- Case: largest part is 0 (empty partition)
     have h_empty := parts_empty_of_fold_max_zero p hn

@@ -1370,7 +1370,7 @@ def monotoneFunctionsEquivSym (k ℓ : ℕ) :
       · simp
       · intro i hi1 hi2
         simp only [List.get_ofFn]
-        (try simp); (try rfl)
+        rfl
     rw [h1]
     exact Multiset.sort_eq s.val (· ≤ ·)
 

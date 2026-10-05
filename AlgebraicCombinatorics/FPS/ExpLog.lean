@@ -202,7 +202,7 @@ theorem invOnePlusX_mul_one_add_X : invOnePlusX K * (1 + X) = 1 := by
     rw [Nat.sum_antidiagonal_succ']
     simp only [invOnePlusX, coeff_mk, map_add, coeff_one, coeff_X]
     simp only [Nat.succ_ne_zero, ↓reduceIte, zero_add]
-    have hsimp : ∀ x ∈ Finset.HasAntidiagonal.antidiagonal n,
+    have hsimp : ∀ x ∈ antidiagonal n,
         (algebraMap ℚ K) ((-1) ^ x.1) * (if x.2 + 1 = 1 then 1 else 0) =
         if x.2 = 0 then (algebraMap ℚ K) ((-1) ^ x.1) else 0 := by
       intro ⟨i, j⟩ _
@@ -211,10 +211,10 @@ theorem invOnePlusX_mul_one_add_X : invOnePlusX K * (1 + X) = 1 := by
       · have hne : j + 1 ≠ 1 := by omega
         simp only [hne, ite_false, mul_zero, hj]
     rw [sum_congr rfl hsimp]
-    have hsum : ∑ x ∈ Finset.HasAntidiagonal.antidiagonal n, (if x.2 = 0 then (algebraMap ℚ K) ((-1 : ℚ) ^ x.1) else 0) =
+    have hsum : ∑ x ∈ antidiagonal n, (if x.2 = 0 then (algebraMap ℚ K) ((-1 : ℚ) ^ x.1) else 0) =
                 (algebraMap ℚ K) ((-1 : ℚ) ^ n) := by
       rw [← sum_filter]
-      have hfilter : filter (fun x => x.2 = 0) (Finset.HasAntidiagonal.antidiagonal n) = {(n, 0)} := by
+      have hfilter : filter (fun x => x.2 = 0) (antidiagonal n) = {(n, 0)} := by
         ext ⟨i, j⟩
         simp only [mem_filter, Finset.HasAntidiagonal.mem_antidiagonal, mem_singleton, Prod.mk.injEq]
         constructor
@@ -338,7 +338,7 @@ private theorem invOnePlusX_mul_one_add_X' : invOnePlusX K * (1 + X) = 1 := by
     rw [Nat.sum_antidiagonal_succ']
     simp only [invOnePlusX, coeff_mk, map_add, coeff_one, coeff_X]
     simp only [Nat.succ_ne_zero, ↓reduceIte, zero_add]
-    have hsimp : ∀ x ∈ Finset.HasAntidiagonal.antidiagonal n,
+    have hsimp : ∀ x ∈ antidiagonal n,
         (algebraMap ℚ K) ((-1) ^ x.1) * (if x.2 + 1 = 1 then 1 else 0) =
         if x.2 = 0 then (algebraMap ℚ K) ((-1) ^ x.1) else 0 := by
       intro ⟨i, j⟩ _
@@ -347,10 +347,10 @@ private theorem invOnePlusX_mul_one_add_X' : invOnePlusX K * (1 + X) = 1 := by
       · have hne : j + 1 ≠ 1 := by omega
         simp only [hne, ite_false, mul_zero, hj]
     rw [sum_congr rfl hsimp]
-    have hsum : ∑ x ∈ Finset.HasAntidiagonal.antidiagonal n, (if x.2 = 0 then (algebraMap ℚ K) ((-1 : ℚ) ^ x.1) else 0) =
+    have hsum : ∑ x ∈ antidiagonal n, (if x.2 = 0 then (algebraMap ℚ K) ((-1 : ℚ) ^ x.1) else 0) =
                 (algebraMap ℚ K) ((-1 : ℚ) ^ n) := by
       rw [← sum_filter]
-      have hfilter : filter (fun x => x.2 = 0) (Finset.HasAntidiagonal.antidiagonal n) = {(n, 0)} := by
+      have hfilter : filter (fun x => x.2 = 0) (antidiagonal n) = {(n, 0)} := by
         ext ⟨i, j⟩
         simp only [mem_filter, Finset.HasAntidiagonal.mem_antidiagonal, mem_singleton, Prod.mk.injEq]
         constructor
@@ -985,14 +985,14 @@ theorem invOnePlusX_eq_inv [Algebra ℚ R] : invOnePlusX R = (1 + X)⁻¹ := by
     simp [invOnePlusX, coeff_mk]
   | succ n =>
     simp only [invOnePlusX, coeff_mk, Nat.succ_ne_zero, ↓reduceIte]
-    have h0 : (n + 1, 0) ∈ Finset.HasAntidiagonal.antidiagonal (n + 1) := by simp [Finset.HasAntidiagonal.mem_antidiagonal]
+    have h0 : (n + 1, 0) ∈ antidiagonal (n + 1) := by simp [Finset.HasAntidiagonal.mem_antidiagonal]
     rw [Finset.sum_eq_add_sum_sdiff_singleton_of_mem h0]
     simp only [↓reduceIte]
-    have h1' : (n, 1) ∈ Finset.HasAntidiagonal.antidiagonal (n + 1) \ {(n + 1, 0)} := by
+    have h1' : (n, 1) ∈ antidiagonal (n + 1) \ {(n + 1, 0)} := by
       simp [Finset.mem_sdiff, Finset.HasAntidiagonal.mem_antidiagonal, Finset.mem_singleton]
     rw [Finset.sum_eq_add_sum_sdiff_singleton_of_mem h1']
     simp only [Nat.add_one_ne_zero, ↓reduceIte, zero_add]
-    have hrest : ∀ x ∈ (Finset.HasAntidiagonal.antidiagonal (n + 1) \ {(n + 1, 0)}) \ {(n, 1)},
+    have hrest : ∀ x ∈ (antidiagonal (n + 1) \ {(n + 1, 0)}) \ {(n, 1)},
         (algebraMap ℚ R) ((-1) ^ x.1) * ((if x.2 = 0 then 1 else 0) + if x.2 = 1 then 1 else 0) = 0 := by
       intro ⟨i, j⟩ hij
       simp only [Finset.mem_sdiff, Finset.HasAntidiagonal.mem_antidiagonal, Finset.mem_singleton,
@@ -1235,15 +1235,15 @@ private lemma coeff_mul_const_one {f g : K⟦X⟧} (hf0 : f.coeff 0 = 1) (hg0 : 
     {k : ℕ} (hk : 1 ≤ k) (hf : ∀ p, 1 ≤ p → p < k → f.coeff p = 0) :
     (f * g).coeff k = f.coeff k + g.coeff k := by
   simp only [coeff_mul]
-  have h0k : (0, k) ∈ Finset.HasAntidiagonal.antidiagonal k := by simp
-  have hk0 : (k, 0) ∈ Finset.HasAntidiagonal.antidiagonal k := by simp
+  have h0k : (0, k) ∈ antidiagonal k := by simp
+  have hk0 : (k, 0) ∈ antidiagonal k := by simp
   have hne : (0, k) ≠ (k, 0) := by simp; omega
   rw [← Finset.insert_erase h0k, Finset.sum_insert (by simp [Finset.mem_erase])]
-  have hk0' : (k, 0) ∈ (Finset.HasAntidiagonal.antidiagonal k).erase (0, k) := by
+  have hk0' : (k, 0) ∈ (antidiagonal k).erase (0, k) := by
     simp [Finset.mem_erase, hne.symm]
   rw [← Finset.insert_erase hk0', Finset.sum_insert (by simp [Finset.mem_erase])]
   simp only [hf0, hg0, one_mul, mul_one]
-  have h_rest : ∑ p ∈ ((Finset.HasAntidiagonal.antidiagonal k).erase (0, k)).erase (k, 0),
+  have h_rest : ∑ p ∈ ((antidiagonal k).erase (0, k)).erase (k, 0),
       f.coeff p.1 * g.coeff p.2 = 0 := by
     apply Finset.sum_eq_zero
     intro p hp
@@ -1556,7 +1556,7 @@ theorem Log_tprod (f : I → PowerSeries₁ (R := K))
   rw [hsum_coeff_eq]
   -- Now use Log_finprod to connect Log(∏_{i∈M} f_i) = ∑_{i∈M} Log(f_i)
   have hfinprod_eq := congrArg Subtype.val hfinprod
-  try simp only at hfinprod_eq
+  simp only at hfinprod_eq
   rw [← hfinprod_eq]
 
 
