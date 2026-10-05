@@ -1412,7 +1412,7 @@ theorem partitionCount_genFun :
 theorem partitionCount_genFun_partsLeq (m : ℕ) :
     HasProd (fun k => if k + 1 ≤ m then ∑' j : ℕ, (X : R⟦X⟧) ^ ((k + 1) * j) else 1)
       (PowerSeries.mk fun n => (partsLeqCount m n : R)) := by
-  convert hasProd_powerSeriesMk_card_restricted R (· ≤ m) using 1 ; rfl
+  convert hasProd_powerSeriesMk_card_restricted R (· ≤ m) using 1; rfl
 
 /-- The generating function for partitions with parts ≤ m, expressed as a finite product:
     `∑_{n≥0} p_{parts≤m}(n) x^n = ∏_{k=1}^m (∑_{j≥0} x^{kj})`.
@@ -1470,7 +1470,7 @@ theorem partsLeqCount_eq_coeff (m n : ℕ) :
 theorem partitionCount_genFun_partsIn (I : Set ℕ) [DecidablePred (· ∈ I)] :
     HasProd (fun k => if (k + 1) ∈ I then ∑' j : ℕ, (X : R⟦X⟧) ^ ((k + 1) * j) else 1)
       (PowerSeries.mk fun n => (partsInCount I n : R)) := by
-  convert hasProd_powerSeriesMk_card_restricted R (· ∈ I) using 1 ; rfl
+  convert hasProd_powerSeriesMk_card_restricted R (· ∈ I) using 1; rfl
 
 /-- The infinite product form of the generating function for partitions with parts in I.
     This is the `tprod` version of `partitionCount_genFun_partsIn`.

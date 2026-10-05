@@ -1354,7 +1354,8 @@ def monotoneFunctionsEquivSym (k ℓ : ℕ) :
     have eq1 : ((Multiset.ofList (List.ofFn f)).sort (· ≤ ·)).get (i.cast hlen.symm) =
                ((Multiset.ofList (List.ofFn f)).sort (· ≤ ·))[i.val] := by
       rfl
-    show ((((Multiset.ofList (List.ofFn f)).sort (· ≤ ·)).get (i.cast hlen.symm) : Fin (ℓ + 1)) : ℕ) =
+    show ((((Multiset.ofList (List.ofFn f)).sort (· ≤ ·)).get (i.cast hlen.symm) :
+        Fin (ℓ + 1)) : ℕ) =
       (f i : ℕ)
     rw [eq1]
     simp only [h]

@@ -6037,16 +6037,16 @@ private lemma desnanot_jacobi_direct {m : ℕ} (A : Matrix (Fin (m + 2)) (Fin (m
           have hQpair := orderEmbOfFin_pair p q hpq
           have hP0 : finsetOrderEmb P ⟨0, by rw [hPcard]; omega⟩ = u := by
             simp only [finsetOrderEmb, Function.Embedding.trans_apply, RelIso.coe_toEmbedding]
-            convert hPpair.1 ; exact rfl
+            convert hPpair.1; exact rfl
           have hP1 : finsetOrderEmb P ⟨1, by rw [hPcard]; omega⟩ = v := by
             simp only [finsetOrderEmb, Function.Embedding.trans_apply, RelIso.coe_toEmbedding]
-            convert hPpair.2 ; exact rfl
+            convert hPpair.2; exact rfl
           have hQ0 : finsetOrderEmb Q ⟨0, by rw [hQcard]; omega⟩ = p := by
             simp only [finsetOrderEmb, Function.Embedding.trans_apply, RelIso.coe_toEmbedding]
-            convert hQpair.1 ; exact rfl
+            convert hQpair.1; exact rfl
           have hQ1 : finsetOrderEmb Q ⟨1, by rw [hQcard]; omega⟩ = q := by
             simp only [finsetOrderEmb, Function.Embedding.trans_apply, RelIso.coe_toEmbedding]
-            convert hQpair.2 ; exact rfl
+            convert hQpair.2; exact rfl
           have hreindex : (A''⁻¹.submatrix (finsetOrderEmb P) 
               (fun i => finsetOrderEmb Q (finCongr hPQ i))).det = 
               ((A''⁻¹.submatrix (finsetOrderEmb P) 
@@ -6583,7 +6583,8 @@ lemma X_sub_X_totalDegree_eq_one {σ : Type*} [DecidableEq σ] (i j : σ) (hij :
     intro h
     have := MvPolynomial.X_injective (σ := σ) (R := ℤ) (sub_eq_zero.mp h)
     exact hij this
-  have hcoeff : (MvPolynomial.X i - MvPolynomial.X j : MvPolynomial σ ℤ).coeff (Finsupp.single i 1) = 1 := by
+  have hcoeff :
+      (MvPolynomial.X i - MvPolynomial.X j : MvPolynomial σ ℤ).coeff (Finsupp.single i 1) = 1 := by
     rw [MvPolynomial.coeff_sub, MvPolynomial.coeff_X', MvPolynomial.coeff_X']
     have h2' : (Finsupp.single i 1 : σ →₀ ℕ) ≠ Finsupp.single j 1 := by
       intro heq
@@ -6607,10 +6608,13 @@ omit [IsDomain R] in
 /-- The polynomial X_i - X_j is primitive (only units divide all coefficients).
     This is needed for `irreducible_of_totalDegree_eq_one`. -/
 lemma X_sub_X_isPrimitive {σ : Type*} [DecidableEq σ] (i j : σ) (hij : i ≠ j) :
-    ∀ r : ℤ, (∀ d : σ →₀ ℕ, r ∣ (MvPolynomial.X i - MvPolynomial.X j : MvPolynomial σ ℤ).coeff d) → IsUnit r := by
+    ∀ r : ℤ, (∀ d : σ →₀ ℕ,
+      r ∣ (MvPolynomial.X i - MvPolynomial.X j : MvPolynomial σ ℤ).coeff d) → IsUnit r := by
   intro r hr
-  have h1 : r ∣ (MvPolynomial.X i - MvPolynomial.X j : MvPolynomial σ ℤ).coeff (Finsupp.single i 1) := hr _
-  have h2 : r ∣ (MvPolynomial.X i - MvPolynomial.X j : MvPolynomial σ ℤ).coeff (Finsupp.single j 1) := hr _
+  have h1 : r ∣
+      (MvPolynomial.X i - MvPolynomial.X j : MvPolynomial σ ℤ).coeff (Finsupp.single i 1) := hr _
+  have h2 : r ∣
+      (MvPolynomial.X i - MvPolynomial.X j : MvPolynomial σ ℤ).coeff (Finsupp.single j 1) := hr _
   rw [MvPolynomial.coeff_sub, MvPolynomial.coeff_X', MvPolynomial.coeff_X'] at h1 h2
   have hij' : (Finsupp.single j 1 : σ →₀ ℕ) ≠ Finsupp.single i 1 := by
     intro heq
@@ -6799,8 +6803,8 @@ lemma X_sub_X_eq_iff {σ : Type*} [DecidableEq σ] (i j k l : σ)
   constructor
   · intro h
     have h_coeff : ∀ s : σ →₀ ℕ, 
-        (MvPolynomial.X i - MvPolynomial.X j : MvPolynomial σ ℤ).coeff s = 
-        (MvPolynomial.X k - MvPolynomial.X l : MvPolynomial σ ℤ).coeff s := 
+        (MvPolynomial.X i - MvPolynomial.X j : MvPolynomial σ ℤ).coeff s =
+        (MvPolynomial.X k - MvPolynomial.X l : MvPolynomial σ ℤ).coeff s :=
       fun s => congrArg (fun p => AddMonoidAlgebra.coeff p s) h
     have hi := h_coeff (Finsupp.single i 1)
     simp only [MvPolynomial.coeff_sub, MvPolynomial.coeff_X', ite_true] at hi
@@ -6996,8 +7000,8 @@ lemma X_sub_X_isRelPrime_inl_inr {m : ℕ} (i j k l : Fin m) (hij : i ≠ j) (hk
     -- Rewrite the multiplication as scalar multiplication
     rw [mul_comm, ← MvPolynomial.smul_eq_C_mul] at hu
     -- Look at the coefficient of Finsupp.single (Sum.inl i) 1 on both sides
-    have h_coeff : (((u : MvPolynomial (Fin m ⊕ Fin m) ℤ).coeff 0) • 
-          (MvPolynomial.X (Sum.inl i) - MvPolynomial.X (Sum.inl j) : MvPolynomial (Fin m ⊕ Fin m) ℤ)).coeff (Finsupp.single (Sum.inl i) 1) = 
+    have h_coeff : (((u : MvPolynomial (Fin m ⊕ Fin m) ℤ).coeff 0) •
+          (MvPolynomial.X (Sum.inl i) - MvPolynomial.X (Sum.inl j) : MvPolynomial (Fin m ⊕ Fin m) ℤ)).coeff (Finsupp.single (Sum.inl i) 1) =
         (MvPolynomial.X (Sum.inr k) - MvPolynomial.X (Sum.inr l) : MvPolynomial (Fin m ⊕ Fin m) ℤ).coeff (Finsupp.single (Sum.inl i) 1) := by rw [hu]
     simp only [MvPolynomial.coeff_smul, smul_eq_mul, MvPolynomial.coeff_sub, MvPolynomial.coeff_X'] at h_coeff
     -- RHS: coefficients of X_{inr k} - X_{inr l} at position single (inl i) 1 are both 0

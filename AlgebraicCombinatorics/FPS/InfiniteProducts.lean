@@ -1585,7 +1585,8 @@ private lemma coeff_eq_of_mul_eq_unit {A B P : PowerSeries R} {n : ℕ}
     have hsplit : ∀ (C : PowerSeries R),
         ∑ p ∈ Finset.HasAntidiagonal.antidiagonal k, C.coeff p.1 * P.coeff p.2 =
         C.coeff k * P.coeff 0 +
-        ∑ p ∈ (Finset.HasAntidiagonal.antidiagonal k).filter (fun p => 0 < p.2), C.coeff p.1 * P.coeff p.2 := by
+        ∑ p ∈ (Finset.HasAntidiagonal.antidiagonal k).filter (fun p => 0 < p.2),
+          C.coeff p.1 * P.coeff p.2 := by
       intro C
       rw [← Finset.sum_filter_add_sum_filter_not (Finset.HasAntidiagonal.antidiagonal k) (fun p => 0 < p.2), add_comm]
       congr 1
@@ -2916,7 +2917,7 @@ theorem fubini_prod_invertible {I J : Type*} {a : I × J → PowerSeries R}
     have hf : Function.Bijective f := ⟨
       fun j1 j2 hj => congrArg (fun x => x.val.2) hj,
       fun ⟨⟨i', j⟩, hi'⟩ => ⟨j, by ext; exact hi'.symm; rfl⟩⟩
-    convert multipliable_reindex hf h using 1 ; rfl
+    convert multipliable_reindex hf h using 1; rfl
   · intro j
     have h : Multipliable (fun p : {p : I × J // p.2 = j} => a p) :=
       multipliable_subfamily ha ha_inv {p : I × J | p.2 = j}
@@ -2924,7 +2925,7 @@ theorem fubini_prod_invertible {I J : Type*} {a : I × J → PowerSeries R}
     have hf : Function.Bijective f := ⟨
       fun i1 i2 hi => congrArg (fun x => x.val.1) hi,
       fun ⟨⟨i, j'⟩, hj'⟩ => ⟨i, by ext; rfl; exact hj'.symm⟩⟩
-    convert multipliable_reindex hf h using 1 ; rfl
+    convert multipliable_reindex hf h using 1; rfl
 
 /-!
 ### Approximator Properties

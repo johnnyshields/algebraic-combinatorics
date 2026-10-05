@@ -721,7 +721,8 @@ theorem num_transpositions (X : Type*) [DecidableEq X] [Fintype X] :
       have h₂ : σ₂.IsSwap := Equiv.Perm.card_support_eq_two.mp (Finset.mem_filter.mp hσ₂).2
       have hp₁ := swapToPair_spec σ₁ h₁
       have hp₂ := swapToPair_spec σ₂ h₂
-      have hsym : Sym2.mk (swapToPair σ₁ h₁).1 (swapToPair σ₁ h₁).2 = Sym2.mk (swapToPair σ₂ h₂).1 (swapToPair σ₂ h₂).2 := heq
+      have hsym : Sym2.mk (swapToPair σ₁ h₁).1 (swapToPair σ₁ h₁).2 =
+          Sym2.mk (swapToPair σ₂ h₂).1 (swapToPair σ₂ h₂).2 := heq
       have hswap : Equiv.swap (swapToPair σ₁ h₁).1 (swapToPair σ₁ h₁).2 =
                    Equiv.swap (swapToPair σ₂ h₂).1 (swapToPair σ₂ h₂).2 :=
         (swap_eq_iff_sym2_eq hp₁.1 hp₂.1).mpr hsym

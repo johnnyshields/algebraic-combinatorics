@@ -870,7 +870,7 @@ private lemma mem_sortPreimage_comp_perm {a : Fin N → ℕ} {mu : NPartition N}
 private lemma mem_sortPreimage_comp_perm' {a : Fin N → ℕ} {mu : NPartition N} (σ : Perm (Fin N))
     (ha : a ∈ sortPreimage mu) : (a ∘ σ) ∈ sortPreimage mu := by
   have h := mem_sortPreimage_comp_perm σ⁻¹ ha
-  convert h ; rfl
+  convert h; rfl
 
 /-- The monomial symmetric polynomial is symmetric.
     (Follows from Definition def.sf.m)
@@ -1707,19 +1707,24 @@ theorem monomialSymm_linearIndependent (S : Finset (NPartition N)) :
   rw [Fintype.linearIndependent_iffₛ]
   intro f g hfg mu
   -- Extract the coefficient of mu.parts from the sum
-  have key : (∑ nu : S, f nu • monomialSymm nu.val : MvPolynomial (Fin N) R).coeff (Finsupp.equivFunOnFinite.symm mu.val.parts) =
-      (∑ nu : S, g nu • monomialSymm nu.val : MvPolynomial (Fin N) R).coeff (Finsupp.equivFunOnFinite.symm mu.val.parts) := by
+  have key :
+      (∑ nu : S, f nu • monomialSymm nu.val : MvPolynomial (Fin N) R).coeff
+        (Finsupp.equivFunOnFinite.symm mu.val.parts) =
+      (∑ nu : S, g nu • monomialSymm nu.val : MvPolynomial (Fin N) R).coeff
+        (Finsupp.equivFunOnFinite.symm mu.val.parts) := by
     rw [hfg]
   simp only [coeff_sum, coeff_smul] at key
   -- The sum simplifies because only the term with nu = mu contributes
-  have hf : ∑ nu : S, f nu • (monomialSymm nu.val : MvPolynomial (Fin N) R).coeff (Finsupp.equivFunOnFinite.symm mu.val.parts) = f mu := by
+  have hf : ∑ nu : S, f nu • (monomialSymm nu.val : MvPolynomial (Fin N) R).coeff
+      (Finsupp.equivFunOnFinite.symm mu.val.parts) = f mu := by
     rw [Finset.sum_eq_single_of_mem mu (Finset.mem_univ mu)]
     · simp [monomialSymm_coeff_self]
     · intro nu _ hne
       simp only [smul_eq_mul]
       have hne' : mu.val ≠ nu.val := fun heq => hne (Subtype.ext heq.symm)
       rw [monomialSymm_coeff_ne mu.val nu.val hne', mul_zero]
-  have hg : ∑ nu : S, g nu • (monomialSymm nu.val : MvPolynomial (Fin N) R).coeff (Finsupp.equivFunOnFinite.symm mu.val.parts) = g mu := by
+  have hg : ∑ nu : S, g nu • (monomialSymm nu.val : MvPolynomial (Fin N) R).coeff
+      (Finsupp.equivFunOnFinite.symm mu.val.parts) = g mu := by
     rw [Finset.sum_eq_single_of_mem mu (Finset.mem_univ mu)]
     · simp [monomialSymm_coeff_self]
     · intro nu _ hne
@@ -2249,18 +2254,23 @@ theorem monomialSymm_homogeneous_linearIndependent (n : ℕ) :
   rw [linearIndependent_iff'ₛ]
   intro s f g hfg i hi
   -- Extract the coefficient of i.parts from the sum
-  have key : (∑ j ∈ s, f j • monomialSymm j.val : MvPolynomial (Fin N) R).coeff (Finsupp.equivFunOnFinite.symm i.val.parts) =
-      (∑ j ∈ s, g j • monomialSymm j.val : MvPolynomial (Fin N) R).coeff (Finsupp.equivFunOnFinite.symm i.val.parts) := by
+  have key :
+      (∑ j ∈ s, f j • monomialSymm j.val : MvPolynomial (Fin N) R).coeff
+        (Finsupp.equivFunOnFinite.symm i.val.parts) =
+      (∑ j ∈ s, g j • monomialSymm j.val : MvPolynomial (Fin N) R).coeff
+        (Finsupp.equivFunOnFinite.symm i.val.parts) := by
     rw [hfg]
   simp only [coeff_sum, coeff_smul] at key
-  have hf : ∑ j ∈ s, f j • (monomialSymm j.val : MvPolynomial (Fin N) R).coeff (Finsupp.equivFunOnFinite.symm i.val.parts) = f i := by
+  have hf : ∑ j ∈ s, f j • (monomialSymm j.val : MvPolynomial (Fin N) R).coeff
+      (Finsupp.equivFunOnFinite.symm i.val.parts) = f i := by
     rw [Finset.sum_eq_single_of_mem i hi]
     · simp [monomialSymm_coeff_self]
     · intro j hj hne
       simp only [smul_eq_mul]
       have hne' : i.val ≠ j.val := fun heq => hne (Subtype.ext heq.symm)
       rw [monomialSymm_coeff_ne i.val j.val hne', mul_zero]
-  have hg : ∑ j ∈ s, g j • (monomialSymm j.val : MvPolynomial (Fin N) R).coeff (Finsupp.equivFunOnFinite.symm i.val.parts) = g i := by
+  have hg : ∑ j ∈ s, g j • (monomialSymm j.val : MvPolynomial (Fin N) R).coeff
+      (Finsupp.equivFunOnFinite.symm i.val.parts) = g i := by
     rw [Finset.sum_eq_single_of_mem i hi]
     · simp [monomialSymm_coeff_self]
     · intro j hj hne
@@ -2339,14 +2349,14 @@ noncomputable def monomialSymm_basis_homogeneous (n : ℕ) :
   -- v is linearly independent
   have hli : LinearIndependent R v := by
     apply linearIndependent_submodule_of_linearIndependent
-    convert monomialSymm_homogeneous_linearIndependent n ; rfl
+    convert monomialSymm_homogeneous_linearIndependent n; rfl
   -- v spans symmHomogeneous
   have hsp : ⊤ ≤ Submodule.span R (Set.range v) := by
     apply span_eq_top_of_subtype_span
     intro x
     obtain ⟨hx_symm, hx_hom⟩ := x.property
     have h := monomialSymm_homogeneous_spans n x.val ⟨hx_symm, hx_hom⟩
-    convert h ; rfl
+    convert h; rfl
   exact Module.Basis.mk hli hsp
 
 

@@ -2082,7 +2082,7 @@ private lemma wordProd_descendingWordRec_shift (i k j : ℕ) (h : i + k ≤ n - 
       simp only [wordProd] at hrest
       rw [hrest]
       have happ := simpleTransposition_apply_succ' ⟨i + k, by omega⟩ hn
-      convert happ using 2 ; rfl
+      convert happ using 2; rfl
     · have hj2' : j ≤ k := by omega
       have ih' := ih j (by omega : i + k ≤ n - 1) hj1 hj2'
       simp only [wordProd] at ih'

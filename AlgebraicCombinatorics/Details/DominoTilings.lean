@@ -6435,7 +6435,7 @@ theorem faultfree_top_vertical_classification (n : ℕ) (T : DominoTiling n 3)
       rw [← hd_cells]
       simp only [Domino.cells, hd_cell1, hd_cell2]
       -- Need to show: {(2 * j + 2, 2), (2 * j + 3, 2)} = {(2 * (j + 1), 2), (2 * (j + 1) + 1, 2)}
-      convert hd'_cells using 2 ; rfl
+      convert hd'_cells using 2; rfl
     · -- d ∈ topDominos n
       simp only [topDominos, Finset.mem_map, Finset.mem_range] at hd
       obtain ⟨j, hj_lt, hd_eq⟩ := hd
@@ -6451,7 +6451,7 @@ theorem faultfree_top_vertical_classification (n : ℕ) (T : DominoTiling n 3)
       rw [← hd_cells]
       simp only [Domino.cells, hd_cell1, hd_cell2]
       -- Need to show: {(2 * j + 2, 3), (2 * j + 3, 3)} = {(2 * (j + 1), 3), (2 * (j + 1) + 1, 3)}
-      convert hd'_cells using 2 ; rfl
+      convert hd'_cells using 2; rfl
   -- Now use cardinality to show equality
   have h_image_card_eq : (T.dominos.image Domino.cells).card =
       ((TilingA n hn_even hn_ge).dominos.image Domino.cells).card := by

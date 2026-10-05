@@ -216,7 +216,8 @@ theorem invOnePlusX_mul_one_add_X : invOnePlusX K * (1 + X) = 1 := by
       rw [← sum_filter]
       have hfilter : filter (fun x => x.2 = 0) (antidiagonal n) = {(n, 0)} := by
         ext ⟨i, j⟩
-        simp only [mem_filter, Finset.HasAntidiagonal.mem_antidiagonal, mem_singleton, Prod.mk.injEq]
+        simp only [mem_filter, Finset.HasAntidiagonal.mem_antidiagonal, mem_singleton,
+          Prod.mk.injEq]
         constructor
         · rintro ⟨hij, rfl⟩
           simp at hij
@@ -352,7 +353,8 @@ private theorem invOnePlusX_mul_one_add_X' : invOnePlusX K * (1 + X) = 1 := by
       rw [← sum_filter]
       have hfilter : filter (fun x => x.2 = 0) (antidiagonal n) = {(n, 0)} := by
         ext ⟨i, j⟩
-        simp only [mem_filter, Finset.HasAntidiagonal.mem_antidiagonal, mem_singleton, Prod.mk.injEq]
+        simp only [mem_filter, Finset.HasAntidiagonal.mem_antidiagonal, mem_singleton,
+          Prod.mk.injEq]
         constructor
         · rintro ⟨hij, rfl⟩
           simp at hij

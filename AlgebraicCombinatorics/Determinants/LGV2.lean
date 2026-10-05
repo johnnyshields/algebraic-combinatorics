@@ -674,7 +674,7 @@ lemma pathWeightAux_append {D : SimpleDigraph V} (w : ArcWeight D K)
       have ih_applied := ih l2 h1_tail_ne h2_ne h_join_tail arcs1_tail arcs2 arcs_concat_tail
       have h_eq : pathWeightAux w (v2 :: (vs2 ++ l2.tail)) arcs_concat_tail = 
                   pathWeightAux w (v2 :: vs2) arcs1_tail * pathWeightAux w l2 arcs2 := by
-        convert ih_applied using 1 ; rfl
+        convert ih_applied using 1; rfl
       simp only [pathWeightAux, h_eq]
       ring
 
@@ -1575,18 +1575,21 @@ private lemma splitAt_fst_vertices {D : SimpleDigraph V} (p : SimpleDigraph.Path
     (p.splitAt v hv).1.vertices = p.vertices.take (p.vertices.findIdx (· = v) + 1) := by
   unfold SimpleDigraph.Path.splitAt
   simp only
+
 -- Helper lemma: splitAt vertices for the tail
 private lemma splitAt_snd_vertices {D : SimpleDigraph V} (p : SimpleDigraph.Path D) 
     (v : V) (hv : v ∈ p.vertices) : 
     (p.splitAt v hv).2.vertices = p.vertices.drop (p.vertices.findIdx (· = v)) := by
   unfold SimpleDigraph.Path.splitAt
   simp only
+
 -- Helper lemma: concat vertices
 omit [DecidableEq V] in
 private lemma concat_vertices {D : SimpleDigraph V} (p q : SimpleDigraph.Path D) 
     (hpq : p.finish = q.start) : (p.concat q hpq).vertices = p.vertices ++ q.vertices.tail := by
   unfold SimpleDigraph.Path.concat
   simp only
+
 -- Helper lemma: paths are determined by their vertices
 omit [DecidableEq V] in
 private lemma path_ext {D : SimpleDigraph V} (p q : SimpleDigraph.Path D)
@@ -2979,6 +2982,7 @@ lemma signReversing_canonical_eq {D : SimpleDigraph V} (hac : D.IsAcyclic) {k : 
   simp only [getCanonicalIntersectionData]
   apply Subtype.ext
   simp only
+  
   -- Use Sigma.ext for the nested sigma types
   have h1 : sp'.2.crowdedPathIndices.min' 
       (sp'.2.isIntersecting_iff_crowdedPathIndices_nonempty.mp hip') = i := h_min_eq

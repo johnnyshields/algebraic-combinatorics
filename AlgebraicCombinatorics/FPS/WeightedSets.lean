@@ -3019,7 +3019,7 @@ theorem composeTilings_decomposeTiling (n : ℕ) (T : Tiling (Rectangle n 2)) :
             -- Now use Fin.sum_univ_succ on f
             have h_sum : ∑ i : Fin j.succ.val, f i = f zero_idx + ∑ i : Fin j.val, f i.succ := by
               have h := Fin.sum_univ_succ f
-              convert h using 2 ; rfl
+              convert h using 2; rfl
             
             calc ∑ i : Fin j.succ.val, (ts' ⟨i.val, Nat.lt_trans i.isLt j.succ.isLt⟩).1
                 = ∑ i : Fin j.succ.val, f i := rfl

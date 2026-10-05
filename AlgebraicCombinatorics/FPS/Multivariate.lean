@@ -336,7 +336,8 @@ lemma antidiag_shift_fst {σ : Type*} [DecidableEq σ] (i : σ) (m : σ →₀ �
       ext <;> simp [h1, h2]⟩ =
     (antidiagonal (m + Finsupp.single i 1)).filter (fun p => Finsupp.single i 1 ≤ p.1) := by
   ext ⟨a, b⟩
-  simp only [mem_map, mem_filter, Finset.HasAntidiagonal.mem_antidiagonal, Function.Embedding.coeFn_mk, Prod.mk.injEq,
+  simp only [mem_map, mem_filter, Finset.HasAntidiagonal.mem_antidiagonal,
+    Function.Embedding.coeFn_mk, Prod.mk.injEq,
     Prod.exists]
   constructor
   · rintro ⟨a', b', hab, rfl, rfl⟩
@@ -361,7 +362,8 @@ lemma antidiag_shift_snd {σ : Type*} [DecidableEq σ] (i : σ) (m : σ →₀ �
       ext <;> simp [h1, h2]⟩ =
     (antidiagonal (m + Finsupp.single i 1)).filter (fun p => Finsupp.single i 1 ≤ p.2) := by
   ext ⟨a, b⟩
-  simp only [mem_map, mem_filter, Finset.HasAntidiagonal.mem_antidiagonal, Function.Embedding.coeFn_mk, Prod.mk.injEq,
+  simp only [mem_map, mem_filter, Finset.HasAntidiagonal.mem_antidiagonal,
+    Function.Embedding.coeFn_mk, Prod.mk.injEq,
     Prod.exists]
   constructor
   · rintro ⟨a', b', hab, rfl, rfl⟩
@@ -382,7 +384,8 @@ lemma sum_filter_zero_fst {σ : Type*} [DecidableEq σ] (i : σ) (m : σ →₀ 
       (p.1 i : R) * coeff p.1 f * coeff p.2 g = 0 := by
   apply Finset.sum_eq_zero
   intro p hp
-  simp only [mem_filter, Finset.HasAntidiagonal.mem_antidiagonal, Finsupp.single_le_iff, not_le] at hp
+  simp only [mem_filter, Finset.HasAntidiagonal.mem_antidiagonal, Finsupp.single_le_iff,
+    not_le] at hp
   have : p.1 i = 0 := by omega
   simp [this]
 
@@ -393,7 +396,8 @@ lemma sum_filter_zero_snd {σ : Type*} [DecidableEq σ] (i : σ) (m : σ →₀ 
       coeff p.1 f * ((p.2 i : R) * coeff p.2 g) = 0 := by
   apply Finset.sum_eq_zero
   intro p hp
-  simp only [mem_filter, Finset.HasAntidiagonal.mem_antidiagonal, Finsupp.single_le_iff, not_le] at hp
+  simp only [mem_filter, Finset.HasAntidiagonal.mem_antidiagonal, Finsupp.single_le_iff,
+    not_le] at hp
   have : p.2 i = 0 := by omega
   simp [this]
 

@@ -1226,7 +1226,8 @@ lemma geom_series_mul_one_sub (i : Fin N) :
     rw [← Finset.sum_filter_add_sum_filter_not (antidiagonal (n + 1)) (fun x => x.1 = 0)]
     have hfilt0 : Finset.filter (fun x => x.1 = 0) (antidiagonal (n + 1)) = {(0, n + 1)} := by
       ext x
-      simp only [Finset.mem_filter, Finset.HasAntidiagonal.mem_antidiagonal, Finset.mem_singleton, Prod.ext_iff]
+      simp only [Finset.mem_filter, Finset.HasAntidiagonal.mem_antidiagonal, Finset.mem_singleton,
+        Prod.ext_iff]
       constructor
       · intro ⟨h1, h2⟩; exact ⟨h2, by omega⟩
       · intro ⟨h1, h2⟩; exact ⟨by omega, h1⟩
@@ -1237,7 +1238,8 @@ lemma geom_series_mul_one_sub (i : Fin N) :
     have hfilt1 : Finset.filter (fun x => x.1 = 1)
         (Finset.filter (fun x => ¬x.1 = 0) (antidiagonal (n + 1))) = {(1, n)} := by
       ext x
-      simp only [Finset.mem_filter, Finset.HasAntidiagonal.mem_antidiagonal, Finset.mem_singleton, Prod.ext_iff]
+      simp only [Finset.mem_filter, Finset.HasAntidiagonal.mem_antidiagonal, Finset.mem_singleton,
+        Prod.ext_iff]
       constructor
       · intro ⟨⟨h1, h2⟩, h3⟩; exact ⟨h3, by omega⟩
       · intro ⟨h1, h2⟩; exact ⟨⟨by omega, by omega⟩, h1⟩
@@ -1961,7 +1963,8 @@ theorem hsymm_genfunc [DecidableEq (Fin N)] :
   rcases Nat.eq_zero_or_pos n with hn | hn
   · -- Case n = 0
     subst hn
-    simp only [Finset.Nat.antidiagonal_zero, sum_singleton, Nat.zero_le, ite_true, pow_zero, one_mul]
+    simp only [Finset.Nat.antidiagonal_zero, sum_singleton, Nat.zero_le, ite_true, pow_zero,
+      one_mul]
     rw [h_zero, e_zero]; ring
   · -- Case n > 0
     simp only [ite_false, hn.ne']
@@ -2697,11 +2700,11 @@ private lemma homogeneousComponent_psumAeval_eq (P : MvPolynomial (Fin N) K) (w 
   rw [sum_filter]
   apply Finset.sum_congr rfl
   intro d hd
-  have h_hom : (aeval (fun k : Fin N => psum (Fin N) K (k.val + 1)) (monomial d (P.coeff d))).IsHomogeneous 
+  have h_hom : (aeval (fun k : Fin N => psum (Fin N) K (k.val + 1)) (monomial d (P.coeff d))).IsHomogeneous
       (Finsupp.weight psumWeight' d) := by
     apply psumAeval_preserves_homogeneous
     exact isWeightedHomogeneous_monomial psumWeight' d (P.coeff d) rfl
-  have h_mem : aeval (fun k : Fin N => psum (Fin N) K (k.val + 1)) (monomial d (P.coeff d)) ∈ 
+  have h_mem : aeval (fun k : Fin N => psum (Fin N) K (k.val + 1)) (monomial d (P.coeff d)) ∈
       homogeneousSubmodule (Fin N) K (Finsupp.weight psumWeight' d) := by
     rw [mem_homogeneousSubmodule]; exact h_hom
   rw [homogeneousComponent_of_mem h_mem]

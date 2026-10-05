@@ -180,7 +180,7 @@ theorem coeff_C_fps (n : ℕ) (a : R) :
 theorem coeff_zero_mul_fps (f g : R⟦X⟧) :
     coeff 0 (f * g) = coeff 0 f * coeff 0 g := by
   rw [coeff_mul_fps]
-  simp 
+  simp
 
 /-!
 ## Ring Structure (Theorem thm.fps.ring)
@@ -260,14 +260,14 @@ theorem mul_X_shift (f : R⟦X⟧) (n : ℕ) :
 theorem X_mul_coeff_zero (f : R⟦X⟧) :
     coeff 0 (X * f) = 0 := by
   rw [coeff_mul_fps]
-  simp 
+  simp
 
 /-- The constant term of f * X is 0 -/
 @[simp]
 theorem mul_X_coeff_zero (f : R⟦X⟧) :
     coeff 0 (f * X) = 0 := by
   rw [coeff_mul_fps]
-  simp 
+  simp
 
 /-- Complete characterization of multiplication by X (Lemma lem.fps.xa, unified form)
 

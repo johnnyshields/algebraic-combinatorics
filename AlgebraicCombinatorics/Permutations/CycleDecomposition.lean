@@ -1041,8 +1041,9 @@ private lemma heads_nodup_of_pairwise_disjoint {L : List (List α)}
     intro heq'
     have hnodup := nodup_of_pairwise_disjoint_nonempty hpwd hne
     exact hne' (hnodup.getElem_inj_iff.mp heq')
-  have hdisj : List.Disjoint L[i] L[j] :=
-    by have : Std.Symm (@List.Disjoint α) := ⟨fun _ _ h => h.symm⟩; exact hpwd.forall hli hlj hne''
+  have hdisj : List.Disjoint L[i] L[j] := by
+    have : Std.Symm (@List.Disjoint α) := ⟨fun _ _ h => h.symm⟩
+    exact hpwd.forall hli hlj hne''
   exact hdisj hhead_i hhead_j
 
 theorem canonicalDcd_exists_unique (σ : Perm α) :

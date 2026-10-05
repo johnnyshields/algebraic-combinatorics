@@ -321,7 +321,7 @@ private lemma orderEmbOfFin_symm {n m : ℕ} (S : Finset (Fin m)) (hcard : S.car
     S.orderEmbOfFin hcard ((S.orderIsoOfFin hcard).symm ⟨x, hx⟩) = x := by
   have h := (S.orderIsoOfFin hcard).apply_symm_apply ⟨x, hx⟩
   have h' : ((S.orderIsoOfFin hcard) ((S.orderIsoOfFin hcard).symm ⟨x, hx⟩)).val = x := by rw [h]
-  simp only [Finset.orderEmbOfFin]; convert h' ; rfl
+  simp only [Finset.orderEmbOfFin]; convert h'; rfl
 
 /-- Helper: orderIsoOfFin.symm applied to orderEmbOfFin gives back the original index. -/
 private lemma orderIsoOfFin_symm_orderEmbOfFin {n m : ℕ} (S : Finset (Fin m)) (hcard : S.card = n) 
@@ -1741,7 +1741,7 @@ lemma extractAlpha_prefixFinset_val {n k : ℕ} (hk : k ≤ n)
     exact h1
   have h := prefixFinset_orderIsoOfFin_symm hk ⟨σ (P.orderEmbOfFin rfl j), hσj_mem⟩
   simp only [Fin.ext_iff] at h
-  convert h using 1 ; rfl
+  convert h using 1; rfl
 
 /-- For prefixFinset^c, extractBeta j gives the position of σ(Pᶜ.orderEmbOfFin j) in Pᶜ.
     Since Pᶜ = {k, ..., n-1}, this equals (σ(k+j)).val - k. -/
@@ -1756,7 +1756,7 @@ lemma extractBeta_prefixFinset_val {n k : ℕ} (hk : k ≤ n)
   have hσj_mem : σ (Pᶜ.orderEmbOfFin rfl j) ∈ Pᶜ := sigma_orderEmb_compl_mem_of_imageFinset P P σ hσ j
   have h := prefixFinset_compl_orderIsoOfFin_symm hk ⟨σ (Pᶜ.orderEmbOfFin rfl j), hσj_mem⟩
   simp only [P] at h
-  convert h using 1 ; rfl
+  convert h using 1; rfl
 
 /-- Equivalence between Fin k and the subtype {i : Fin n // i.val < k}. -/
 noncomputable def finEquivSubtypeLt (n k : ℕ) (hk : k ≤ n) : 

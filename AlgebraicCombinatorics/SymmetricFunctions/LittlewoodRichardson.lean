@@ -7072,6 +7072,7 @@ private lemma freeKSuccCountPrefix_benderKnuthPrefixMatching {lam mu : Fin N →
     intro c
     unfold benderKnuthPrefixMatching
     simp only
+  
   -- Define the key sets
   let A : Set {c : Fin N × ℕ // c ∈ skewYoungDiagram lam mu} := 
     {c | c.val.1 = i ∧ isMatchedFreeKSuccPrefix T k hk j c}

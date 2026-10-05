@@ -2135,7 +2135,7 @@ theorem rowSSYTToSym_symToRowSSYT (hN : 0 < N) (n : ℕ) (s : Sym (Fin N) n) :
     rowSSYTToSym hN n (symToRowSSYT hN n s) = s := by
   unfold rowSSYTToSym symToRowSSYT
   -- The function is equivalent to (symToWeaklyIncreasing n s).val
-  convert weaklyIncreasingToSym_symToWeaklyIncreasing n s using 1 ; rfl
+  convert weaklyIncreasingToSym_symToWeaklyIncreasing n s using 1; rfl
 
 /-- symToRowSSYT preserves monomials. -/
 theorem symToRowSSYT_toMonomial (hN : 0 < N) (n : ℕ) (s : Sym (Fin N) n) :

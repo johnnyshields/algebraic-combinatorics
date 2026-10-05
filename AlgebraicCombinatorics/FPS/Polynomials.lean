@@ -327,7 +327,8 @@ noncomputable def polynomialSubring : Subring (PowerSeries K) := polynomialSubal
 /-- The underlying K-submodule of the polynomial subalgebra.
 This is the "K-submodule" part of Theorem 7.5.2 (thm.fps.pol.ring):
 K[x] is closed under + and scalar multiplication by elements of K. -/
-noncomputable def polynomialSubmodule : Submodule K (PowerSeries K) := polynomialSubalgebra.toSubmodule
+noncomputable def polynomialSubmodule : Submodule K (PowerSeries K) :=
+  polynomialSubalgebra.toSubmodule
 
 /-- Membership in the polynomial subalgebra is equivalent to being a polynomial.
 This is the characterization of K[x] from Theorem 7.5.2 (thm.fps.pol.ring). -/

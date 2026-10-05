@@ -821,7 +821,8 @@ lemma coeff_mul_one_plus_higher {g f : PowerSeries K} {n : ℕ}
   rw [Finset.sum_congr rfl hsplit]
   -- Now we need to simplify ∑ x ∈ antidiagonal k, if x.2 = 0 then coeff x.1 g else 0
   -- The only element with x.2 = 0 is (k, 0)
-  have hmem : (k, 0) ∈ Finset.HasAntidiagonal.antidiagonal k := by simp [Finset.HasAntidiagonal.mem_antidiagonal]
+  have hmem : (k, 0) ∈ Finset.HasAntidiagonal.antidiagonal k := by
+    simp [Finset.HasAntidiagonal.mem_antidiagonal]
   have huniq : ∀ p ∈ Finset.HasAntidiagonal.antidiagonal k, p.2 = 0 → p = (k, 0) := by
     intro ⟨a, b⟩ hab hb
     simp only [Finset.HasAntidiagonal.mem_antidiagonal] at hab
@@ -1063,7 +1064,8 @@ theorem isMultipliable_of_coeffStabilizesTo_partial_prod
       rw [coeff_mul] at hstab_eq
 
       -- Split off the (k, 0) term
-      have hanti : (k, 0) ∈ Finset.HasAntidiagonal.antidiagonal k := by simp [Finset.HasAntidiagonal.mem_antidiagonal]
+      have hanti : (k, 0) ∈ Finset.HasAntidiagonal.antidiagonal k := by
+        simp [Finset.HasAntidiagonal.mem_antidiagonal]
 
       rw [← Finset.insert_erase hanti, Finset.sum_insert (Finset.notMem_erase _ _)] at hstab_eq
       simp only [hfi0, mul_one] at hstab_eq

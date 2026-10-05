@@ -408,7 +408,7 @@ lemma summable_prod_of_summable_discrete [DiscreteTopology K] {α β : Type*}
     intro n
     have := (PowerSeries.WithPiTopology.summable_iff_summable_coeff (f := g)).mp hg n
     exact this.finite_support_of_discreteTopology
-  let S := ⋃ (p : ℕ × ℕ) (_ : p ∈ antidiagonal d), 
+  let S := ⋃ (p : ℕ × ℕ) (_ : p ∈ antidiagonal d),
       (Function.support (fun a => coeff p.1 (f a))) ×ˢ 
       (Function.support (fun b => coeff p.2 (g b)))
   have hS_finite : S.Finite := by
