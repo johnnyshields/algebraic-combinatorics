@@ -4,6 +4,9 @@ All rights reserved.
 -/
 import Mathlib
 
+-- Many proofs here unify through semireducible definitions; opt out of the stricter check.
+set_option backward.isDefEq.respectTransparency false
+
 /-!
 # The Cycle Decomposition
 
@@ -927,7 +930,7 @@ private lemma mergeSort_pairwise_ge (l : List (List α)) :
   have h := List.pairwise_mergeSort (le := fun a b => a.head! ≥ b.head!)
     (fun a b c hab hbc => by simp only [decide_eq_true_eq] at hab hbc ⊢; exact le_trans hbc hab)
     (fun a b => by simp only [Bool.or_eq_true, decide_eq_true_eq]; exact le_total b.head! a.head!) l
-  convert h using 2; ext; simp
+  convert h using 2 <;> first | rfl | simp
 
 
 omit [DecidableEq α] [Fintype α] in
@@ -1041,7 +1044,7 @@ private lemma heads_nodup_of_pairwise_disjoint {L : List (List α)}
     have hnodup := nodup_of_pairwise_disjoint_nonempty hpwd hne
     exact hne' (hnodup.getElem_inj_iff.mp heq')
   have hdisj : List.Disjoint L[i] L[j] :=
-    hpwd.forall (fun _ _ h => h.symm) hli hlj hne''
+    by haveI : Std.Symm (@List.Disjoint α) := ⟨fun _ _ h => h.symm⟩; exact hpwd.forall hli hlj hne''
   exact hdisj hhead_i hhead_j
 
 theorem canonicalDcd_exists_unique (σ : Perm α) :

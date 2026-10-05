@@ -5,6 +5,9 @@ All rights reserved.
 import Mathlib
 import AlgebraicCombinatorics.SymmetricFunctions.NPartition
 
+-- Many proofs here unify through semireducible definitions; opt out of the stricter check.
+set_option backward.isDefEq.respectTransparency false
+
 /-!
 # N-partitions and Monomial Symmetric Polynomials
 
@@ -404,7 +407,7 @@ noncomputable def equivPartition (n : ℕ) :
     let hp' : Multiset.card p'.parts ≤ N := toPartition_card_le mu
     ⟨hmu ▸ p', by subst hmu; exact hp'⟩
   left_inv := by
-    simp only
+    try simp only
     intro ⟨p, hp⟩
     simp only [Subtype.mk.injEq]
     -- Need: toPartition (ofPartition p hp) = p (up to the size equality cast)
@@ -471,7 +474,7 @@ theorem ofPartition_injective (n : ℕ) :
   intro ⟨p₁, hp₁⟩ ⟨p₂, hp₂⟩ heq
   simp only [Subtype.mk.injEq]
   have hparts : (ofPartition p₁ hp₁).parts = (ofPartition p₂ hp₂).parts := by
-    simp only at heq
+    try simp only at heq
     rw [heq]
   have hsorted : p₁.parts.sort (· ≥ ·) = p₂.parts.sort (· ≥ ·) := by
     have len1 : (p₁.parts.sort (· ≥ ·)).length = Multiset.card p₁.parts := Multiset.length_sort ..
@@ -549,7 +552,7 @@ def sortTuple (a : Fin N → ℕ) : NPartition N where
     if h : i.val < sorted.length then sorted.get ⟨i.val, h⟩ else 0
   antitone := by
     intro i j hij
-    simp only
+    try simp only
     split_ifs with hi hj hj
     · have hsorted : ((Finset.univ.val.map a).sort (· ≥ ·)).Pairwise (· ≥ ·) :=
         Multiset.pairwise_sort (r := (· ≥ ·)) (Finset.univ.val.map a)
@@ -572,12 +575,12 @@ theorem monomialExp_eq_monomial (a : Fin N → ℕ) :
 /-- Coefficient of the monomial x^a in monomialExp a is 1. -/
 @[simp]
 theorem monomialExp_coeff_self (a : Fin N → ℕ) :
-    coeff (Finsupp.equivFunOnFinite.symm a) (monomialExp a : MvPolynomial (Fin N) R) = 1 := by
+    (monomialExp a : MvPolynomial (Fin N) R).coeff (Finsupp.equivFunOnFinite.symm a) = 1 := by
   rw [monomialExp_eq_monomial, coeff_monomial, if_pos rfl]
 
 /-- Coefficient of a different monomial in monomialExp a is 0. -/
 theorem monomialExp_coeff_ne (a b : Fin N → ℕ) (h : a ≠ b) :
-    coeff (Finsupp.equivFunOnFinite.symm b) (monomialExp a : MvPolynomial (Fin N) R) = 0 := by
+    (monomialExp a : MvPolynomial (Fin N) R).coeff (Finsupp.equivFunOnFinite.symm b) = 0 := by
   rw [monomialExp_eq_monomial, coeff_monomial]
   simp only [ite_eq_right_iff]
   intro heq
@@ -816,7 +819,7 @@ lemma sortTuple_comp_perm (a : Fin N → ℕ) (σ : Perm (Fin N)) :
     sortTuple (a ∘ σ) = sortTuple a := by
   ext i
   unfold sortTuple
-  simp only
+  try simp only
   rw [map_comp_perm_eq a σ]
 
 /-- Applying rename σ to a monomial x^a gives x^(a ∘ σ⁻¹). -/
@@ -868,7 +871,7 @@ private lemma mem_sortPreimage_comp_perm {a : Fin N → ℕ} {mu : NPartition N}
 private lemma mem_sortPreimage_comp_perm' {a : Fin N → ℕ} {mu : NPartition N} (σ : Perm (Fin N))
     (ha : a ∈ sortPreimage mu) : (a ∘ σ) ∈ sortPreimage mu := by
   have h := mem_sortPreimage_comp_perm σ⁻¹ ha
-  convert h
+  convert h <;> rfl
 
 /-- The monomial symmetric polynomial is symmetric.
     (Follows from Definition def.sf.m)
@@ -911,11 +914,11 @@ lemma parts_mem_sortPreimage (mu : NPartition N) : mu.parts ∈ sortPreimage mu 
 /-- The coefficient of x^{μ.parts} in m_μ is 1.
     This is because μ.parts is the unique element of sortPreimage μ that equals μ.parts. -/
 lemma monomialSymm_coeff_self (mu : NPartition N) :
-    coeff (Finsupp.equivFunOnFinite.symm mu.parts) (monomialSymm mu : MvPolynomial (Fin N) R) = 1 := by
+    (monomialSymm mu : MvPolynomial (Fin N) R).coeff (Finsupp.equivFunOnFinite.symm mu.parts) = 1 := by
   simp only [monomialSymm]
   rw [coeff_sum]
-  have h : ∑ a ∈ sortPreimage mu, coeff (Finsupp.equivFunOnFinite.symm mu.parts) (monomialExp (R := R) a) =
-      coeff (Finsupp.equivFunOnFinite.symm mu.parts) (monomialExp (R := R) mu.parts) := by
+  have h : ∑ a ∈ sortPreimage mu, (monomialExp (R := R) a).coeff (Finsupp.equivFunOnFinite.symm mu.parts) =
+      (monomialExp (R := R) mu.parts).coeff (Finsupp.equivFunOnFinite.symm mu.parts) := by
     rw [Finset.sum_eq_single_of_mem mu.parts (parts_mem_sortPreimage mu)]
     intro b _ hne
     rw [monomialExp_eq_monomial, coeff_monomial]
@@ -930,7 +933,7 @@ lemma monomialSymm_coeff_self (mu : NPartition N) :
     This is because the only monomial in m_ν with exponent sorting to ν must have
     exponent ν.parts (when looking at the sorted exponent), not μ.parts. -/
 lemma monomialSymm_coeff_ne (mu nu : NPartition N) (h : mu ≠ nu) :
-    coeff (Finsupp.equivFunOnFinite.symm mu.parts) (monomialSymm nu : MvPolynomial (Fin N) R) = 0 := by
+    (monomialSymm nu : MvPolynomial (Fin N) R).coeff (Finsupp.equivFunOnFinite.symm mu.parts) = 0 := by
   simp only [monomialSymm]
   rw [coeff_sum]
   apply Finset.sum_eq_zero
@@ -955,7 +958,7 @@ def onesThenZeros (n : ℕ) (_hn : n ≤ N) : NPartition N where
   parts := fun i => if i.val < n then 1 else 0
   antitone := by
     intro i j hij
-    simp only
+    try simp only
     split_ifs with hi hj hj
     · exact le_refl 1
     · omega
@@ -968,7 +971,7 @@ def singletonPartition (n : ℕ) (_hN : 0 < N) : NPartition N where
   antitone := by
     intro i j hij
     -- Goal: (if j.val = 0 then n else 0) ≤ (if i.val = 0 then n else 0)
-    simp only
+    try simp only
     split_ifs with h1 h2
     · -- h1 : j.val = 0, h2 : i.val = 0
       exact le_refl n
@@ -1677,52 +1680,18 @@ theorem monomialSymm_zero_partition_eq_one (hN : 0 < N) :
     Label: prop.sf.sigma-pol-coeff -/
 theorem sigma_coeff_permute (sigma : Perm (Fin N)) (f : MvPolynomial (Fin N) R)
     (a : Fin N → ℕ) :
-    coeff (Finsupp.equivFunOnFinite.symm a) (rename sigma f) =
-    coeff (Finsupp.equivFunOnFinite.symm (a ∘ sigma)) f := by
-  -- Use rename_eq: rename sigma f = Finsupp.mapDomain (Finsupp.mapDomain sigma) f
-  rw [rename_eq]
-  simp only [coeff]
-  -- Key lemma: nested mapDomain with an equiv can be computed via symm
-  have key : ∀ (g : (Fin N →₀ ℕ) →₀ R) (m : Fin N →₀ ℕ),
-      (Finsupp.mapDomain (Finsupp.mapDomain (sigma : Fin N → Fin N)) g) m =
-      g (Finsupp.mapDomain sigma.symm m) := by
-    intro g m
-    -- Use equivCongrLeft twice: first for inner mapDomain, then for outer
-    let e1 : (Fin N →₀ ℕ) ≃ (Fin N →₀ ℕ) := Finsupp.equivCongrLeft sigma
-    let e2 : ((Fin N →₀ ℕ) →₀ R) ≃ ((Fin N →₀ ℕ) →₀ R) := Finsupp.equivCongrLeft e1
-    -- Show mapDomain sigma = equivCongrLeft sigma
-    have h1 : ∀ x : Fin N →₀ ℕ, Finsupp.mapDomain (sigma : Fin N → Fin N) x = e1 x := by
-      intro x
-      show Finsupp.mapDomain sigma x = Finsupp.equivCongrLeft sigma x
-      rw [Finsupp.equivCongrLeft_apply]
-      ext y
-      rw [Finsupp.equivMapDomain_apply, Finsupp.mapDomain_equiv_apply]
-    have h2 : Finsupp.mapDomain (Finsupp.mapDomain (sigma : Fin N → Fin N)) g =
-        Finsupp.mapDomain e1 g := by
-      congr 1
-      funext x
-      exact h1 x
-    rw [h2]
-    have h3 : Finsupp.mapDomain e1 g = e2 g := by
-      show Finsupp.mapDomain (Finsupp.equivCongrLeft sigma) g =
-          Finsupp.equivCongrLeft (Finsupp.equivCongrLeft sigma) g
-      rw [Finsupp.equivCongrLeft_apply]
-      ext y
-      rw [Finsupp.equivMapDomain_apply, Finsupp.mapDomain_equiv_apply]
-    rw [h3]
-    simp only [e2, e1, Finsupp.equivCongrLeft_apply, Finsupp.equivMapDomain_apply,
-      Finsupp.equivCongrLeft_symm]
-    -- Show equivMapDomain sigma.symm = mapDomain sigma.symm
-    congr 1
-    ext y
-    rw [Finsupp.equivMapDomain_apply, Finsupp.mapDomain_equiv_apply]
-  -- Apply key lemma
-  have h1 : (sigma : Fin N → Fin N) = sigma.toFun := rfl
-  simp only [h1] at key ⊢
-  rw [key]
-  congr 1
-  ext x
-  simp [Finsupp.mapDomain_equiv_apply]
+    (rename sigma f).coeff (Finsupp.equivFunOnFinite.symm a) =
+    f.coeff (Finsupp.equivFunOnFinite.symm (a ∘ sigma)) := by
+
+  -- coefficient function, so the upstream computation through `rename_eq` is replaced by
+  -- `coeff_rename_mapDomain` for the injective map `sigma`.
+  classical
+  have hA : Finsupp.equivFunOnFinite.symm a =
+      Finsupp.mapDomain sigma (Finsupp.equivFunOnFinite.symm (a ∘ sigma)) := by
+    ext i
+    rw [Finsupp.mapDomain_equiv_apply]
+    simp
+  rw [hA, coeff_rename_mapDomain sigma sigma.injective]
 
 /-!
 ## Basis theorem for monomial symmetric polynomials (Theorem thm.sf.m-basis)
@@ -1737,23 +1706,19 @@ theorem monomialSymm_linearIndependent (S : Finset (NPartition N)) :
   rw [Fintype.linearIndependent_iffₛ]
   intro f g hfg mu
   -- Extract the coefficient of mu.parts from the sum
-  have key : coeff (Finsupp.equivFunOnFinite.symm mu.val.parts)
-      (∑ nu : S, f nu • monomialSymm nu.val : MvPolynomial (Fin N) R) =
-      coeff (Finsupp.equivFunOnFinite.symm mu.val.parts)
-      (∑ nu : S, g nu • monomialSymm nu.val : MvPolynomial (Fin N) R) := by
+  have key : (∑ nu : S, f nu • monomialSymm nu.val : MvPolynomial (Fin N) R).coeff (Finsupp.equivFunOnFinite.symm mu.val.parts) =
+      (∑ nu : S, g nu • monomialSymm nu.val : MvPolynomial (Fin N) R).coeff (Finsupp.equivFunOnFinite.symm mu.val.parts) := by
     rw [hfg]
   simp only [coeff_sum, coeff_smul] at key
   -- The sum simplifies because only the term with nu = mu contributes
-  have hf : ∑ nu : S, f nu • coeff (Finsupp.equivFunOnFinite.symm mu.val.parts)
-      (monomialSymm nu.val : MvPolynomial (Fin N) R) = f mu := by
+  have hf : ∑ nu : S, f nu • (monomialSymm nu.val : MvPolynomial (Fin N) R).coeff (Finsupp.equivFunOnFinite.symm mu.val.parts) = f mu := by
     rw [Finset.sum_eq_single_of_mem mu (Finset.mem_univ mu)]
     · simp [monomialSymm_coeff_self]
     · intro nu _ hne
       simp only [smul_eq_mul]
       have hne' : mu.val ≠ nu.val := fun heq => hne (Subtype.ext heq.symm)
       rw [monomialSymm_coeff_ne mu.val nu.val hne', mul_zero]
-  have hg : ∑ nu : S, g nu • coeff (Finsupp.equivFunOnFinite.symm mu.val.parts)
-      (monomialSymm nu.val : MvPolynomial (Fin N) R) = g mu := by
+  have hg : ∑ nu : S, g nu • (monomialSymm nu.val : MvPolynomial (Fin N) R).coeff (Finsupp.equivFunOnFinite.symm mu.val.parts) = g mu := by
     rw [Finset.sum_eq_single_of_mem mu (Finset.mem_univ mu)]
     · simp [monomialSymm_coeff_self]
     · intro nu _ hne
@@ -1767,9 +1732,9 @@ theorem monomialSymm_linearIndependent (S : Finset (NPartition N)) :
     If f is symmetric and σ is a permutation, then coeff (σ · d) f = coeff d f. -/
 lemma coeff_perm_eq_of_symmetric (f : MvPolynomial (Fin N) R) (hf : f.IsSymmetric)
     (d : Fin N →₀ ℕ) (σ : Perm (Fin N)) :
-    coeff (Finsupp.mapDomain σ d) f = coeff d f := by
+    f.coeff (Finsupp.mapDomain σ d) = f.coeff d := by
   have h1 : rename σ f = f := hf σ
-  have key : coeff (Finsupp.mapDomain σ d) (rename σ f) = coeff d f := by
+  have key : (rename σ f).coeff (Finsupp.mapDomain σ d) = f.coeff d := by
     exact coeff_rename_mapDomain σ σ.injective f d
   rw [h1] at key
   exact key
@@ -1931,7 +1896,7 @@ private lemma sortTuple_eq_implies_multiset_eq (a b : Fin N → ℕ)
     the existence of a permutation relating the two tuples. -/
 lemma coeff_eq_of_same_sort (f : MvPolynomial (Fin N) R) (hf : f.IsSymmetric)
     (d₁ d₂ : Fin N →₀ ℕ) (h : sortTupleFinsupp d₁ = sortTupleFinsupp d₂) :
-    coeff d₁ f = coeff d₂ f := by
+    f.coeff d₁ = f.coeff d₂ := by
   -- Step 1: sortTupleFinsupp equality implies multiset equality
   unfold sortTupleFinsupp at h
   have h_multiset_eq := sortTuple_eq_implies_multiset_eq _ _ h
@@ -1964,10 +1929,10 @@ theorem monomialSymm_spans :
     f ∈ Submodule.span R (Set.range (fun mu : NPartition N => monomialSymm mu)) := by
   intro f hf
   -- Write f as sum of monomials
-  have hf_sum : f = ∑ d ∈ f.support, monomial d (coeff d f) := f.as_sum
+  have hf_sum : f = ∑ d ∈ f.support, monomial d (f.coeff d) := f.as_sum
   rw [hf_sum]
   -- Partition by sortTupleFinsupp
-  rw [sum_partition f.support sortTupleFinsupp (fun d => monomial d (coeff d f))]
+  rw [sum_partition f.support sortTupleFinsupp (fun d => monomial d (f.coeff d))]
   -- Show each partition class is in the span
   apply Submodule.sum_mem
   intro μ hμ
@@ -1976,14 +1941,14 @@ theorem monomialSymm_spans :
   obtain ⟨d₀, hd₀_mem, hd₀_sort⟩ := hμ
   -- All elements in this class have the same coefficient as d₀
   have hcoeff_eq : ∀ d ∈ f.support.filter (fun d => sortTupleFinsupp d = μ),
-      coeff d f = coeff d₀ f := by
+      f.coeff d = f.coeff d₀ := by
     intro d hd
     simp only [mem_filter] at hd
     rw [← hd₀_sort] at hd
     exact coeff_eq_of_same_sort f hf d d₀ hd.2
   -- Factor out the common coefficient
-  have h_factor : ∑ d ∈ f.support.filter (fun d => sortTupleFinsupp d = μ), monomial d (coeff d f) =
-      coeff d₀ f • ∑ d ∈ f.support.filter (fun d => sortTupleFinsupp d = μ), monomial d 1 := by
+  have h_factor : ∑ d ∈ f.support.filter (fun d => sortTupleFinsupp d = μ), monomial d (f.coeff d) =
+      f.coeff d₀ • ∑ d ∈ f.support.filter (fun d => sortTupleFinsupp d = μ), monomial d 1 := by
     rw [Finset.smul_sum]
     apply Finset.sum_congr rfl
     intro d hd
@@ -2100,7 +2065,7 @@ theorem monomialSymm_spans :
     Label: thm.sf.m-basis.b -/
 theorem symm_eq_sum_coeff_monomialSymm (f : MvPolynomial (Fin N) R) (hf : f.IsSymmetric)
     (S : Finset (NPartition N)) (hS : ∀ mu : NPartition N, mu.size ≤ f.totalDegree → mu ∈ S) :
-    f = ∑ mu ∈ S, (coeff (Finsupp.equivFunOnFinite.symm mu.parts) f) • monomialSymm mu := by
+    f = ∑ mu ∈ S, (f.coeff (Finsupp.equivFunOnFinite.symm mu.parts)) • monomialSymm mu := by
   -- Helper: sortTupleFinsupp_parts
   have sortTupleFinsupp_parts : ∀ mu : NPartition N,
       sortTupleFinsupp (Finsupp.equivFunOnFinite.symm mu.parts) = mu := fun mu => by
@@ -2122,7 +2087,7 @@ theorem symm_eq_sum_coeff_monomialSymm (f : MvPolynomial (Fin N) R) (hf : f.IsSy
     exact hx
   -- Helper: monomialSymm_coeff for general d
   have monomialSymm_coeff : ∀ (d : Fin N →₀ ℕ) (mu : NPartition N),
-      coeff d (monomialSymm mu : MvPolynomial (Fin N) R) =
+      (monomialSymm mu : MvPolynomial (Fin N) R).coeff d =
       if sortTupleFinsupp d = mu then 1 else 0 := fun d mu => by
     split_ifs with h
     · have hsort : sortTupleFinsupp d = sortTupleFinsupp (Finsupp.equivFunOnFinite.symm mu.parts) := by
@@ -2161,7 +2126,7 @@ theorem symm_eq_sum_coeff_monomialSymm (f : MvPolynomial (Fin N) R) (hf : f.IsSy
       exact absurd heq (Ne.symm hne)
   · -- Case: μ ∉ S - the coefficient must be 0
     -- First show the sum is 0
-    have hsum_zero : ∑ x ∈ S, (if sortTupleFinsupp d = x then coeff (Finsupp.equivFunOnFinite.symm x.parts) f else 0) = 0 := by
+    have hsum_zero : ∑ x ∈ S, (if sortTupleFinsupp d = x then f.coeff (Finsupp.equivFunOnFinite.symm x.parts) else 0) = 0 := by
       apply Finset.sum_eq_zero
       intro nu hnu
       simp only [ite_eq_right_iff]
@@ -2283,22 +2248,18 @@ theorem monomialSymm_homogeneous_linearIndependent (n : ℕ) :
   rw [linearIndependent_iff'ₛ]
   intro s f g hfg i hi
   -- Extract the coefficient of i.parts from the sum
-  have key : coeff (Finsupp.equivFunOnFinite.symm i.val.parts)
-      (∑ j ∈ s, f j • monomialSymm j.val : MvPolynomial (Fin N) R) =
-      coeff (Finsupp.equivFunOnFinite.symm i.val.parts)
-      (∑ j ∈ s, g j • monomialSymm j.val : MvPolynomial (Fin N) R) := by
+  have key : (∑ j ∈ s, f j • monomialSymm j.val : MvPolynomial (Fin N) R).coeff (Finsupp.equivFunOnFinite.symm i.val.parts) =
+      (∑ j ∈ s, g j • monomialSymm j.val : MvPolynomial (Fin N) R).coeff (Finsupp.equivFunOnFinite.symm i.val.parts) := by
     rw [hfg]
   simp only [coeff_sum, coeff_smul] at key
-  have hf : ∑ j ∈ s, f j • coeff (Finsupp.equivFunOnFinite.symm i.val.parts)
-      (monomialSymm j.val : MvPolynomial (Fin N) R) = f i := by
+  have hf : ∑ j ∈ s, f j • (monomialSymm j.val : MvPolynomial (Fin N) R).coeff (Finsupp.equivFunOnFinite.symm i.val.parts) = f i := by
     rw [Finset.sum_eq_single_of_mem i hi]
     · simp [monomialSymm_coeff_self]
     · intro j hj hne
       simp only [smul_eq_mul]
       have hne' : i.val ≠ j.val := fun heq => hne (Subtype.ext heq.symm)
       rw [monomialSymm_coeff_ne i.val j.val hne', mul_zero]
-  have hg : ∑ j ∈ s, g j • coeff (Finsupp.equivFunOnFinite.symm i.val.parts)
-      (monomialSymm j.val : MvPolynomial (Fin N) R) = g i := by
+  have hg : ∑ j ∈ s, g j • (monomialSymm j.val : MvPolynomial (Fin N) R).coeff (Finsupp.equivFunOnFinite.symm i.val.parts) = g i := by
     rw [Finset.sum_eq_single_of_mem i hi]
     · simp [monomialSymm_coeff_self]
     · intro j hj hne
@@ -2377,14 +2338,14 @@ noncomputable def monomialSymm_basis_homogeneous (n : ℕ) :
   -- v is linearly independent
   have hli : LinearIndependent R v := by
     apply linearIndependent_submodule_of_linearIndependent
-    convert monomialSymm_homogeneous_linearIndependent n
+    convert monomialSymm_homogeneous_linearIndependent n <;> rfl
   -- v spans symmHomogeneous
   have hsp : ⊤ ≤ Submodule.span R (Set.range v) := by
     apply span_eq_top_of_subtype_span
     intro x
     obtain ⟨hx_symm, hx_hom⟩ := x.property
     have h := monomialSymm_homogeneous_spans n x.val ⟨hx_symm, hx_hom⟩
-    convert h
+    convert h <;> rfl
   exact Module.Basis.mk hli hsp
 
 

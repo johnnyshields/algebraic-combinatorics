@@ -8,6 +8,9 @@ import AlgebraicCombinatorics.SymmetricFunctions.OmegaInvolution
 import AlgebraicCombinatorics.SymmetricFunctions.NPartition
 import AlgebraicCombinatorics.SymmetricFunctions.LittlewoodRichardson
 
+-- Many proofs here unify through semireducible definitions; opt out of the stricter check.
+set_option backward.isDefEq.respectTransparency false
+
 /-!
 # The Pieri Rules and Jacobi-Trudi Identities
 
@@ -958,7 +961,7 @@ noncomputable def SSYT.toMonomial {lam : NPartition N} (T : SSYT lam) :
 theorem SkewSSYT.eq_of_entries_eq {s : SkewPartition N} {T1 T2 : SkewSSYT s}
     (h : T1.entries = T2.entries) : T1 = T2 := by
   cases T1; cases T2
-  simp only at h
+  try simp only at h
   subst h
   rfl
 
@@ -976,7 +979,7 @@ instance SkewSSYT.instSubsingletonOne (s : SkewPartition 1) : Subsingleton (Skew
 theorem SSYT.eq_of_entries_eq {lam : NPartition N} {T1 T2 : SSYT lam}
     (h : T1.entries = T2.entries) : T1 = T2 := by
   cases T1; cases T2
-  simp only at h
+  try simp only at h
   subst h
   rfl
 
@@ -2100,7 +2103,7 @@ def symToRowSSYT (hN : 0 < N) (n : ℕ) (s : Sym (Fin N) n) :
         simp only [NPartition.rowPartition, hi, ↓reduceIte] at hj
         exact ⟨j.val, hj⟩ : Fin 0))
   rowWeak i j k hjk := by
-    simp only
+    try simp only
     split_ifs with hi
     · -- Row 0: use weakly increasing property
       exact (symToWeaklyIncreasing n s).property _ _ hjk
@@ -2134,7 +2137,7 @@ theorem rowSSYTToSym_symToRowSSYT (hN : 0 < N) (n : ℕ) (s : Sym (Fin N) n) :
     rowSSYTToSym hN n (symToRowSSYT hN n s) = s := by
   unfold rowSSYTToSym symToRowSSYT
   -- The function is equivalent to (symToWeaklyIncreasing n s).val
-  convert weaklyIncreasingToSym_symToWeaklyIncreasing n s using 1
+  convert weaklyIncreasingToSym_symToWeaklyIncreasing n s using 1 <;> first | rfl | simp
 
 /-- symToRowSSYT preserves monomials. -/
 theorem symToRowSSYT_toMonomial (hN : 0 < N) (n : ℕ) (s : Sym (Fin N) n) :
@@ -2142,7 +2145,7 @@ theorem symToRowSSYT_toMonomial (hN : 0 < N) (n : ℕ) (s : Sym (Fin N) n) :
   -- The product over the single-row tableau equals the Sym monomial
   -- This follows from sym_monomial_eq_weaklyIncreasing_prod
   unfold SSYT.toMonomial symToRowSSYT
-  simp only
+  try simp only
   -- The product over i : Fin N simplifies because only i = 0 contributes
   rw [Finset.prod_eq_single ⟨0, hN⟩]
   · -- Main case: i = 0
@@ -2206,7 +2209,7 @@ theorem hsymm_eq_schur_rowPartition (hN : 0 < N) (n : ℕ) :
     apply SSYT.eq_of_entries_eq
     funext i j
     unfold symToRowSSYT rowSSYTToSym weaklyIncreasingToSym
-    simp only
+    try simp only
     split_ifs with hi
     · -- Row 0 case: need to show sorted entries = original entries
       have hrow0 : (NPartition.rowPartition N n hN).parts ⟨0, hN⟩ = n := by
@@ -2259,14 +2262,14 @@ def finsetToColSSYT (n : ℕ) (hn : n ≤ N) (s : Finset (Fin N)) (hs : s.card =
         simp only [NPartition.colPartition, hi, ↓reduceIte] at hj
         exact ⟨j.val, hj⟩ : Fin 0))
   rowWeak i j k _ := by
-    simp only
+    try simp only
     split_ifs with hi
     · rfl
     · have hj := j.isLt
       simp only [NPartition.colPartition, hi, ↓reduceIte] at hj
       exact (Nat.not_lt_zero j.val hj).elim
   colStrict i hi j hj := by
-    simp only
+    try simp only
     have hi_lt_n : i.val < n := by
       have hj' := j.isLt
       simp only [NPartition.colPartition] at hj'
@@ -2285,7 +2288,7 @@ def finsetToColSSYT (n : ℕ) (hn : n ≤ N) (s : Finset (Fin N)) (hs : s.card =
     have hlen2 : i.val + 1 < (s.sort (· ≤ ·)).length := by rw [Finset.length_sort, hs]; omega
     have hlt : (⟨i.val, hlen1⟩ : Fin (s.sort (· ≤ ·)).length) < ⟨i.val + 1, hlen2⟩ := by
       simp only [Fin.lt_def]; omega
-    convert s.sortedLT_sort hlt
+    convert s.sortedLT_sort hlt <;> simp
 
 /-- Helper for extracting entry from column SSYT -/
 def colSSYTEntry (n : ℕ) (hn : n ≤ N) (T : SSYT (NPartition.colPartition N n hn))
@@ -2338,7 +2341,7 @@ theorem colSSYTToFinset_card (n : ℕ) (hn : n ≤ N)
   rw [Finset.card_image_of_injective]
   · simp
   · intro k₁ k₂ heq
-    simp only at heq
+    try simp only at heq
     by_contra hne
     rcases Nat.lt_trichotomy k₁.val k₂.val with hlt | heq' | hgt
     · have hstrict := colSSYTEntry_strictMono n hn T k₁.val k₂.val k₁.isLt k₂.isLt hlt
@@ -2363,12 +2366,12 @@ theorem colSSYTToFinset_sort_eq (n : ℕ) (hn : n ≤ N)
     by_contra hne
     rcases Nat.lt_trichotomy k₁.val k₂.val with hlt | heq' | hgt
     · have hstrict := colSSYTEntry_strictMono n hn T k₁.val k₂.val k₁.isLt k₂.isLt hlt
-      simp only at heq
+      try simp only at heq
       rw [heq] at hstrict
       exact lt_irrefl _ hstrict
     · exact hne (Fin.ext heq')
     · have hstrict := colSSYTEntry_strictMono n hn T k₂.val k₁.val k₂.isLt k₁.isLt hgt
-      simp only at heq
+      try simp only at heq
       rw [heq] at hstrict
       exact lt_irrefl _ hstrict
   rw [List.toFinset_sort (· ≤ ·) (List.nodup_ofFn.mpr hinj)]
@@ -3016,7 +3019,7 @@ theorem Nipat.eq_of_paths_eq {lam mu : Fin N → ℕ}
     (h : np1.paths = np2.paths) : np1 = np2 := by
   obtain ⟨p1, ni1⟩ := np1
   obtain ⟨p2, ni2⟩ := np2
-  simp only at h
+  try simp only at h
   subst h
   rfl
 
@@ -5838,7 +5841,7 @@ theorem lgvPathToLatticePath_weight_eq (a c : ℤ) (p : LGV.SimpleDigraph.Path L
     LGV.pathWeight (jacobiTrudiArcWeight (N := N) (R := R)) p =
     (lgvPathToLatticePath a c p hstart hfinish).weight (R := R) := by
   unfold LGV.pathWeight lgvPathToLatticePath LatticePath.weight
-  simp only
+  try simp only
   -- Apply the helper lemma
   apply pathWeightAux_eq_map_prod_lgvYCoords
 
@@ -6942,7 +6945,7 @@ private lemma pathTupleToNipat_weight (lam mu : Fin N → ℕ)
   -- The weight of a Nipat is ∏ᵢ (paths i).weight
   -- By lgvPathToLatticePath_weight_eq, these are equal for each path
   unfold LGV.pathTupleWeight Nipat.weight pathTupleToNipat pathTupleToLatticePaths
-  simp only
+  try simp only
   apply Finset.prod_congr rfl
   intro i _
   exact lgvPathToLatticePath_weight_eq

@@ -4,6 +4,9 @@ All rights reserved.
 -/
 import Mathlib
 
+-- Many proofs here unify through semireducible definitions; opt out of the stricter check.
+set_option backward.isDefEq.respectTransparency false
+
 /-!
 # The Lindström-Gessel-Viennot Lemma: Weighted and Generalized Versions
 
@@ -674,7 +677,7 @@ lemma pathWeightAux_append {D : SimpleDigraph V} (w : ArcWeight D K)
       have ih_applied := ih l2 h1_tail_ne h2_ne h_join_tail arcs1_tail arcs2 arcs_concat_tail
       have h_eq : pathWeightAux w (v2 :: (vs2 ++ l2.tail)) arcs_concat_tail = 
                   pathWeightAux w (v2 :: vs2) arcs1_tail * pathWeightAux w l2 arcs2 := by
-        convert ih_applied using 1
+        convert ih_applied using 1 <;> first | rfl | simp
       simp only [pathWeightAux, h_eq]
       ring
 
@@ -923,14 +926,14 @@ private lemma findIdx_eq_of_first_satisfies {α : Type*} (l : List α) (p : α �
     cases n with
     | zero =>
       simp only [List.findIdx_cons, List.getElem_cons_zero] at *
-      simp only [h_at_n, cond_true]
+      simp only [h_at_n, cond_true, Bool.false_eq_true, ↓reduceIte]
     | succ m =>
       simp only [List.findIdx_cons]
       have h_not_px : p x = false := by
         have := h_before 0 (Nat.zero_lt_succ m)
         simp only [List.getElem_cons_zero] at this
         exact this
-      simp only [h_not_px, cond_false]
+      simp only [h_not_px, cond_false, Bool.false_eq_true, ↓reduceIte]
       apply congrArg (· + 1)
       have hm_lt : m < xs.length := by
         simp only [List.length_cons] at hn; omega
@@ -958,14 +961,14 @@ private lemma findIdx_le_of_mem (l : List V) (i : ℕ) (hi : i < l.length)
     cases i with
     | zero => 
       simp only [List.getElem_cons_zero] at hp
-      simp only [List.findIdx_cons, hp, cond_true, le_refl]
+      simp only [List.findIdx_cons, hp, cond_true, le_refl, Bool.false_eq_true, ↓reduceIte]
     | succ j =>
       simp only [List.findIdx_cons]
       simp only [List.getElem_cons_succ] at hp
       cases hx : pred x with
       | true => simp
       | false => 
-        simp only [cond_false]
+        simp only [cond_false, Bool.false_eq_true, ↓reduceIte]
         simp at hi
         have := ih j (by omega : j < xs.length) hp
         omega
@@ -1123,7 +1126,7 @@ noncomputable def SimpleDigraph.Path.splitAt {D : SimpleDigraph V} (p : SimpleDi
 lemma SimpleDigraph.Path.splitAt_head_finish {D : SimpleDigraph V} (p : SimpleDigraph.Path D) 
     (v : V) (hv : v ∈ p.vertices) : (p.splitAt v hv).1.finish = v := by
   unfold splitAt SimpleDigraph.Path.finish
-  simp only
+  try simp only
   have h_idx_lt : p.vertices.findIdx (· = v) < p.vertices.length := 
     List.findIdx_lt_length_of_exists ⟨v, hv, by simp⟩
   have h_len : (p.vertices.take (p.vertices.findIdx (· = v) + 1)).length = 
@@ -1147,7 +1150,7 @@ lemma SimpleDigraph.Path.splitAt_head_finish {D : SimpleDigraph V} (p : SimpleDi
 lemma SimpleDigraph.Path.splitAt_tail_start {D : SimpleDigraph V} (p : SimpleDigraph.Path D) 
     (v : V) (hv : v ∈ p.vertices) : (p.splitAt v hv).2.start = v := by
   unfold splitAt SimpleDigraph.Path.start
-  simp only
+  try simp only
   have h_idx_lt : p.vertices.findIdx (· = v) < p.vertices.length := 
     List.findIdx_lt_length_of_exists ⟨v, hv, by simp⟩
   have h_ne : p.vertices.drop (p.vertices.findIdx (· = v)) ≠ [] := by
@@ -1225,7 +1228,7 @@ omit [DecidableEq V] in
 lemma SimpleDigraph.Path.concat_start {D : SimpleDigraph V} (p q : SimpleDigraph.Path D) 
     (hpq : p.finish = q.start) : (p.concat q hpq).start = p.start := by
   unfold concat start
-  simp only
+  try simp only
   exact List.head_append_of_ne_nil (l' := q.vertices.tail) p.nonempty
 
 omit [DecidableEq V] in
@@ -1233,7 +1236,7 @@ omit [DecidableEq V] in
 lemma SimpleDigraph.Path.concat_finish {D : SimpleDigraph V} (p q : SimpleDigraph.Path D) 
     (hpq : p.finish = q.start) : (p.concat q hpq).finish = q.finish := by
   unfold concat finish
-  simp only
+  try simp only
   have hq_ne := q.nonempty
   by_cases h : q.vertices.tail = []
   · have hq_len : q.vertices.length = 1 := by
@@ -1255,7 +1258,7 @@ lemma pathWeight_concat {D : SimpleDigraph V} (w : ArcWeight D K)
     (p q : SimpleDigraph.Path D) (hpq : p.finish = q.start) :
     pathWeight w (p.concat q hpq) = pathWeight w p * pathWeight w q := by
   unfold pathWeight SimpleDigraph.Path.concat
-  simp only
+  try simp only
   have h_join : p.vertices.getLast p.nonempty = q.vertices.head q.nonempty := by
     unfold SimpleDigraph.Path.finish SimpleDigraph.Path.start at hpq
     exact hpq
@@ -1267,7 +1270,7 @@ lemma pathWeight_splitAt {D : SimpleDigraph V} (w : ArcWeight D K)
     (p : SimpleDigraph.Path D) (v : V) (hv : v ∈ p.vertices) :
     pathWeight w p = pathWeight w (p.splitAt v hv).1 * pathWeight w (p.splitAt v hv).2 := by
   unfold pathWeight SimpleDigraph.Path.splitAt
-  simp only
+  try simp only
   set idx := p.vertices.findIdx (· = v) with h_idx_def
   set head := p.vertices.take (idx + 1) with h_head_def
   set tail := p.vertices.drop idx with h_tail_def
@@ -1353,7 +1356,7 @@ lemma pathWeight_splitAt {D : SimpleDigraph V} (w : ArcWeight D K)
 lemma SimpleDigraph.Path.splitAt_head_start {D : SimpleDigraph V} (p : SimpleDigraph.Path D) 
     (v : V) (hv : v ∈ p.vertices) : (p.splitAt v hv).1.start = p.start := by
   unfold splitAt start
-  simp only
+  try simp only
   have h_idx_lt : p.vertices.findIdx (· = v) < p.vertices.length := 
     List.findIdx_lt_length_of_exists ⟨v, hv, by simp⟩
   have h_head_ne : p.vertices.take (p.vertices.findIdx (· = v) + 1) ≠ [] := by
@@ -1365,7 +1368,7 @@ lemma SimpleDigraph.Path.splitAt_head_start {D : SimpleDigraph V} (p : SimpleDig
 lemma SimpleDigraph.Path.splitAt_tail_finish {D : SimpleDigraph V} (p : SimpleDigraph.Path D) 
     (v : V) (hv : v ∈ p.vertices) : (p.splitAt v hv).2.finish = p.finish := by
   unfold splitAt finish
-  simp only
+  try simp only
   have h_idx_lt : p.vertices.findIdx (· = v) < p.vertices.length := 
     List.findIdx_lt_length_of_exists ⟨v, hv, by simp⟩
   have h_drop_ne : p.vertices.drop (p.vertices.findIdx (· = v)) ≠ [] := by
@@ -1404,7 +1407,7 @@ lemma exchangeTails_fst_start {D : SimpleDigraph V}
     (hv_p : v ∈ p.vertices) (hv_q : v ∈ q.vertices) :
     (exchangeTails p q v hv_p hv_q).1.start = p.start := by
   unfold exchangeTails
-  simp only
+  try simp only
   rw [SimpleDigraph.Path.concat_start]
   exact SimpleDigraph.Path.splitAt_head_start p v hv_p
 
@@ -1414,7 +1417,7 @@ lemma exchangeTails_fst_finish {D : SimpleDigraph V}
     (hv_p : v ∈ p.vertices) (hv_q : v ∈ q.vertices) :
     (exchangeTails p q v hv_p hv_q).1.finish = q.finish := by
   unfold exchangeTails
-  simp only
+  try simp only
   rw [SimpleDigraph.Path.concat_finish]
   exact SimpleDigraph.Path.splitAt_tail_finish q v hv_q
 
@@ -1424,7 +1427,7 @@ lemma exchangeTails_snd_start {D : SimpleDigraph V}
     (hv_p : v ∈ p.vertices) (hv_q : v ∈ q.vertices) :
     (exchangeTails p q v hv_p hv_q).2.start = q.start := by
   unfold exchangeTails
-  simp only
+  try simp only
   rw [SimpleDigraph.Path.concat_start]
   exact SimpleDigraph.Path.splitAt_head_start q v hv_q
 
@@ -1434,7 +1437,7 @@ lemma exchangeTails_snd_finish {D : SimpleDigraph V}
     (hv_p : v ∈ p.vertices) (hv_q : v ∈ q.vertices) :
     (exchangeTails p q v hv_p hv_q).2.finish = p.finish := by
   unfold exchangeTails
-  simp only
+  try simp only
   rw [SimpleDigraph.Path.concat_finish]
   exact SimpleDigraph.Path.splitAt_tail_finish p v hv_p
 
@@ -1443,7 +1446,7 @@ omit [DecidableEq V] in
 lemma SimpleDigraph.Path.concat_mem_of_finish {D : SimpleDigraph V} (p q : SimpleDigraph.Path D) 
     (hpq : p.finish = q.start) : p.finish ∈ (p.concat q hpq).vertices := by
   unfold concat
-  simp only
+  try simp only
   apply List.mem_append_left
   exact List.getLast_mem p.nonempty
 
@@ -1455,7 +1458,7 @@ lemma exchangeTails_fst_mem_v {D : SimpleDigraph V}
     (hv_p : v ∈ p.vertices) (hv_q : v ∈ q.vertices) :
     v ∈ (exchangeTails p q v hv_p hv_q).1.vertices := by
   unfold exchangeTails
-  simp only
+  try simp only
   apply List.mem_append_left
   have h := SimpleDigraph.Path.splitAt_head_finish p v hv_p
   unfold SimpleDigraph.Path.finish at h
@@ -1471,7 +1474,7 @@ lemma exchangeTails_snd_mem_v {D : SimpleDigraph V}
     (hv_p : v ∈ p.vertices) (hv_q : v ∈ q.vertices) :
     v ∈ (exchangeTails p q v hv_p hv_q).2.vertices := by
   unfold exchangeTails
-  simp only
+  try simp only
   apply List.mem_append_left
   have h := SimpleDigraph.Path.splitAt_head_finish q v hv_q
   unfold SimpleDigraph.Path.finish at h
@@ -1498,7 +1501,7 @@ private lemma splitAt_head_findIdx_eq (l : List V) (v : V) (hv : v ∈ l) :
     let idx := l.findIdx (· = v)
     let head := l.take (idx + 1)
     head.findIdx (· = v) = head.length - 1 := by
-  simp only
+  try simp only
   have h_idx_lt : l.findIdx (· = v) < l.length := List.findIdx_lt_length_of_exists ⟨v, hv, by simp⟩
   have h_len : (l.take (l.findIdx (· = v) + 1)).length = l.findIdx (· = v) + 1 := by
     rw [List.length_take]; omega
@@ -1541,7 +1544,7 @@ private lemma splitAt_concat_vertices_eq (head_verts tail_verts : List V) (v : V
     let combined := head_verts ++ tail_verts.tail
     let idx := combined.findIdx (· = v)
     (combined.take (idx + 1), combined.drop idx) = (head_verts, tail_verts) := by
-  simp only
+  try simp only
   have hv_mem : v ∈ head_verts := by rw [← hhead_last]; exact List.getLast_mem hhead_ne
   have h_findIdx : (head_verts ++ tail_verts.tail).findIdx (· = v) = head_verts.length - 1 := by
     rw [List.findIdx_append]
@@ -1573,22 +1576,19 @@ private lemma splitAt_fst_vertices {D : SimpleDigraph V} (p : SimpleDigraph.Path
     (v : V) (hv : v ∈ p.vertices) : 
     (p.splitAt v hv).1.vertices = p.vertices.take (p.vertices.findIdx (· = v) + 1) := by
   unfold SimpleDigraph.Path.splitAt
-  simp only
-
+  try simp only
 -- Helper lemma: splitAt vertices for the tail
 private lemma splitAt_snd_vertices {D : SimpleDigraph V} (p : SimpleDigraph.Path D) 
     (v : V) (hv : v ∈ p.vertices) : 
     (p.splitAt v hv).2.vertices = p.vertices.drop (p.vertices.findIdx (· = v)) := by
   unfold SimpleDigraph.Path.splitAt
-  simp only
-
+  try simp only
 -- Helper lemma: concat vertices
 omit [DecidableEq V] in
 private lemma concat_vertices {D : SimpleDigraph V} (p q : SimpleDigraph.Path D) 
     (hpq : p.finish = q.start) : (p.concat q hpq).vertices = p.vertices ++ q.vertices.tail := by
   unfold SimpleDigraph.Path.concat
-  simp only
-
+  try simp only
 -- Helper lemma: paths are determined by their vertices
 omit [DecidableEq V] in
 private lemma path_ext {D : SimpleDigraph V} (p q : SimpleDigraph.Path D)
@@ -1633,7 +1633,7 @@ lemma exchangeTails_involutive {D : SimpleDigraph V} (_hac : D.IsAcyclic)
     let hv_p' : v ∈ p'.vertices := exchangeTails_fst_mem_v p q v hv_p hv_q
     let hv_q' : v ∈ q'.vertices := exchangeTails_snd_mem_v p q v hv_p hv_q
     exchangeTails p' q' v hv_p' hv_q' = (p, q) := by
-  simp only
+  try simp only
   -- Define the components
   set head_p := (p.splitAt v hv_p).1 with h_head_p_def
   set tail_p := (p.splitAt v hv_p).2 with h_tail_p_def
@@ -1674,25 +1674,25 @@ lemma exchangeTails_involutive {D : SimpleDigraph V} (_hac : D.IsAcyclic)
       (exchangeTails_fst_mem_v p q v hv_p hv_q)).1.vertices = head_p.vertices := by
     rw [splitAt_fst_vertices, h_p'_verts]
     have := h_split_p'
-    simp only at this
+    try simp only at this
     exact congr_arg Prod.fst this
   have h_p'_split_snd : ((exchangeTails p q v hv_p hv_q).1.splitAt v 
       (exchangeTails_fst_mem_v p q v hv_p hv_q)).2.vertices = tail_q.vertices := by
     rw [splitAt_snd_vertices, h_p'_verts]
     have := h_split_p'
-    simp only at this
+    try simp only at this
     exact congr_arg Prod.snd this
   have h_q'_split_fst : ((exchangeTails p q v hv_p hv_q).2.splitAt v 
       (exchangeTails_snd_mem_v p q v hv_p hv_q)).1.vertices = head_q.vertices := by
     rw [splitAt_fst_vertices, h_q'_verts]
     have := h_split_q'
-    simp only at this
+    try simp only at this
     exact congr_arg Prod.fst this
   have h_q'_split_snd : ((exchangeTails p q v hv_p hv_q).2.splitAt v 
       (exchangeTails_snd_mem_v p q v hv_p hv_q)).2.vertices = tail_p.vertices := by
     rw [splitAt_snd_vertices, h_q'_verts]
     have := h_split_q'
-    simp only at this
+    try simp only at this
     exact congr_arg Prod.snd this
   -- Now show the result equals (p, q)
   apply Prod.ext
@@ -1713,7 +1713,7 @@ lemma exchangeTails_head_eq {D : SimpleDigraph V} (_hac : D.IsAcyclic)
     let p' := (exchangeTails p q v hv_p hv_q).1
     let hv_p' := exchangeTails_fst_mem_v p q v hv_p hv_q
     (p'.splitAt v hv_p').1.vertices = (p.splitAt v hv_p).1.vertices := by
-  simp only
+  try simp only
   rw [splitAt_fst_vertices, splitAt_fst_vertices]
   rw [exchangeTails_fst_vertices]
   -- The head of p' = head_p ++ tail_q.tail is just head_p (up to v)
@@ -1731,7 +1731,7 @@ lemma exchangeTails_head_eq {D : SimpleDigraph V} (_hac : D.IsAcyclic)
     (p.splitAt v hv_p).1.nonempty (q.splitAt v hv_q).2.nonempty
     h_head_p_last (SimpleDigraph.Path.splitAt_tail_start q v hv_q)
     h_findIdx_head
-  simp only at h_concat
+  try simp only at h_concat
   exact congr_arg Prod.fst h_concat
 
 /-- Exchanging tails preserves the total weight.
@@ -1777,7 +1777,7 @@ theorem exchangeTails_weight {D : SimpleDigraph V}
   -- pathWeight (head_p ++ tail_q) = pathWeight head_p * pathWeight tail_q
   -- pathWeight (head_q ++ tail_p) = pathWeight head_q * pathWeight tail_p
   unfold exchangeTails
-  simp only
+  try simp only
   have h1 : head_p.finish = tail_q.start := by
     rw [SimpleDigraph.Path.splitAt_head_finish, SimpleDigraph.Path.splitAt_tail_start]
   have h2 : head_q.finish = tail_p.start := by
@@ -2131,7 +2131,7 @@ lemma PathTuple.firstCrowdedVertex_mem_crowdedVerticesOnPath {D : SimpleDigraph 
     let idx := pt.firstCrowdedIndexOnPath i
     let h := pt.firstCrowdedIndexOnPath_lt_length i hi
     (pt.paths i).vertices.get ⟨idx, h⟩ ∈ pt.crowdedVerticesOnPath i := by
-  simp only
+  try simp only
   unfold firstCrowdedIndexOnPath
   have h_lt := pt.firstCrowdedIndexOnPath_lt_length i hi
   unfold firstCrowdedIndexOnPath at h_lt
@@ -2290,7 +2290,7 @@ private lemma mem_head_iff_mem_exchangeTails_head {D : SimpleDigraph V} (_hac : 
     let p' := (exchangeTails p q v hv_p hv_q).1
     let hv_p' := exchangeTails_fst_mem_v p q v hv_p hv_q
     w ∈ (p.splitAt v hv_p).1.vertices ↔ w ∈ (p'.splitAt v hv_p').1.vertices := by
-  simp only
+  try simp only
   rw [exchangeTails_head_eq _hac p q v hv_p hv_q]
 
 /-- Helper: exchangeTails preserves head vertices (snd version) -/
@@ -2300,7 +2300,7 @@ private lemma exchangeTails_head_eq_snd {D : SimpleDigraph V} (_hac : D.IsAcycli
     let q' := (exchangeTails p q v hv_p hv_q).2
     let hv_q' := exchangeTails_snd_mem_v p q v hv_p hv_q
     (q'.splitAt v hv_q').1.vertices = (q.splitAt v hv_q).1.vertices := by
-  simp only
+  try simp only
   rw [splitAt_fst_vertices, splitAt_fst_vertices]
   rw [exchangeTails_snd_vertices]
   -- The head of q' = head_q ++ tail_p.tail is just head_q (up to v)
@@ -2315,7 +2315,7 @@ private lemma exchangeTails_head_eq_snd {D : SimpleDigraph V} (_hac : D.IsAcycli
     (q.splitAt v hv_q).1.nonempty (p.splitAt v hv_p).2.nonempty
     h_head_q_last (SimpleDigraph.Path.splitAt_tail_start p v hv_p)
     h_findIdx_head
-  simp only at h_concat
+  try simp only at h_concat
   exact congr_arg Prod.fst h_concat
 
 /-- Key invariance lemma: pathIndicesContaining v is preserved after signReversing.
@@ -2373,7 +2373,7 @@ private lemma findIdx_eq_of_first {α : Type*} (l : List α) (p : α → Bool)
         have := h_first 0 (Nat.zero_lt_succ n')
         simp at this
         exact this
-      simp only [h_not_x, cond_false]
+      simp only [h_not_x, cond_false, Bool.false_eq_true, ↓reduceIte]
       have hn' : n' < xs.length := by simp at hn; omega
       have h_first' : ∀ m : ℕ, ∀ hm : m < n', ¬p (xs[m]'(Nat.lt_trans hm hn')) := by
         intro m hm
@@ -2946,7 +2946,7 @@ lemma signReversing_canonical_eq {D : SimpleDigraph V} (hac : D.IsAcyclic) {k : 
         -- This is a consequence of h_data which specifies the exact form
         simp only [getCanonicalIntersectionData] at h_data
         have h := congrArg (fun x => x.val.2.1) h_data
-        simp only at h
+        try simp only at h
         rw [← h]
         -- Now we need to show the sets are equal
         -- The vertex in the definition equals v, and min' = i
@@ -2980,8 +2980,7 @@ lemma signReversing_canonical_eq {D : SimpleDigraph V} (hac : D.IsAcyclic) {k : 
   -- so the equality holds by construction.
   simp only [getCanonicalIntersectionData]
   apply Subtype.ext
-  simp only
-  
+  try simp only
   -- Use Sigma.ext for the nested sigma types
   have h1 : sp'.2.crowdedPathIndices.min' 
       (sp'.2.isIntersecting_iff_crowdedPathIndices_nonempty.mp hip') = i := h_min_eq
@@ -3138,11 +3137,11 @@ theorem signReversing_involutive {D : SimpleDigraph V} (hac : D.IsAcyclic) {k : 
   -- Extract the equalities from h_invol
   have h_invol_fst : (exchangeTails p_i' p_j' v hvi_exch hvj_exch).1 = sp.2.paths i := by
     have := congr_arg Prod.fst h_invol
-    simp only at this
+    try simp only at this
     exact this
   have h_invol_snd : (exchangeTails p_i' p_j' v hvi_exch hvj_exch).2 = sp.2.paths j := by
     have := congr_arg Prod.snd h_invol
-    simp only at this
+    try simp only at this
     exact this
   
   -- Key: sp'.paths i = p_i' and sp'.paths j = p_j'
@@ -3497,7 +3496,7 @@ def ipatWithPermSet {V : Type*} [DecidableEq V] {D : SimpleDigraph V} {k : ℕ}
   {sp | sp.2.isIntersecting}
 
 /-- PathTuple is finite when the digraph is path-finite. -/
-noncomputable instance pathTupleFinite {V : Type*} [DecidableEq V] {D : SimpleDigraph V}
+theorem pathTupleFinite {V : Type*} [DecidableEq V] {D : SimpleDigraph V}
     (hpf : D.IsPathFinite) {k : ℕ} (A B : kVertex V k) : 
     Finite (PathTuple D k A B) := by
   have h := allPathTupleSetFinite hpf A B
@@ -3507,7 +3506,7 @@ noncomputable instance pathTupleFinite {V : Type*} [DecidableEq V] {D : SimpleDi
   exact Set.finite_univ_iff.mp h
 
 /-- pathTupleWithPerm is finite when the digraph is path-finite. -/
-noncomputable instance pathTupleWithPermFinite {V : Type*} [DecidableEq V] {D : SimpleDigraph V}
+theorem pathTupleWithPermFinite {V : Type*} [DecidableEq V] {D : SimpleDigraph V}
     (hpf : D.IsPathFinite) {k : ℕ} (A B : kVertex V k) : 
     Finite (pathTupleWithPerm (D := D) A B) := by
   unfold pathTupleWithPerm
@@ -5505,7 +5504,7 @@ private lemma dyckPath_y_eq_count_diff_int (p : SimpleDigraph.Path dyckDigraph) 
       simp only [List.getElem_map, List.getElem_finRange]
       rfl
     unfold dyckDigraph at harc
-    simp only at harc
+    try simp only at harc
     rcases harc with ⟨_, hy_up⟩ | ⟨_, hy_down, _⟩
     · have hU : (dyckPathToSteps p)[j] = DyckStep.U := by
         rw [hstep_j]; simp only [hy_up, ↓reduceIte]
@@ -5703,7 +5702,7 @@ lemma dyckWordToPath_finish (w : DyckWord) :
     push_cast
     omega
   · -- y-coordinate = 0 (since count U = count D at the end)
-    simp only
+    try simp only
     have hlen' : w.toList.length + 1 - 1 = w.toList.length := by omega
     rw [hlen', List.take_length]
     have h := w.count_U_eq_count_D
@@ -5777,7 +5776,7 @@ private lemma dyckWordToPath_dyckPathToWord (p : SimpleDigraph.Path dyckDigraph)
     -- Goal: (i, dyckWordY (dyckPathToWord p ...) i) = p.vertices[i]
     ext
     · -- x-coordinate: show i = p.vertices[i].1
-      simp only
+      try simp only
       -- From start = (0, 0), we have p.vertices[0].1 = 0
       -- We prove by induction that p.vertices[i].1 = p.vertices[0].1 + i
       have h0 : 0 < p.vertices.length := by omega
@@ -5792,7 +5791,7 @@ private lemma dyckWordToPath_dyckPathToWord (p : SimpleDigraph.Path dyckDigraph)
           have harc := p.arcs_valid k (by omega : k + 1 < p.vertices.length)
           -- Arc implies x-coordinate increases by 1
           unfold dyckDigraph at harc
-          simp only at harc
+          try simp only at harc
           rcases harc with ⟨hx, _⟩ | ⟨hx, _, _⟩
           · -- U step
             calc (p.vertices.get ⟨0, h0⟩).1 + (k + 1)
@@ -5815,7 +5814,7 @@ private lemma dyckWordToPath_dyckPathToWord (p : SimpleDigraph.Path dyckDigraph)
       rw [← hmono]
 
     · -- y-coordinate: show dyckWordY (dyckPathToWord p ...) i = p.vertices[i].2
-      simp only
+      try simp only
       -- dyckWordY (dyckPathToWord p ...) i
       -- = ((dyckPathToWord p ...).toList.take i).count U - ((dyckPathToWord p ...).toList.take i).count D
       -- = ((dyckPathToSteps p).take i).count U - ((dyckPathToSteps p).take i).count D
@@ -5946,7 +5945,7 @@ private def translateVertex (d : ℤ) (v : ℤ × ℕ) : ℤ × ℕ := (v.1 + d,
 private lemma dyckDigraph_arc_translate (d : ℤ) (u v : ℤ × ℕ) :
     dyckDigraph.arc u v ↔ dyckDigraph.arc (translateVertex d u) (translateVertex d v) := by
   unfold dyckDigraph translateVertex
-  simp only
+  try simp only
   constructor
   · intro h
     rcases h with ⟨hx, hy⟩ | ⟨hx, hy, hpos⟩
@@ -6113,7 +6112,7 @@ theorem catalan_hankel_det (k : ℕ) : (catalanHankelMatrix k).det = 1 := by
 /-- In the Dyck digraph, x-coordinate increases by 1 on each arc -/
 lemma dyck_arc_x_inc (u v : ℤ × ℕ) (h : dyckDigraph.arc u v) : v.1 = u.1 + 1 := by
   unfold dyckDigraph at h
-  simp only at h
+  try simp only at h
   rcases h with ⟨hx, _⟩ | ⟨hx, _, _⟩ <;> exact hx
 
 /-- In a Dyck path, x increases strictly along the path -/
@@ -6200,7 +6199,7 @@ lemma nestedDyckVertices_arcs_valid (n : ℕ) :
   simp only [List.get_eq_getElem, nestedDyckVertices_getElem n i (by rw [hlen]; omega),
              nestedDyckVertices_getElem n (i + 1) (by rw [hlen]; exact hi)]
   unfold dyckDigraph
-  simp only
+  try simp only
   by_cases hcase : i < 2 * n
   · left
     constructor
@@ -6329,7 +6328,7 @@ lemma dyck_path_parity (p : SimpleDigraph.Path dyckDigraph) (j : ℕ) (hj : j < 
     have ih' := ih hj'
     have harc := p.arcs_valid j hj
     unfold dyckDigraph at harc
-    simp only at harc
+    try simp only at harc
     rcases harc with ⟨_, hsnd⟩ | ⟨_, hsnd, _⟩
     · -- Up step: y increases by 1
       have hy : (p.vertices.get ⟨j + 1, hj⟩).2 = (p.vertices.get ⟨j, hj'⟩).2 + 1 := hsnd
@@ -6378,7 +6377,7 @@ lemma dyck_path_y_upper_bound (p : SimpleDigraph.Path dyckDigraph) (n : ℕ)
           have ihk' := ihk hjk' hk'
           have harc := p.arcs_valid k hk
           unfold dyckDigraph at harc
-          simp only at harc
+          try simp only at harc
           rcases harc with ⟨_, hsnd⟩ | ⟨_, hsnd, _⟩
           · -- Up step
             have hy : (p.vertices.get ⟨k + 1, hk⟩).2 = (p.vertices.get ⟨k, hk'⟩).2 + 1 := hsnd
@@ -7114,7 +7113,7 @@ theorem LatticePath'.toPath_surjective (start : ℤ × ℤ) :
   use pathToLatticePath' p
   unfold pathToLatticePath' LatticePath'.toPath
   apply SimpleDigraph.Path.ext_vertices'
-  simp only
+  try simp only
   have := verticesToSteps'_toVertices p.vertices p.nonempty p.arcs_valid
   rw [← hstart]
   simp only [SimpleDigraph.Path.start] at this ⊢

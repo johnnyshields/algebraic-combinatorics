@@ -9,6 +9,9 @@ Authors: AlgebraicCombinatorics Contributors
 import Mathlib
 import AlgebraicCombinatorics.FPS.InfiniteProducts2
 
+-- Many proofs here unify through semireducible definitions; opt out of the stricter check.
+set_option backward.isDefEq.respectTransparency false
+
 /-!
 # Infinite Products of Formal Power Series - Part 2
 
@@ -249,7 +252,7 @@ private lemma coeff_mul_zero_of_low_degree_zero' {f g : PowerSeries K} {n : ℕ}
   rw [coeff_mul]
   apply Finset.sum_eq_zero
   intro ⟨i, j⟩ hij
-  simp only [Finset.mem_antidiagonal] at hij
+  simp only [Finset.HasAntidiagonal.mem_antidiagonal] at hij
   have hi : i ≤ n := by omega
   simp [hf i hi]
 
@@ -781,7 +784,7 @@ theorem coeff_zero_of_dvd {n : ℕ} {u v : PowerSeries K}
   apply Finset.sum_eq_zero
   intro ⟨i, j⟩ hij
   -- i + j = m ≤ n, so i ≤ n
-  simp only [Finset.mem_antidiagonal] at hij
+  simp only [Finset.HasAntidiagonal.mem_antidiagonal] at hij
   have hi : i ≤ n := by omega
   rw [hu i hi]
   ring

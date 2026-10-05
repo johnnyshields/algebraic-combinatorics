@@ -9,6 +9,9 @@ Authors: AlgebraicCombinatorics Project Contributors
 import Mathlib
 import AlgebraicCombinatorics.Partitions.Basics
 
+-- Many proofs here unify through semireducible definitions; opt out of the stricter check.
+set_option backward.isDefEq.respectTransparency false
+
 /-!
 # Euler's Pentagonal Number Theorem and Jacobi's Triple Product Identity
 
@@ -549,7 +552,7 @@ Note: `partitionGenFun_mul_pentagonalSeries` is defined later in this file after
 `euler_pentagonal_number_theorem`. -/
 theorem coeff_partitionGenFun_mul_pentagonalSeries (n : ℕ) :
     PowerSeries.coeff n (partitionGenFun * (pentagonalSeries : ℤ⟦X⟧)) =
-    ∑ p ∈ Finset.antidiagonal n, (partitionCount p.1 : ℤ) * pentagonalCoeff p.2 := by
+    ∑ p ∈ Finset.HasAntidiagonal.antidiagonal n, (partitionCount p.1 : ℤ) * pentagonalCoeff p.2 := by
   rw [PowerSeries.coeff_mul]
   congr 1
   ext ⟨a, b⟩
@@ -561,11 +564,11 @@ theorem coeff_one_pos (n : ℕ) (hn : n > 0) : PowerSeries.coeff n (1 : ℤ⟦X�
 
 /-- The antidiagonal sum can be split: separate the (n, 0) term -/
 theorem antidiagonal_sum_eq (n : ℕ) (_ : n > 0) :
-    ∑ p ∈ Finset.antidiagonal n, (partitionCount p.1 : ℤ) * pentagonalCoeff p.2 =
+    ∑ p ∈ Finset.HasAntidiagonal.antidiagonal n, (partitionCount p.1 : ℤ) * pentagonalCoeff p.2 =
     (partitionCount n : ℤ) +
-    ∑ p ∈ (Finset.antidiagonal n).filter (fun p => p.2 ≠ 0),
+    ∑ p ∈ (Finset.HasAntidiagonal.antidiagonal n).filter (fun p => p.2 ≠ 0),
       (partitionCount p.1 : ℤ) * pentagonalCoeff p.2 := by
-  have hmem : (n, 0) ∈ Finset.antidiagonal n := by simp [Finset.mem_antidiagonal]
+  have hmem : (n, 0) ∈ Finset.HasAntidiagonal.antidiagonal n := by simp [Finset.HasAntidiagonal.mem_antidiagonal]
   conv_lhs =>
     rw [← Finset.insert_erase hmem, Finset.sum_insert (by simp)]
   simp only [pentagonalCoeff_zero, mul_one]
@@ -578,7 +581,7 @@ theorem antidiagonal_sum_eq (n : ℕ) (_ : n > 0) :
       refine ⟨hmem', ?_⟩
       intro heq
       apply hne
-      have hp := Finset.mem_antidiagonal.mp hmem'
+      have hp := Finset.HasAntidiagonal.mem_antidiagonal.mp hmem'
       ext
       · simp only [heq] at hp; omega
       · exact heq
@@ -591,7 +594,7 @@ theorem antidiagonal_sum_eq (n : ℕ) (_ : n > 0) :
 
 /-- The sum reindexing lemma: relates the antidiagonal sum to the sum over pentagonal indices -/
 theorem sum_reindex (n : ℕ) (_hn : n > 0) :
-    -∑ p ∈ (Finset.antidiagonal n).filter (fun p => p.2 ≠ 0),
+    -∑ p ∈ (Finset.HasAntidiagonal.antidiagonal n).filter (fun p => p.2 ≠ 0),
       (partitionCount p.1 : ℤ) * pentagonalCoeff p.2 =
     ∑' k : {k : ℤ // k ≠ 0 ∧ pentagonalNumber k ≤ n},
       (if k.val.natAbs % 2 = 1 then (1 : ℤ) else (-1 : ℤ)) *
@@ -753,13 +756,13 @@ theorem sum_reindex (n : ℕ) (_hn : n > 0) :
   haveI : Fintype {k : ℤ // k ≠ 0 ∧ pentagonalNumber k ≤ n} := Fintype.ofFinite _
   rw [tsum_eq_sum (fun _ h => (h (Finset.mem_univ _)).elim)]
   -- Step 2: Filter the LHS to only terms where pentagonalCoeff p.2 ≠ 0
-  have h_filter : ∑ p ∈ (Finset.antidiagonal n).filter (fun p => p.2 ≠ 0),
+  have h_filter : ∑ p ∈ (Finset.HasAntidiagonal.antidiagonal n).filter (fun p => p.2 ≠ 0),
       (partitionCount p.1 : ℤ) * pentagonalCoeff p.2 =
-      ∑ p ∈ (Finset.antidiagonal n).filter (fun p => p.2 ≠ 0 ∧ pentagonalCoeff p.2 ≠ 0),
+      ∑ p ∈ (Finset.HasAntidiagonal.antidiagonal n).filter (fun p => p.2 ≠ 0 ∧ pentagonalCoeff p.2 ≠ 0),
       (partitionCount p.1 : ℤ) * pentagonalCoeff p.2 := by
     rw [← Finset.sum_filter_add_sum_filter_not _ (fun p => pentagonalCoeff p.2 ≠ 0)]
     simp only [not_not]
-    have h_zero : ∑ p ∈ ((Finset.antidiagonal n).filter (fun p => p.2 ≠ 0)).filter
+    have h_zero : ∑ p ∈ ((Finset.HasAntidiagonal.antidiagonal n).filter (fun p => p.2 ≠ 0)).filter
         (fun p => pentagonalCoeff p.2 = 0), (partitionCount p.1 : ℤ) * pentagonalCoeff p.2 = 0 := by
       apply Finset.sum_eq_zero
       intro p hp
@@ -768,20 +771,20 @@ theorem sum_reindex (n : ℕ) (_hn : n > 0) :
     rw [h_zero, add_zero]
     congr 1
     ext p
-    simp only [Finset.mem_filter, Finset.mem_antidiagonal]
+    simp only [Finset.mem_filter, Finset.HasAntidiagonal.mem_antidiagonal]
     tauto
   rw [h_filter]
   -- Step 3: Define the image finset and show bijection
   let S := ((Finset.univ : Finset {k : ℤ // k ≠ 0 ∧ pentagonalNumber k ≤ n}).image
     fun k => (n - pentagonalNumber k.val, pentagonalNumber k.val))
   -- Show S equals the filtered antidiagonal
-  have hS_eq : S = (Finset.antidiagonal n).filter (fun p => p.2 ≠ 0 ∧ pentagonalCoeff p.2 ≠ 0) := by
+  have hS_eq : S = (Finset.HasAntidiagonal.antidiagonal n).filter (fun p => p.2 ≠ 0 ∧ pentagonalCoeff p.2 ≠ 0) := by
     ext p
     simp only [S, Finset.mem_image, Finset.mem_univ, true_and, Finset.mem_filter,
-               Finset.mem_antidiagonal]
+               Finset.HasAntidiagonal.mem_antidiagonal]
     constructor
     · intro ⟨⟨k, hk_ne, hk_le⟩, hp⟩
-      simp only at hp
+      try simp only at hp
       rw [← hp]
       refine ⟨?_, ?_, ?_⟩
       · omega
@@ -808,7 +811,7 @@ theorem sum_reindex (n : ℕ) (_hn : n > 0) :
   · rw [← Finset.sum_neg_distrib]
     apply Finset.sum_congr rfl
     intro ⟨k, hk_ne, hk_le⟩ _
-    simp only
+    try simp only
     rw [pentagonalCoeff_of_pentagonalNumber']
     rw [neg_mul_eq_mul_neg, mul_comm]
     congr 1
@@ -978,8 +981,9 @@ lemma order_stateMonomial (e : ℕ) (p : ℤ) :
   unfold stateMonomial jacobiZPow
   have hT_ne : LaurentPolynomial.T (R := ℤ) p ≠ 0 := by
     intro h
-    have : (LaurentPolynomial.T (R := ℤ) p) p = (0 : LaurentPolynomial ℤ) p := by rw [h]
-    simp only [LaurentPolynomial.T, Finsupp.single_apply, Finsupp.zero_apply] at this
+    have : (LaurentPolynomial.T (R := ℤ) p).coeff p = (0 : LaurentPolynomial ℤ).coeff p := by rw [h]
+    simp only [LaurentPolynomial.T, AddMonoidAlgebra.coeff_single, AddMonoidAlgebra.coeff_zero,
+      Finsupp.single_apply, Finsupp.zero_apply] at this
     exact one_ne_zero this
   have hC_order : (PowerSeries.C (LaurentPolynomial.T p) : JacobiRing).order = 0 := by
     have heq : (0 : ℕ∞) = (0 : ℕ) := rfl
@@ -996,7 +1000,7 @@ lemma order_stateMonomial (e : ℕ) (p : ℤ) :
     · simp only [PowerSeries.coeff_X_pow, ite_true, PowerSeries.coeff_C, ite_true, one_mul]
       exact hT_ne
     · intro b hb hne
-      simp only [Finset.mem_antidiagonal] at hb
+      simp only [Finset.HasAntidiagonal.mem_antidiagonal] at hb
       cases' Nat.eq_zero_or_pos b.2 with h h
       · simp only [h, add_zero] at hb
         exact absurd (Prod.ext hb h) hne
@@ -1004,7 +1008,7 @@ lemma order_stateMonomial (e : ℕ) (p : ℤ) :
     · intro hne
       exfalso
       apply hne
-      simp only [Finset.mem_antidiagonal, add_zero]
+      simp only [Finset.HasAntidiagonal.mem_antidiagonal, add_zero]
   · calc (PowerSeries.X ^ e * PowerSeries.C (LaurentPolynomial.T p) : JacobiRing).order
         ≥ (PowerSeries.X ^ e : JacobiRing).order +
           (PowerSeries.C (LaurentPolynomial.T p) : JacobiRing).order :=
@@ -1386,7 +1390,7 @@ private lemma finite_partition_double_eq (j : ℕ) :
 /-- For any d, i₀, j₀, summing an indicator function over the antidiagonal gives
     the value at the unique point (i₀, j₀) if i₀ + j₀ = d, and 0 otherwise. -/
 private lemma sum_antidiag_indicator {α : Type*} [AddCommMonoid α] (d : ℕ) (i₀ j₀ : ℕ) (a : α) :
-    ∑ ij ∈ Finset.antidiagonal d, (if ij.1 = i₀ ∧ ij.2 = j₀ then a else 0) =
+    ∑ ij ∈ Finset.HasAntidiagonal.antidiagonal d, (if ij.1 = i₀ ∧ ij.2 = j₀ then a else 0) =
     if d = i₀ + j₀ then a else 0 := by
   by_cases h : d = i₀ + j₀
   · subst h
@@ -1401,12 +1405,12 @@ private lemma sum_antidiag_indicator {α : Type*} [AddCommMonoid α] (d : ℕ) (
       · simp only [hi, false_and, ite_false]
     · intro hne
       exfalso
-      rw [Finset.mem_antidiagonal] at hne
+      rw [Finset.HasAntidiagonal.mem_antidiagonal] at hne
       exact hne rfl
   · simp only [h, ite_false]
     apply Finset.sum_eq_zero
     intro ij hij
-    rw [Finset.mem_antidiagonal] at hij
+    rw [Finset.HasAntidiagonal.mem_antidiagonal] at hij
     simp only [ite_eq_right_iff, and_imp]
     intro hi hj
     exfalso
@@ -1582,9 +1586,9 @@ lemma stateGenFun_eq_jacobiRHS'_mul_partitionGenFunJacobi :
   -- The bijection is ((i,j), ℓ, p) ↦ (ℓ, p) with inverse (ℓ, p) ↦ ((ℓ², 2*p.1), ℓ, p)
   
   -- First, convert the RHS to a single sum over sigma type
-  have h_rhs_sigma : ∑ ij ∈ Finset.antidiagonal d, ∑ ℓ ∈ (finite_natAbs_sq_eq ij.1).toFinset, 
+  have h_rhs_sigma : ∑ ij ∈ Finset.HasAntidiagonal.antidiagonal d, ∑ ℓ ∈ (finite_natAbs_sq_eq ij.1).toFinset, 
       ∑ _p ∈ (finite_partition_double_eq ij.2).toFinset, (LaurentPolynomial.T ℓ : LaurentPolynomial ℤ) =
-      ∑ x ∈ (Finset.antidiagonal d).sigma (fun ij => 
+      ∑ x ∈ (Finset.HasAntidiagonal.antidiagonal d).sigma (fun ij => 
         (finite_natAbs_sq_eq ij.1).toFinset ×ˢ (finite_partition_double_eq ij.2).toFinset), 
         LaurentPolynomial.T x.2.1 := by
     rw [Finset.sum_sigma]
@@ -1601,7 +1605,7 @@ lemma stateGenFun_eq_jacobiRHS'_mul_partitionGenFunJacobi :
   apply Finset.sum_nbij' i' j'
   -- hi: ∀ a ∈ LHS, i' a ∈ RHS
   · intro pair hpair
-    simp only [Finset.mem_sigma, Finset.mem_antidiagonal, Finset.mem_product]
+    simp only [Finset.mem_sigma, Finset.HasAntidiagonal.mem_antidiagonal, Finset.mem_product]
     rw [Set.Finite.mem_toFinset, Set.mem_setOf_eq] at hpair
     simp only [i']
     constructor
@@ -1611,7 +1615,7 @@ lemma stateGenFun_eq_jacobiRHS'_mul_partitionGenFunJacobi :
       · simp only [Set.Finite.mem_toFinset, Set.mem_setOf_eq]
   -- hj: ∀ a ∈ RHS, j' a ∈ LHS
   · intro x hx
-    simp only [Finset.mem_sigma, Finset.mem_antidiagonal, Finset.mem_product] at hx
+    simp only [Finset.mem_sigma, Finset.HasAntidiagonal.mem_antidiagonal, Finset.mem_product] at hx
     obtain ⟨hij, hℓ, hp⟩ := hx
     simp only [Set.Finite.mem_toFinset, Set.mem_setOf_eq] at hℓ hp
     simp only [j', Set.Finite.mem_toFinset, Set.mem_setOf_eq]
@@ -1622,7 +1626,7 @@ lemma stateGenFun_eq_jacobiRHS'_mul_partitionGenFunJacobi :
     simp only [i', j']
   -- right_inv: ∀ a ∈ RHS, i' (j' a) = a
   · intro x hx
-    simp only [Finset.mem_sigma, Finset.mem_antidiagonal, Finset.mem_product] at hx
+    simp only [Finset.mem_sigma, Finset.HasAntidiagonal.mem_antidiagonal, Finset.mem_product] at hx
     obtain ⟨_hij, hℓ, hp⟩ := hx
     simp only [Set.Finite.mem_toFinset, Set.mem_setOf_eq] at hℓ hp
     simp only [i', j', hℓ, hp]
@@ -1664,7 +1668,7 @@ private lemma coeff_mul_zero_of_odd {R : Type*} [CommSemiring R] (f g : R⟦X⟧
   rw [PowerSeries.coeff_mul]
   apply Finset.sum_eq_zero
   intro ⟨i, j⟩ hij
-  simp only [Finset.mem_antidiagonal] at hij
+  simp only [Finset.HasAntidiagonal.mem_antidiagonal] at hij
   by_cases hi : 2 ∣ i
   · have hj : ¬2 ∣ j := by
       intro ⟨k, hk⟩
@@ -3031,8 +3035,9 @@ lemma order_jacobiSumTerm (ell : ℤ) :
   -- order(product) = ℓ² + 0 = ℓ²
   have hT_ne : LaurentPolynomial.T (R := ℤ) ell ≠ 0 := by
     intro h
-    have : (LaurentPolynomial.T (R := ℤ) ell) ell = (0 : LaurentPolynomial ℤ) ell := by rw [h]
-    simp only [LaurentPolynomial.T, Finsupp.single_apply, Finsupp.zero_apply] at this
+    have : (LaurentPolynomial.T (R := ℤ) ell).coeff ell = (0 : LaurentPolynomial ℤ).coeff ell := by rw [h]
+    simp only [LaurentPolynomial.T, AddMonoidAlgebra.coeff_single, AddMonoidAlgebra.coeff_zero,
+      Finsupp.single_apply, Finsupp.zero_apply] at this
     exact one_ne_zero this
   have hC_order : (PowerSeries.C (LaurentPolynomial.T ell) : JacobiRing).order = 0 := by
     have heq : (0 : ℕ∞) = (0 : ℕ) := rfl
@@ -3051,7 +3056,7 @@ lemma order_jacobiSumTerm (ell : ℤ) :
     · simp only [PowerSeries.coeff_X_pow, ite_true, PowerSeries.coeff_C, ite_true, one_mul]
       exact hT_ne
     · intro b hb hne
-      simp only [Finset.mem_antidiagonal] at hb
+      simp only [Finset.HasAntidiagonal.mem_antidiagonal] at hb
       cases' Nat.eq_zero_or_pos b.2 with h h
       · simp only [h, add_zero] at hb
         exact absurd (Prod.ext hb h) hne
@@ -3059,7 +3064,7 @@ lemma order_jacobiSumTerm (ell : ℤ) :
     · intro hne
       exfalso
       apply hne
-      simp only [Finset.mem_antidiagonal, add_zero]
+      simp only [Finset.HasAntidiagonal.mem_antidiagonal, add_zero]
   · -- order ≥ ℓ²: use le_order_mul
     calc (PowerSeries.X ^ ell.natAbs ^ 2 * PowerSeries.C (LaurentPolynomial.T ell) : JacobiRing).order
         ≥ (PowerSeries.X ^ ell.natAbs ^ 2 : JacobiRing).order +
@@ -3244,7 +3249,7 @@ lemma partitionGenFunEval_constantCoeff (a : ℤ) (u : ℚ) (ha : a > 0) :
   have hp0_unique : ∀ p : Σ n, Nat.Partition n, p.1 = 0 → p = p0 := by
     intro p hp
     obtain ⟨n, part⟩ := p
-    simp only at hp
+    try simp only at hp
     subst hp
     congr 1
     ext
@@ -3310,7 +3315,7 @@ lemma partitionGenFunEval_constantCoeff (a : ℤ) (u : ℚ) (ha : a > 0) :
       constructor
       · intro hp
         obtain ⟨m, part⟩ := p
-        simp only at hp
+        try simp only at hp
         subst hp
         exact ⟨part, rfl⟩
       · rintro ⟨part, rfl⟩
@@ -3777,7 +3782,7 @@ private lemma summable_partitionGenFunEval_terms (a : ℤ) (u : ℚ) (ha : a > 0
     constructor
     · intro hp
       obtain ⟨m, part⟩ := p
-      simp only at hp
+      try simp only at hp
       subst hp
       exact ⟨part, rfl⟩
     · rintro ⟨part, rfl⟩
@@ -4080,9 +4085,7 @@ private lemma coeff_geom_factor (u : ℚ) (k : ℕ) (e : ℕ) (he : e > 0) (d : 
       rw [← pow_mul]
     rw [h1, PowerSeries.coeff_X_pow]
     ring_nf
-    split_ifs with h
-    · ring
-    · ring
+    try (split_ifs with h <;> ring)
   simp_rw [hterm]
   by_cases hd : e ∣ d
   · obtain ⟨q, rfl⟩ := hd
@@ -4471,7 +4474,7 @@ lemma partitionGenFunEval_mul_eulerProductParam (a : ℤ) (u : ℚ) (ha : a > 0)
           constructor
           · intro hp
             obtain ⟨m, part⟩ := p
-            simp only at hp
+            try simp only at hp
             subst hp
             exact ⟨part, rfl⟩
           · rintro ⟨part, rfl⟩
@@ -4603,7 +4606,7 @@ lemma partitionGenFunEval_mul_eulerProductParam (a : ℤ) (u : ℚ) (ha : a > 0)
               split_ifs at hp with h
               · simp only [Set.mem_range]
                 obtain ⟨m, part⟩ := p
-                simp only at h
+                try simp only at h
                 subst h
                 exact ⟨part, rfl⟩
               · exact absurd rfl hp)
@@ -4617,7 +4620,7 @@ lemma partitionGenFunEval_mul_eulerProductParam (a : ℤ) (u : ℚ) (ha : a > 0)
             simp only [Finset.mem_image, Finset.mem_univ, true_and, not_exists] at hp
             split_ifs with h
             · obtain ⟨m, part⟩ := p
-              simp only at h
+              try simp only at h
               subst h
               exact absurd rfl (hp part)
             · rfl
@@ -5159,7 +5162,7 @@ lemma finset_prod_param_aZ (a b : ℤ) (u v : ℚ) (P : Finset ℕ) :
     (∏ n ∈ P, aZ n) = 
       (u^(∑ n ∈ P, (2*n + 1)) * v^P.card : ℚ) • 
       PowerSeries.X ^ (∑ n ∈ P, ((2*n + 1) * a + b).toNat) := by
-  simp only
+  try simp only
   induction P using Finset.induction_on with
   | empty => simp
   | @insert a s ha ih =>
@@ -5179,7 +5182,7 @@ lemma finset_prod_param_aZInv (a b : ℤ) (u v : ℚ) (N : Finset ℕ) :
     (∏ n ∈ N, aZInv n) = 
       (u^(∑ n ∈ N, (2*n + 1)) * v⁻¹^N.card : ℚ) • 
       PowerSeries.X ^ (∑ n ∈ N, ((2*n + 1) * a - b).toNat) := by
-  simp only
+  try simp only
   induction N using Finset.induction_on with
   | empty => simp
   | @insert a s ha ih =>
@@ -5203,7 +5206,7 @@ lemma double_sum_term_param_explicit (a b : ℤ) (u v : ℚ) (hv : v ≠ 0) (P N
     (∏ n ∈ P, aZ n) * (∏ n ∈ N, aZInv n) = 
       (u^(∑ n ∈ P, (2*n + 1) + ∑ n ∈ N, (2*n + 1)) * v^((P.card : ℤ) - N.card) : ℚ) • 
       PowerSeries.X ^ (∑ n ∈ P, ((2*n + 1) * a + b).toNat + ∑ n ∈ N, ((2*n + 1) * a - b).toNat) := by
-  simp only
+  try simp only
   rw [finset_prod_param_aZ, finset_prod_param_aZInv]
   rw [smul_mul_smul_comm]
   congr 1
@@ -5290,7 +5293,7 @@ lemma factorZ_sub_one_eq (a b : ℤ) (u v : ℚ) (k : ℕ) :
     let coeff1 := u^(2*k + 1) * v
     ((1 : ℚ⟦X⟧) + (coeff1 : ℚ) • PowerSeries.X ^ exp1) - 1 =
     (u^(2*k + 1) * v : ℚ) • PowerSeries.X ^ ((2*k + 1) * a + b).toNat := by
-  simp only
+  try simp only
   have h_exp : ((2 * (↑k + 1 : ℤ) - 1) * a + b).toNat = ((2*k + 1) * a + b).toNat := by
     congr 1; ring
   rw [h_exp]
@@ -5303,7 +5306,7 @@ lemma factorZInv_sub_one_eq (a b : ℤ) (u v : ℚ) (k : ℕ) :
     let coeff2 := u^(2*k + 1) * v⁻¹
     ((1 : ℚ⟦X⟧) + (coeff2 : ℚ) • PowerSeries.X ^ exp2) - 1 =
     (u^(2*k + 1) * v⁻¹ : ℚ) • PowerSeries.X ^ ((2*k + 1) * a - b).toNat := by
-  simp only
+  try simp only
   have h_exp : ((2 * (↑k + 1 : ℤ) - 1) * a - b).toNat = ((2*k + 1) * a - b).toNat := by
     congr 1; ring
   rw [h_exp]
@@ -6521,7 +6524,7 @@ lemma intermediateState_eq_jump (ell : ℤ) (parts : List ℕ) (i : ℕ) (hi : i
   have h_levels_eq : (intermediateState ell parts (i + 1) hi).levels = 
       ((intermediateState ell parts i (le_of_lt hi)).jump (ell - 1 - i) (parts.get ⟨i, hi⟩) hp hpq hq).levels := by
     unfold intermediateState jump
-    simp only
+    try simp only
     -- Use intermediateStateLevels_succ
     rw [intermediateStateLevels_succ ell parts i hi hparts_pos hsorted]
   -- States with equal levels are equal
@@ -6557,7 +6560,7 @@ theorem excitedState_reachable (ell : ℤ) {n : ℕ} (mu : Nat.Partition n) :
     -- For a partition with 0 parts, excitedStateLevels = {p | p < ell} = groundState.levels
     have h_levels_eq : (excitedState ell mu).levels = (groundState ell).levels := by
       unfold excitedState groundState excitedStateLevels
-      simp only
+      try simp only
       have h' : (mu.parts.sort (· ≥ ·)).length = 0 := h
       simp only [h', Nat.cast_zero, sub_zero]
       ext p
@@ -6663,7 +6666,7 @@ theorem excitedState_reachable_with_total (ell : ℤ) {n : ℕ} (mu : Nat.Partit
       exact h_sum.symm
     have h_levels_eq : (excitedState ell mu).levels = (groundState ell).levels := by
       unfold excitedState groundState excitedStateLevels
-      simp only
+      try simp only
       have h' : (mu.parts.sort (· ≥ ·)).length = 0 := h
       simp only [h', Nat.cast_zero, sub_zero]
       ext p
@@ -7812,7 +7815,7 @@ theorem intPartitionToState_bijective :
   constructor
   -- Injectivity: different (ℓ, μ) pairs give different states
   · intro ⟨ℓ₁, n₁, μ₁⟩ ⟨ℓ₂, n₂, μ₂⟩ h
-    simp only at h
+    try simp only at h
     simp only [Prod.mk.injEq, Sigma.mk.inj_iff]
     -- First show ℓ₁ = ℓ₂ using parnum
     have h_parnum : (excitedState ℓ₁ μ₁).parnum = (excitedState ℓ₂ μ₂).parnum := by rw [h]
@@ -8689,7 +8692,7 @@ theorem finsetPair_sum_eq_partition_sum_param (a b : ℤ) (ha : a > 0) (hab : a 
       rw [Set.Finite.mem_toFinset, Set.mem_setOf_eq] at hp ⊢
       simp only [expFn]
       have h := exponent_preserved_by_bijection a b ha hab P N
-      simp only at h
+      try simp only at h
       rw [fromFinsetPair_energy, fromFinsetPair_parnum]
       have h_exp := exponent_formula a b ha hab P N
       rw [← h_exp]
@@ -8722,7 +8725,7 @@ theorem finsetPair_sum_eq_partition_sum_param (a b : ℤ) (ha : a > 0) (hab : a 
           have := fromFinsetPair_parnum (toP S) (toN S)
           rw [fromFinsetPair_toP_toN] at this
           exact this.symm
-        simp only at h
+        try simp only at h
         simp only [expFn] at hS
         rw [h_energy, h_parnum] at h
         rw [← hS, h]
@@ -8769,7 +8772,7 @@ theorem finsetPair_sum_eq_partition_sum_param (a b : ℤ) (ha : a > 0) (hab : a 
         -- Need to show: (a * (S.parnum.natAbs^2 + 2*n) + b * S.parnum).toNat = d
         -- h says: S.energy = S.parnum.natAbs^2 + 2*n
         -- hS says: (a * S.energy + b * S.parnum).toNat = d
-        simp only
+        try simp only
         convert hS using 2
         simp only [h, Nat.cast_add, Nat.cast_mul, Nat.cast_ofNat, Nat.cast_pow]
       · simp only; exact hμ
@@ -9248,7 +9251,7 @@ lemma jacobiLHS_mul_partitionGenFun (a b : ℤ) (u v : ℚ) (ha : a > 0) (hab : 
         have h_ord_prod : (∏ m ∈ P, aZ m).order ≥ (aZ n).order := by
           have h1 : (∏ m ∈ P, aZ m).order ≥ ∑ m ∈ P, (aZ m).order := order_finset_prod_ge_sum aZ P
           have h2 : ∑ m ∈ P, (aZ m).order ≥ (aZ n).order := by
-            apply Finset.single_le_sum (fun m _ => zero_le _) hn_mem
+            apply Finset.single_le_sum (fun m _ => zero_le) hn_mem
           exact le_trans h2 h1
         have h_lt : (d' : ℕ∞) < (∏ m ∈ P, aZ m).order := by
           calc (d' : ℕ∞) < n := by exact_mod_cast hn_not_range
@@ -9271,7 +9274,7 @@ lemma jacobiLHS_mul_partitionGenFun (a b : ℤ) (u v : ℚ) (ha : a > 0) (hab : 
         have h_ord_prod : (∏ m ∈ N, aZInv m).order ≥ (aZInv n).order := by
           have h1 : (∏ m ∈ N, aZInv m).order ≥ ∑ m ∈ N, (aZInv m).order := order_finset_prod_ge_sum aZInv N
           have h2 : ∑ m ∈ N, (aZInv m).order ≥ (aZInv n).order := by
-            apply Finset.single_le_sum (fun m _ => zero_le _) hn_mem
+            apply Finset.single_le_sum (fun m _ => zero_le) hn_mem
           exact le_trans h2 h1
         have h_lt : (d' : ℕ∞) < (∏ m ∈ N, aZInv m).order := by
           calc (d' : ℕ∞) < n := by exact_mod_cast hn_not_range
@@ -9326,7 +9329,7 @@ lemma jacobiLHS_mul_partitionGenFun (a b : ℤ) (u v : ℚ) (ha : a > 0) (hab : 
           have h_ord_prod : (∏ m ∈ P, aZ m).order ≥ (aZ n).order := by
             have h1 : (∏ m ∈ P, aZ m).order ≥ ∑ m ∈ P, (aZ m).order := order_finset_prod_ge_sum aZ P
             have h2 : ∑ m ∈ P, (aZ m).order ≥ (aZ n).order := by
-              apply Finset.single_le_sum (fun m _ => zero_le _) hn_mem
+              apply Finset.single_le_sum (fun m _ => zero_le) hn_mem
             exact le_trans h2 h1
           have h_ord_total : ((∏ m ∈ P, aZ m) * (∏ m ∈ N, aZInv m)).order ≥ (aZ n).order := by
             calc ((∏ m ∈ P, aZ m) * (∏ m ∈ N, aZInv m)).order 
@@ -9347,7 +9350,7 @@ lemma jacobiLHS_mul_partitionGenFun (a b : ℤ) (u v : ℚ) (ha : a > 0) (hab : 
             have h1 : (∏ m ∈ N, aZInv m).order ≥ ∑ m ∈ N, (aZInv m).order := 
               order_finset_prod_ge_sum aZInv N
             have h2 : ∑ m ∈ N, (aZInv m).order ≥ (aZInv n).order := by
-              apply Finset.single_le_sum (fun m _ => zero_le _) hn_mem
+              apply Finset.single_le_sum (fun m _ => zero_le) hn_mem
             exact le_trans h2 h1
           have h_ord_total : ((∏ m ∈ P, aZ m) * (∏ m ∈ N, aZInv m)).order ≥ (aZInv n).order := by
             calc ((∏ m ∈ P, aZ m) * (∏ m ∈ N, aZInv m)).order 
@@ -9609,13 +9612,13 @@ noncomputable def evalLaurentCoeff (b : ℤ) (v : ℚ) (c : LaurentPolynomial �
   letI : TopologicalSpace ℚ := ⊥
   haveI : DiscreteTopology ℚ := ⟨rfl⟩
   letI := PowerSeries.WithPiTopology.instTopologicalSpace (R := ℚ)
-  c.support.sum fun ℓ => ((c ℓ : ℚ) * v^ℓ) • PowerSeries.X ^ (b * ℓ).toNat
+  c.coeff.support.sum fun ℓ => ((c.coeff ℓ : ℚ) * v^ℓ) • PowerSeries.X ^ (b * ℓ).toNat
 
 /-- evalLaurentCoeff sends T^1 to v·X^b. -/
 lemma evalLaurentCoeff_T_one (b : ℤ) (v : ℚ) (_hb : b ≥ 0) :
     evalLaurentCoeff b v (LaurentPolynomial.T 1) = v • PowerSeries.X ^ b.toNat := by
   unfold evalLaurentCoeff
-  simp only [LaurentPolynomial.T, Finsupp.support_single_ne_zero _ one_ne_zero,
+  simp only [LaurentPolynomial.T, AddMonoidAlgebra.coeff_single, Finsupp.support_single_ne_zero _ one_ne_zero,
              Finset.sum_singleton, Finsupp.single_apply, zpow_one, mul_one]
   simp only [ite_true, Int.cast_one, one_mul]
 
@@ -9623,7 +9626,7 @@ lemma evalLaurentCoeff_T_one (b : ℤ) (v : ℚ) (_hb : b ≥ 0) :
 lemma evalLaurentCoeff_T_neg_one (b : ℤ) (v : ℚ) (_hb : b ≤ 0) :
     evalLaurentCoeff b v (LaurentPolynomial.T (-1)) = v⁻¹ • PowerSeries.X ^ (-b).toNat := by
   unfold evalLaurentCoeff
-  simp only [LaurentPolynomial.T, Finsupp.support_single_ne_zero _ one_ne_zero,
+  simp only [LaurentPolynomial.T, AddMonoidAlgebra.coeff_single, Finsupp.support_single_ne_zero _ one_ne_zero,
              Finset.sum_singleton, Finsupp.single_apply]
   simp only [ite_true, Int.cast_one, one_mul, zpow_neg_one]
   have : b * (-1) = -b := by ring
@@ -9633,9 +9636,9 @@ lemma evalLaurentCoeff_T_neg_one (b : ℤ) (v : ℚ) (_hb : b ≤ 0) :
 lemma evalLaurentCoeff_one (b : ℤ) (v : ℚ) :
     evalLaurentCoeff b v 1 = 1 := by
   unfold evalLaurentCoeff
-  have h1 : (1 : LaurentPolynomial ℤ) = Finsupp.single 0 1 := rfl
+  have h1 : (1 : LaurentPolynomial ℤ) = AddMonoidAlgebra.single 0 1 := rfl
   rw [h1]
-  simp only [Finsupp.support_single_ne_zero _ one_ne_zero, Finset.sum_singleton,
+  simp only [AddMonoidAlgebra.coeff_single, Finsupp.support_single_ne_zero _ one_ne_zero, Finset.sum_singleton,
              Finsupp.single_apply, ite_true, Int.cast_one, zpow_zero, mul_one,
              mul_zero, Int.toNat_zero, pow_zero, one_smul]
 
@@ -9643,13 +9646,13 @@ lemma evalLaurentCoeff_one (b : ℤ) (v : ℚ) :
 lemma evalLaurentCoeff_add (b : ℤ) (v : ℚ) (c₁ c₂ : LaurentPolynomial ℤ) :
     evalLaurentCoeff b v (c₁ + c₂) = evalLaurentCoeff b v c₁ + evalLaurentCoeff b v c₂ := by
   unfold evalLaurentCoeff
-  -- The support of c₁ + c₂ is a subset of c₁.support ∪ c₂.support
-  -- We'll extend both sums to c₁.support ∪ c₂.support
-  have h_subset : (c₁ + c₂).support ⊆ c₁.support ∪ c₂.support := Finsupp.support_add
+  -- The support of c₁ + c₂ is a subset of c₁.coeff.support ∪ c₂.coeff.support
+  -- We'll extend both sums to c₁.coeff.support ∪ c₂.coeff.support
+  have h_subset : (c₁ + c₂).coeff.support ⊆ c₁.coeff.support ∪ c₂.coeff.support := Finsupp.support_add
   -- First, extend the LHS sum to the union
-  have h_lhs : (c₁ + c₂).support.sum (fun ℓ => ((↑((c₁ + c₂) ℓ) : ℚ) * v ^ ℓ) •
+  have h_lhs : (c₁ + c₂).coeff.support.sum (fun ℓ => ((↑((c₁ + c₂).coeff ℓ) : ℚ) * v ^ ℓ) •
       (PowerSeries.X : ℚ⟦X⟧) ^ (b * ℓ).toNat) =
-      (c₁.support ∪ c₂.support).sum (fun ℓ => ((↑((c₁ + c₂) ℓ) : ℚ) * v ^ ℓ) •
+      (c₁.coeff.support ∪ c₂.coeff.support).sum (fun ℓ => ((↑((c₁ + c₂).coeff ℓ) : ℚ) * v ^ ℓ) •
       (PowerSeries.X : ℚ⟦X⟧) ^ (b * ℓ).toNat) := by
     apply Finset.sum_subset h_subset
     intro ℓ _ hℓ
@@ -9657,17 +9660,17 @@ lemma evalLaurentCoeff_add (b : ℤ) (v : ℚ) (c₁ c₂ : LaurentPolynomial �
     simp only [hℓ, Int.cast_zero, zero_mul, zero_smul]
   rw [h_lhs]
   -- Now extend the RHS sums to the union
-  have h_rhs1 : c₁.support.sum (fun ℓ => ((↑(c₁ ℓ) : ℚ) * v ^ ℓ) •
+  have h_rhs1 : c₁.coeff.support.sum (fun ℓ => ((↑(c₁.coeff ℓ) : ℚ) * v ^ ℓ) •
       (PowerSeries.X : ℚ⟦X⟧) ^ (b * ℓ).toNat) =
-      (c₁.support ∪ c₂.support).sum (fun ℓ => ((↑(c₁ ℓ) : ℚ) * v ^ ℓ) •
+      (c₁.coeff.support ∪ c₂.coeff.support).sum (fun ℓ => ((↑(c₁.coeff ℓ) : ℚ) * v ^ ℓ) •
       (PowerSeries.X : ℚ⟦X⟧) ^ (b * ℓ).toNat) := by
     apply Finset.sum_subset Finset.subset_union_left
     intro ℓ _ hℓ
     simp only [Finsupp.mem_support_iff, ne_eq, not_not] at hℓ
     simp only [hℓ, Int.cast_zero, zero_mul, zero_smul]
-  have h_rhs2 : c₂.support.sum (fun ℓ => ((↑(c₂ ℓ) : ℚ) * v ^ ℓ) •
+  have h_rhs2 : c₂.coeff.support.sum (fun ℓ => ((↑(c₂.coeff ℓ) : ℚ) * v ^ ℓ) •
       (PowerSeries.X : ℚ⟦X⟧) ^ (b * ℓ).toNat) =
-      (c₁.support ∪ c₂.support).sum (fun ℓ => ((↑(c₂ ℓ) : ℚ) * v ^ ℓ) •
+      (c₁.coeff.support ∪ c₂.coeff.support).sum (fun ℓ => ((↑(c₂.coeff ℓ) : ℚ) * v ^ ℓ) •
       (PowerSeries.X : ℚ⟦X⟧) ^ (b * ℓ).toNat) := by
     apply Finset.sum_subset Finset.subset_union_right
     intro ℓ _ hℓ
@@ -9678,7 +9681,7 @@ lemma evalLaurentCoeff_add (b : ℤ) (v : ℚ) (c₁ c₂ : LaurentPolynomial �
   apply Finset.sum_congr rfl
   intro ℓ _
   -- (c₁ + c₂) ℓ = c₁ ℓ + c₂ ℓ
-  rw [Finsupp.coe_add, Pi.add_apply]
+  rw [AddMonoidAlgebra.coeff_add, Finsupp.coe_add, Pi.add_apply]
   push_cast
   rw [add_mul, add_smul]
 
@@ -9687,7 +9690,7 @@ This is the key evaluation formula for Laurent monomials. -/
 lemma evalLaurentCoeff_T (b : ℤ) (v : ℚ) (ℓ : ℤ) :
     evalLaurentCoeff b v (LaurentPolynomial.T ℓ) = (v^ℓ : ℚ) • PowerSeries.X ^ (b * ℓ).toNat := by
   unfold evalLaurentCoeff
-  simp only [LaurentPolynomial.T, Finsupp.support_single_ne_zero _ one_ne_zero,
+  simp only [LaurentPolynomial.T, AddMonoidAlgebra.coeff_single, Finsupp.support_single_ne_zero _ one_ne_zero,
              Finset.sum_singleton, Finsupp.single_apply]
   simp only [ite_true, Int.cast_one, one_mul]
 
@@ -9731,14 +9734,14 @@ noncomputable def evalLaurentCoeffShifted (a b : ℤ) (v : ℚ) (e : ℕ) (c : L
   letI : TopologicalSpace ℚ := ⊥
   haveI : DiscreteTopology ℚ := ⟨rfl⟩
   letI := PowerSeries.WithPiTopology.instTopologicalSpace (R := ℚ)
-  c.support.sum fun ℓ => ((c ℓ : ℚ) * v^ℓ) • PowerSeries.X ^ (a * e + b * ℓ).toNat
+  c.coeff.support.sum fun ℓ => ((c.coeff ℓ : ℚ) * v^ℓ) • PowerSeries.X ^ (a * e + b * ℓ).toNat
 
 /-- evalLaurentCoeffShifted sends T^ℓ to v^ℓ·X^{(a·e + b·ℓ).toNat}. -/
 lemma evalLaurentCoeffShifted_T (a b : ℤ) (v : ℚ) (e : ℕ) (ℓ : ℤ) :
     evalLaurentCoeffShifted a b v e (LaurentPolynomial.T ℓ) = 
     (v^ℓ : ℚ) • PowerSeries.X ^ (a * e + b * ℓ).toNat := by
   unfold evalLaurentCoeffShifted
-  simp only [LaurentPolynomial.T, Finsupp.support_single_ne_zero _ one_ne_zero,
+  simp only [LaurentPolynomial.T, AddMonoidAlgebra.coeff_single, Finsupp.support_single_ne_zero _ one_ne_zero,
              Finset.sum_singleton, Finsupp.single_apply]
   simp only [ite_true, Int.cast_one, one_mul]
 
@@ -9759,27 +9762,27 @@ lemma evalLaurentCoeffShifted_add (a b : ℤ) (v : ℚ) (e : ℕ) (c₁ c₂ : L
     evalLaurentCoeffShifted a b v e (c₁ + c₂) = 
     evalLaurentCoeffShifted a b v e c₁ + evalLaurentCoeffShifted a b v e c₂ := by
   unfold evalLaurentCoeffShifted
-  have h_subset : (c₁ + c₂).support ⊆ c₁.support ∪ c₂.support := Finsupp.support_add
-  have h_lhs : (c₁ + c₂).support.sum (fun ℓ => ((↑((c₁ + c₂) ℓ) : ℚ) * v ^ ℓ) •
+  have h_subset : (c₁ + c₂).coeff.support ⊆ c₁.coeff.support ∪ c₂.coeff.support := Finsupp.support_add
+  have h_lhs : (c₁ + c₂).coeff.support.sum (fun ℓ => ((↑((c₁ + c₂).coeff ℓ) : ℚ) * v ^ ℓ) •
       (PowerSeries.X : ℚ⟦X⟧) ^ (a * e + b * ℓ).toNat) =
-      (c₁.support ∪ c₂.support).sum (fun ℓ => ((↑((c₁ + c₂) ℓ) : ℚ) * v ^ ℓ) •
+      (c₁.coeff.support ∪ c₂.coeff.support).sum (fun ℓ => ((↑((c₁ + c₂).coeff ℓ) : ℚ) * v ^ ℓ) •
       (PowerSeries.X : ℚ⟦X⟧) ^ (a * e + b * ℓ).toNat) := by
     apply Finset.sum_subset h_subset
     intro ℓ _ hℓ
     simp only [Finsupp.mem_support_iff, ne_eq, not_not] at hℓ
     simp only [hℓ, Int.cast_zero, zero_mul, zero_smul]
   rw [h_lhs]
-  have h_rhs1 : c₁.support.sum (fun ℓ => ((↑(c₁ ℓ) : ℚ) * v ^ ℓ) •
+  have h_rhs1 : c₁.coeff.support.sum (fun ℓ => ((↑(c₁.coeff ℓ) : ℚ) * v ^ ℓ) •
       (PowerSeries.X : ℚ⟦X⟧) ^ (a * e + b * ℓ).toNat) =
-      (c₁.support ∪ c₂.support).sum (fun ℓ => ((↑(c₁ ℓ) : ℚ) * v ^ ℓ) •
+      (c₁.coeff.support ∪ c₂.coeff.support).sum (fun ℓ => ((↑(c₁.coeff ℓ) : ℚ) * v ^ ℓ) •
       (PowerSeries.X : ℚ⟦X⟧) ^ (a * e + b * ℓ).toNat) := by
     apply Finset.sum_subset Finset.subset_union_left
     intro ℓ _ hℓ
     simp only [Finsupp.mem_support_iff, ne_eq, not_not] at hℓ
     simp only [hℓ, Int.cast_zero, zero_mul, zero_smul]
-  have h_rhs2 : c₂.support.sum (fun ℓ => ((↑(c₂ ℓ) : ℚ) * v ^ ℓ) •
+  have h_rhs2 : c₂.coeff.support.sum (fun ℓ => ((↑(c₂.coeff ℓ) : ℚ) * v ^ ℓ) •
       (PowerSeries.X : ℚ⟦X⟧) ^ (a * e + b * ℓ).toNat) =
-      (c₁.support ∪ c₂.support).sum (fun ℓ => ((↑(c₂ ℓ) : ℚ) * v ^ ℓ) •
+      (c₁.coeff.support ∪ c₂.coeff.support).sum (fun ℓ => ((↑(c₂.coeff ℓ) : ℚ) * v ^ ℓ) •
       (PowerSeries.X : ℚ⟦X⟧) ^ (a * e + b * ℓ).toNat) := by
     apply Finset.sum_subset Finset.subset_union_right
     intro ℓ _ hℓ
@@ -9788,7 +9791,7 @@ lemma evalLaurentCoeffShifted_add (a b : ℤ) (v : ℚ) (e : ℕ) (c₁ c₂ : L
   rw [h_rhs1, h_rhs2, ← Finset.sum_add_distrib]
   apply Finset.sum_congr rfl
   intro ℓ _
-  rw [Finsupp.coe_add, Pi.add_apply]
+  rw [AddMonoidAlgebra.coeff_add, Finsupp.coe_add, Pi.add_apply]
   push_cast
   rw [add_mul, add_smul]
 
@@ -9880,7 +9883,7 @@ lemma evalJacobiCorrect_jacobiSumTerm (a b : ℤ) (u v : ℚ) (ℓ : ℤ) :
     rw [coeff_jacobiSumTerm]
     split_ifs with h
     · exfalso; exact he h
-    · simp only [evalLaurentCoeffShifted, Finsupp.support_zero, Finset.sum_empty, smul_zero]
+    · simp only [evalLaurentCoeffShifted, AddMonoidAlgebra.coeff_zero, Finsupp.support_zero, Finset.sum_empty, smul_zero]
 
 /-- Key identity: ℓ.natAbs² = (ℓ²).natAbs for any integer ℓ.
 This is used in the reindexing argument for evalJacobiCorrect_jacobiRHS'. -/
@@ -10413,7 +10416,7 @@ lemma sum_intPartition_eq_sum_states (d : ℕ)
     rw [Set.Finite.mem_toFinset] at hS
     simp only [Set.mem_setOf_eq, statesWithEnergy] at hS
     obtain ⟨⟨ℓ, n, μ⟩, hμ⟩ := State.intPartitionToState_bijective.2 S
-    simp only at hμ
+    try simp only at hμ
     use (ℓ, ⟨n, μ⟩)
     refine ⟨?_, ?_⟩
     · rw [Set.Finite.mem_toFinset]
@@ -11281,7 +11284,7 @@ theorem partition_recursive (n : ℕ) (hn : n > 0) :
   -- Split the antidiagonal sum: p(n) + Σ_{b≠0} p(n-b) * pentagonalCoeff(b) = 0
   rw [antidiagonal_sum_eq n hn] at h2
   -- Solve for p(n): p(n) = -Σ_{b≠0} p(n-b) * pentagonalCoeff(b)
-  have h3 : (partitionCount n : ℤ) = -∑ p ∈ (Finset.antidiagonal n).filter (fun p => p.2 ≠ 0),
+  have h3 : (partitionCount n : ℤ) = -∑ p ∈ (Finset.HasAntidiagonal.antidiagonal n).filter (fun p => p.2 ≠ 0),
       (partitionCount p.1 : ℤ) * pentagonalCoeff p.2 := by
     linarith
   rw [h3]
@@ -11306,7 +11309,7 @@ lemma coeff_pentagonalSeries (n : ℕ) :
 
 /-- Coefficient of the derivative of the pentagonal series. -/
 lemma coeff_deriv_pentagonalSeries (n : ℕ) :
-    PowerSeries.coeff n ((PowerSeries.derivative ℤ) (pentagonalSeries : ℤ⟦X⟧)) =
+    PowerSeries.coeff n ((PowerSeries.derivative (R := ℤ)) (pentagonalSeries : ℤ⟦X⟧)) =
     (n + 1) * pentagonalCoeff (n + 1) := by
   rw [PowerSeries.coeff_derivative]
   simp only [coeff_pentagonalSeries]
@@ -11315,7 +11318,7 @@ lemma coeff_deriv_pentagonalSeries (n : ℕ) :
 /-- Coefficient of x times the derivative of the pentagonal series.
 For n > 0, this equals n * pentagonalCoeff n. For n = 0, this is 0. -/
 lemma coeff_X_mul_deriv_pentagonalSeries (n : ℕ) :
-    PowerSeries.coeff n (PowerSeries.X * (PowerSeries.derivative ℤ) (pentagonalSeries : ℤ⟦X⟧)) =
+    PowerSeries.coeff n (PowerSeries.X * (PowerSeries.derivative (R := ℤ)) (pentagonalSeries : ℤ⟦X⟧)) =
     n * pentagonalCoeff n := by
   cases n with
   | zero =>
@@ -11333,7 +11336,7 @@ lemma coeff_X_mul_deriv_pentagonalSeries (n : ℕ) :
 /-- Express the coefficient of x * Q' in terms of pentagonalNumberInverse.
 The coefficient is (-1)^|k| * n if n = w_k for some k, and 0 otherwise. -/
 lemma coeff_X_mul_deriv_pentagonal_match (n : ℕ) :
-    PowerSeries.coeff n (PowerSeries.X * (PowerSeries.derivative ℤ) (pentagonalSeries : ℤ⟦X⟧)) =
+    PowerSeries.coeff n (PowerSeries.X * (PowerSeries.derivative (R := ℤ)) (pentagonalSeries : ℤ⟦X⟧)) =
     match pentagonalNumberInverse n with
     | some k => (-1 : ℤ) ^ k.natAbs * n
     | none => 0 := by
@@ -11426,7 +11429,7 @@ infrastructure for power series logarithms.
 -/
 lemma partition_sigma_identity (n : ℕ) :
     (n : ℤ) * partitionCount n =
-    ∑ p ∈ (Finset.antidiagonal n).filter (fun p => p.1 ≠ 0), (σ 1 p.1 : ℤ) * partitionCount p.2 := by
+    ∑ p ∈ (Finset.HasAntidiagonal.antidiagonal n).filter (fun p => p.1 ≠ 0), (σ 1 p.1 : ℤ) * partitionCount p.2 := by
   -- The proof uses a combinatorial bijection between:
   -- - Marked partitions: pairs (λ, i) where λ partitions n and i ∈ {1,...,n}
   -- - Extended partitions: quadruples (d, m, j, μ) where d|md, m≥1, j∈{1,...,d}, μ partitions n-md
@@ -11440,13 +11443,13 @@ lemma partition_sigma_identity (n : ℕ) :
   -- This bijection is well-defined and invertible, establishing the identity.
   --
   -- Step 1: Convert RHS to use Icc 1 n
-  have h_rhs_eq : ∑ p ∈ (Finset.antidiagonal n).filter (fun p => p.1 ≠ 0),
+  have h_rhs_eq : ∑ p ∈ (Finset.HasAntidiagonal.antidiagonal n).filter (fun p => p.1 ≠ 0),
       (σ 1 p.1 : ℤ) * partitionCount p.2 =
       ∑ k ∈ Finset.Icc 1 n, (σ 1 k : ℤ) * partitionCount (n - k) := by
-    have h_eq : (Finset.antidiagonal n).filter (fun p => p.1 ≠ 0) =
+    have h_eq : (Finset.HasAntidiagonal.antidiagonal n).filter (fun p => p.1 ≠ 0) =
         (Finset.Icc 1 n).map ⟨fun k => (k, n - k), fun a b h => by simp at h; exact h.1⟩ := by
       ext ⟨a, b⟩
-      simp only [Finset.mem_filter, Finset.mem_antidiagonal, ne_eq, Finset.mem_map, Finset.mem_Icc,
+      simp only [Finset.mem_filter, Finset.HasAntidiagonal.mem_antidiagonal, ne_eq, Finset.mem_map, Finset.mem_Icc,
                  Function.Embedding.coeFn_mk, Prod.mk.injEq]
       constructor
       · intro ⟨hab, ha⟩
@@ -11593,7 +11596,7 @@ lemma partition_sigma_identity (n : ℕ) :
     intro m
     have h := Finset.sum_multiset_map_count m id
     convert h using 2 with x
-    simp
+    all_goals simp
   -- Extend to sum over Icc 1 n (count is 0 for parts not in the partition)
   have h_sum_extend : ∀ p : Nat.Partition n,
       (∑ x ∈ p.parts.toFinset, (p.parts.count x * x : ℤ)) =
@@ -11756,11 +11759,11 @@ Since P = ∏_{k≥1} 1/(1-x^k), we have:
   X * d/dx log(P) = ∑_{k≥1} ∑_{m≥1} k * x^{km} = ∑_{n≥1} σ(n) * x^n = S
 Since d/dx log(P) = P'/P, we get X * P'/P = S, i.e., X * P' = S * P. -/
 lemma X_mul_deriv_partitionGenFun_eq :
-    PowerSeries.X * (PowerSeries.derivative ℤ) partitionGenFun = sigmaSeries * partitionGenFun := by
+    PowerSeries.X * (PowerSeries.derivative (R := ℤ)) partitionGenFun = sigmaSeries * partitionGenFun := by
   -- We prove this by showing both sides have the same coefficients
   ext n
   -- Coefficient of X * P' at n is n * p(n)
-  have h_lhs : PowerSeries.coeff (R := ℤ) n (PowerSeries.X * (PowerSeries.derivative ℤ) partitionGenFun) =
+  have h_lhs : PowerSeries.coeff (R := ℤ) n (PowerSeries.X * (PowerSeries.derivative (R := ℤ)) partitionGenFun) =
       n * partitionCount n := by
     cases n with
     | zero =>
@@ -11777,11 +11780,11 @@ lemma X_mul_deriv_partitionGenFun_eq :
       ring
   -- Coefficient of S * P at n is ∑_{k=1}^n σ(k) * p(n-k)
   have h_rhs : PowerSeries.coeff (R := ℤ) n (sigmaSeries * partitionGenFun) =
-      ∑ p ∈ (Finset.antidiagonal n).filter (fun p => p.1 ≠ 0), (σ 1 p.1 : ℤ) * partitionCount p.2 := by
+      ∑ p ∈ (Finset.HasAntidiagonal.antidiagonal n).filter (fun p => p.1 ≠ 0), (σ 1 p.1 : ℤ) * partitionCount p.2 := by
     rw [PowerSeries.coeff_mul]
-    rw [← Finset.sum_filter_add_sum_filter_not (Finset.antidiagonal n) (fun p => p.1 ≠ 0)]
+    rw [← Finset.sum_filter_add_sum_filter_not (Finset.HasAntidiagonal.antidiagonal n) (fun p => p.1 ≠ 0)]
     simp only [ne_eq, not_not]
-    have h1 : ∑ p ∈ (Finset.antidiagonal n).filter (fun p => p.1 = 0),
+    have h1 : ∑ p ∈ (Finset.HasAntidiagonal.antidiagonal n).filter (fun p => p.1 = 0),
               (PowerSeries.coeff p.1) sigmaSeries * (PowerSeries.coeff p.2) partitionGenFun = 0 := by
       apply Finset.sum_eq_zero
       intro p hp
@@ -11806,40 +11809,40 @@ P'Q + PQ' = 0, so Q' = -P'Q/P. Multiplying by x: xQ' = -xP'Q/P = -SQ (using xP' 
 Note: This lemma depends on `euler_pentagonal_number_theorem` and `partition_generating_function`
 which are being proved separately. -/
 theorem pentagonal_deriv_identity :
-    PowerSeries.X * (PowerSeries.derivative ℤ) (pentagonalSeries : ℤ⟦X⟧) =
+    PowerSeries.X * (PowerSeries.derivative (R := ℤ)) (pentagonalSeries : ℤ⟦X⟧) =
     -(pentagonalSeries : ℤ⟦X⟧) * sigmaSeries := by
   -- From P * Q = 1, take derivative
   have h1 := partitionGenFun_mul_pentagonalSeries
   -- D(P * Q) = D(1) = 0
-  have h2 : (PowerSeries.derivative ℤ) (partitionGenFun * pentagonalSeries) = 0 := by
+  have h2 : (PowerSeries.derivative (R := ℤ)) (partitionGenFun * pentagonalSeries) = 0 := by
     rw [h1]
     exact Derivation.map_one_eq_zero _
   -- Leibniz rule: P' * Q + P * Q' = 0
   rw [Derivation.leibniz] at h2
   simp only [smul_eq_mul] at h2
   -- So P * Q' = -Q * P'
-  have h3 : partitionGenFun * (PowerSeries.derivative ℤ) pentagonalSeries =
-            -pentagonalSeries * (PowerSeries.derivative ℤ) partitionGenFun := by
+  have h3 : partitionGenFun * (PowerSeries.derivative (R := ℤ)) pentagonalSeries =
+            -pentagonalSeries * (PowerSeries.derivative (R := ℤ)) partitionGenFun := by
     have heq := add_eq_zero_iff_eq_neg.mp h2
     rw [heq]; ring
   -- Multiply by X and rearrange
-  have h5 : PowerSeries.X * partitionGenFun * (PowerSeries.derivative ℤ) pentagonalSeries =
-            -pentagonalSeries * (PowerSeries.X * (PowerSeries.derivative ℤ) partitionGenFun) := by
-    calc PowerSeries.X * partitionGenFun * (PowerSeries.derivative ℤ) pentagonalSeries
-        = PowerSeries.X * (partitionGenFun * (PowerSeries.derivative ℤ) pentagonalSeries) := by ring
-      _ = PowerSeries.X * (-pentagonalSeries * (PowerSeries.derivative ℤ) partitionGenFun) := by rw [h3]
-      _ = -pentagonalSeries * (PowerSeries.X * (PowerSeries.derivative ℤ) partitionGenFun) := by ring
+  have h5 : PowerSeries.X * partitionGenFun * (PowerSeries.derivative (R := ℤ)) pentagonalSeries =
+            -pentagonalSeries * (PowerSeries.X * (PowerSeries.derivative (R := ℤ)) partitionGenFun) := by
+    calc PowerSeries.X * partitionGenFun * (PowerSeries.derivative (R := ℤ)) pentagonalSeries
+        = PowerSeries.X * (partitionGenFun * (PowerSeries.derivative (R := ℤ)) pentagonalSeries) := by ring
+      _ = PowerSeries.X * (-pentagonalSeries * (PowerSeries.derivative (R := ℤ)) partitionGenFun) := by rw [h3]
+      _ = -pentagonalSeries * (PowerSeries.X * (PowerSeries.derivative (R := ℤ)) partitionGenFun) := by ring
   -- Use X * P' = S * P
   rw [X_mul_deriv_partitionGenFun_eq] at h5
   -- Now h5 : X * P * Q' = -Q * S * P
-  have h6 : PowerSeries.X * partitionGenFun * (PowerSeries.derivative ℤ) pentagonalSeries =
+  have h6 : PowerSeries.X * partitionGenFun * (PowerSeries.derivative (R := ℤ)) pentagonalSeries =
             -pentagonalSeries * sigmaSeries * partitionGenFun := by
     rw [h5]; ring
   -- Rearrange: (X * Q') * P = (-Q * S) * P
-  have h7 : (PowerSeries.X * (PowerSeries.derivative ℤ) pentagonalSeries) * partitionGenFun =
+  have h7 : (PowerSeries.X * (PowerSeries.derivative (R := ℤ)) pentagonalSeries) * partitionGenFun =
             (-pentagonalSeries * sigmaSeries) * partitionGenFun := by
-    calc (PowerSeries.X * (PowerSeries.derivative ℤ) pentagonalSeries) * partitionGenFun
-        = PowerSeries.X * partitionGenFun * (PowerSeries.derivative ℤ) pentagonalSeries := by ring
+    calc (PowerSeries.X * (PowerSeries.derivative (R := ℤ)) pentagonalSeries) * partitionGenFun
+        = PowerSeries.X * partitionGenFun * (PowerSeries.derivative (R := ℤ)) pentagonalSeries := by ring
       _ = -pentagonalSeries * sigmaSeries * partitionGenFun := h6
       _ = (-pentagonalSeries * sigmaSeries) * partitionGenFun := by ring
   -- P is a unit because p(0) = 1
@@ -11866,12 +11869,12 @@ pentagonalCoeff(a) * σ(b), where σ(0) = 0 by convention.
 Since σ(0) = 0, only terms with b > 0 (i.e., a < n) contribute. -/
 lemma coeff_pentagonalSeries_mul_sigmaSeries (n : ℕ) :
     PowerSeries.coeff n ((pentagonalSeries : ℤ⟦X⟧) * sigmaSeries) =
-    ∑ p ∈ (Finset.antidiagonal n).filter (fun p => p.2 ≠ 0),
+    ∑ p ∈ (Finset.HasAntidiagonal.antidiagonal n).filter (fun p => p.2 ≠ 0),
       pentagonalCoeff p.1 * (σ 1 p.2 : ℤ) := by
   rw [PowerSeries.coeff_mul]
-  rw [← Finset.sum_filter_add_sum_filter_not (Finset.antidiagonal n) (fun p => p.2 ≠ 0)]
+  rw [← Finset.sum_filter_add_sum_filter_not (Finset.HasAntidiagonal.antidiagonal n) (fun p => p.2 ≠ 0)]
   simp only [ne_eq, not_not]
-  have h1 : ∑ p ∈ Finset.filter (fun p => p.2 = 0) (Finset.antidiagonal n),
+  have h1 : ∑ p ∈ Finset.filter (fun p => p.2 = 0) (Finset.HasAntidiagonal.antidiagonal n),
             (PowerSeries.coeff p.1 pentagonalSeries) * (PowerSeries.coeff p.2 sigmaSeries) = 0 := by
     apply Finset.sum_eq_zero
     intro p hp
@@ -11915,7 +11918,7 @@ private lemma neg_one_pow_ne_zero_int (n : ℕ) : (-1 : ℤ) ^ n ≠ 0 := by
 The sum over the antidiagonal (with second component nonzero) of pentagonalCoeff times σ
 equals the sum over pentagonal indices k with w_k < n. -/
 private lemma sum_antidiagonal_eq_tsum_pentagonal (n : ℕ) :
-    ∑ p ∈ (Finset.antidiagonal n).filter (fun p => p.2 ≠ 0),
+    ∑ p ∈ (Finset.HasAntidiagonal.antidiagonal n).filter (fun p => p.2 ≠ 0),
       pentagonalCoeff p.1 * (σ 1 p.2 : ℤ) =
     ∑' k : {k : ℤ // pentagonalNumber k < n},
       (-1 : ℤ) ^ k.val.natAbs * (σ 1 (n - pentagonalNumber k.val) : ℤ) := by
@@ -11926,14 +11929,14 @@ private lemma sum_antidiagonal_eq_tsum_pentagonal (n : ℕ) :
   -- Key insight: pentagonalCoeff a = 0 unless a is a pentagonal number
   -- So we can filter the LHS to only pentagonal a
   -- Step 1: Show that non-pentagonal terms contribute 0
-  have h_filter : ∑ p ∈ (Finset.antidiagonal n).filter (fun p => p.2 ≠ 0),
+  have h_filter : ∑ p ∈ (Finset.HasAntidiagonal.antidiagonal n).filter (fun p => p.2 ≠ 0),
       pentagonalCoeff p.1 * (σ 1 p.2 : ℤ) =
-      ∑ p ∈ (Finset.antidiagonal n).filter (fun p => p.2 ≠ 0 ∧ pentagonalCoeff p.1 ≠ 0),
+      ∑ p ∈ (Finset.HasAntidiagonal.antidiagonal n).filter (fun p => p.2 ≠ 0 ∧ pentagonalCoeff p.1 ≠ 0),
       pentagonalCoeff p.1 * (σ 1 p.2 : ℤ) := by
     -- Split into two sums and show the difference is 0
     rw [← Finset.sum_filter_add_sum_filter_not _ (fun p => pentagonalCoeff p.1 ≠ 0)]
     simp only [not_not]
-    have h_zero : ∑ p ∈ ((Finset.antidiagonal n).filter (fun p => p.2 ≠ 0)).filter
+    have h_zero : ∑ p ∈ ((Finset.HasAntidiagonal.antidiagonal n).filter (fun p => p.2 ≠ 0)).filter
         (fun p => pentagonalCoeff p.1 = 0), pentagonalCoeff p.1 * (σ 1 p.2 : ℤ) = 0 := by
       apply Finset.sum_eq_zero
       intro p hp
@@ -11942,7 +11945,7 @@ private lemma sum_antidiagonal_eq_tsum_pentagonal (n : ℕ) :
     rw [h_zero, add_zero]
     congr 1
     ext p
-    simp only [Finset.mem_filter, Finset.mem_antidiagonal]
+    simp only [Finset.mem_filter, Finset.HasAntidiagonal.mem_antidiagonal]
     tauto
   rw [h_filter]
   -- Step 2: For each k with w_k < n, the pair (w_k, n - w_k) is in the filtered set
@@ -11951,13 +11954,13 @@ private lemma sum_antidiagonal_eq_tsum_pentagonal (n : ℕ) :
   let S := ((Finset.univ : Finset {k : ℤ // pentagonalNumber k < n}).image
     fun k => (pentagonalNumber k.val, n - pentagonalNumber k.val))
   -- Show S equals the filtered antidiagonal
-  have hS_eq : S = (Finset.antidiagonal n).filter (fun p => p.2 ≠ 0 ∧ pentagonalCoeff p.1 ≠ 0) := by
+  have hS_eq : S = (Finset.HasAntidiagonal.antidiagonal n).filter (fun p => p.2 ≠ 0 ∧ pentagonalCoeff p.1 ≠ 0) := by
     ext p
     simp only [S, Finset.mem_image, Finset.mem_univ, true_and, Finset.mem_filter,
-               Finset.mem_antidiagonal]
+               Finset.HasAntidiagonal.mem_antidiagonal]
     constructor
     · intro ⟨⟨k, hk⟩, hp⟩
-      simp only at hp
+      try simp only at hp
       rw [← hp]
       refine ⟨?_, ?_, ?_⟩
       · omega
@@ -11982,7 +11985,7 @@ private lemma sum_antidiagonal_eq_tsum_pentagonal (n : ℕ) :
   rw [Finset.sum_image]
   · apply Finset.sum_congr rfl
     intro ⟨k, hk⟩ _
-    simp only
+    try simp only
     rw [pentagonalCoeff_of_pentagonalNumber]
   · intro ⟨k1, hk1⟩ _ ⟨k2, hk2⟩ _ heq
     simp only [Prod.mk.injEq] at heq
@@ -12071,7 +12074,7 @@ theorem euler_sum_divisors_recursive (n : ℕ) (_hn : n > 0) :
   have h2 := coeff_neg_pentagonal_mul_sigma n
   have h3 := pentagonal_deriv_identity
   -- Since x*Q' = -Q*S, their n-th coefficients are equal
-  have h4 : PowerSeries.coeff n (PowerSeries.X * (PowerSeries.derivative ℤ) (pentagonalSeries : ℤ⟦X⟧)) =
+  have h4 : PowerSeries.coeff n (PowerSeries.X * (PowerSeries.derivative (R := ℤ)) (pentagonalSeries : ℤ⟦X⟧)) =
             PowerSeries.coeff n (-(pentagonalSeries : ℤ⟦X⟧) * sigmaSeries) := by rw [h3]
   rw [h1, h2] at h4
   -- Now h4 relates the LHS and RHS through negation
@@ -12136,12 +12139,12 @@ lemma coeff_zero_jacobiProductTerm' (n : ℕ) : PowerSeries.coeff 0 (jacobiProdu
   have h1 : PowerSeries.coeff 0 (jacobiFactorZ n * jacobiFactorZInv n) =
             PowerSeries.coeff 0 (jacobiFactorZ n) * PowerSeries.coeff 0 (jacobiFactorZInv n) := by
     rw [PowerSeries.coeff_mul]
-    simp only [Finset.antidiagonal_zero, Finset.sum_singleton]
+    simp only [Finset.Nat.antidiagonal_zero, Finset.sum_singleton]
   have h2 : PowerSeries.coeff 0 (jacobiFactorZ n * jacobiFactorZInv n * jacobiFactorQ n) =
             PowerSeries.coeff 0 (jacobiFactorZ n * jacobiFactorZInv n) *
             PowerSeries.coeff 0 (jacobiFactorQ n) := by
     rw [PowerSeries.coeff_mul]
-    simp only [Finset.antidiagonal_zero, Finset.sum_singleton]
+    simp only [Finset.Nat.antidiagonal_zero, Finset.sum_singleton]
   rw [h2, h1, coeff_zero_jacobiFactorZ', coeff_zero_jacobiFactorZInv', coeff_zero_jacobiFactorQ']
   ring
 

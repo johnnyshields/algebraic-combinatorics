@@ -8,6 +8,9 @@ Authors: AlgebraicCombinatorics Contributors
 -/
 import Mathlib
 
+-- Many proofs here unify through semireducible definitions; opt out of the stricter check.
+set_option backward.isDefEq.respectTransparency false
+
 /-!
 # Polynomials
 
@@ -265,7 +268,7 @@ theorem isPolynomial_mul {f g : PowerSeries K} (hf : IsPolynomial f) (hg : IsPol
     rw [PowerSeries.coeff_mul]
     apply Finset.sum_eq_zero
     intro ⟨i, j⟩ hij
-    simp only [Finset.mem_antidiagonal] at hij
+    simp only [Finset.HasAntidiagonal.mem_antidiagonal] at hij
     have hi : i ≤ n := by omega
     have hj : j = n - i := by omega
     have := hzero i hi
@@ -322,12 +325,12 @@ def polynomialSubalgebra : Subalgebra K (PowerSeries K) where
 /-- The underlying subring of the polynomial subalgebra.
 This is the "subring" part of Theorem 7.5.2 (thm.fps.pol.ring):
 K[x] is closed under +, -, *, and contains 0 and 1. -/
-def polynomialSubring : Subring (PowerSeries K) := polynomialSubalgebra.toSubring
+noncomputable def polynomialSubring : Subring (PowerSeries K) := polynomialSubalgebra.toSubring
 
 /-- The underlying K-submodule of the polynomial subalgebra.
 This is the "K-submodule" part of Theorem 7.5.2 (thm.fps.pol.ring):
 K[x] is closed under + and scalar multiplication by elements of K. -/
-def polynomialSubmodule : Submodule K (PowerSeries K) := polynomialSubalgebra.toSubmodule
+noncomputable def polynomialSubmodule : Submodule K (PowerSeries K) := polynomialSubalgebra.toSubmodule
 
 /-- Membership in the polynomial subalgebra is equivalent to being a polynomial.
 This is the characterization of K[x] from Theorem 7.5.2 (thm.fps.pol.ring). -/
@@ -688,7 +691,7 @@ The sum is essentially finite since f is a polynomial (only finitely many
 coefficients are nonzero).
 
 In Mathlib, this is implemented as `Polynomial.aeval a f`. -/
-abbrev polyEval (f : K[X]) (a : A) : A := aeval a f
+noncomputable abbrev polyEval (f : K[X]) (a : A) : A := aeval a f
 
 /-- Notation for polynomial evaluation: `f⦃a⦄` means the value of `f` at `a`.
 This corresponds to the book's notation `f[a]`. -/

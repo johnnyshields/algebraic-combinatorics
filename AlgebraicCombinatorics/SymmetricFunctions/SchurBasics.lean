@@ -7,6 +7,9 @@ import AlgebraicCombinatorics.SymmetricFunctions.LittlewoodRichardson
 import AlgebraicCombinatorics.SymmetricFunctions.NPartition
 import AlgebraicCombinatorics.Permutations.Basics
 
+-- Many proofs here unify through semireducible definitions; opt out of the stricter check.
+set_option backward.isDefEq.respectTransparency false
+
 /-!
 # Schur Polynomials
 
@@ -2462,7 +2465,7 @@ theorem skewSchurPoly_zero {N : ℕ} [NeZero N] (lam : NPartition N) :
   · simp only [ssytFillingsYoung, Finset.mem_filter, Finset.mem_univ, true_and] at ha
     simp only [ssytFillings, Finset.mem_filter, Finset.mem_univ, true_and]
     rw [h_ssyt]
-    convert ha using 2
+    convert ha using 2 <;> simp
 
 /-- Applying a permutation σ to each entry of a filling. -/
 def applyPermToFilling {N : ℕ} [NeZero N] {lam mu : NPartition N}

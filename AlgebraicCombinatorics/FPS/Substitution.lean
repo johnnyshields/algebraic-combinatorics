@@ -5,6 +5,9 @@ All rights reserved.
 import Mathlib
 import AlgebraicCombinatorics.FPSDefinition
 
+-- Many proofs here unify through semireducible definitions; opt out of the stricter check.
+set_option backward.isDefEq.respectTransparency false
+
 /-!
 # Substitution and Evaluation of Power Series
 
@@ -360,7 +363,7 @@ theorem fps_subs_summable {ι : Type*} (f : ι → K⟦X⟧) (g : K⟦X⟧)
   apply Set.Finite.subset _ h_union
   refine Set.Finite.biUnion ?_ ?_
   · show ({k | k ∈ Finset.range (n + 1)} : Set ℕ).Finite
-    exact Finset.finite_toSet _
+    exact (Finset.range (n + 1)).finite_toSet.subset (fun k hk => by simpa using hk)
   · intro k _
     exact hf k
 

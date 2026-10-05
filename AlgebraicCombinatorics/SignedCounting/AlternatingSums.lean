@@ -8,6 +8,9 @@ Copyright (c) 2025. All rights reserved.
 import Mathlib
 import AlgebraicCombinatorics.QBinomialBasic
 
+-- Many proofs here unify through semireducible definitions; opt out of the stricter check.
+set_option backward.isDefEq.respectTransparency false
+
 /-!
 # Cancellations in Alternating Sums
 
@@ -793,7 +796,7 @@ theorem qBinomial_eq_canonical (n k : ℕ) :
       have hScard : S.card = k := by
         have hinj : Function.Injective (fun i : Fin k => (f i).val + i.val) := by
           intro a b hab
-          simp only at hab
+          try simp only at hab
           -- hab : (f a).val + a.val = (f b).val + b.val
           by_contra hne
           have hab' : a < b ∨ b < a := lt_or_gt_of_ne hne
@@ -829,7 +832,7 @@ theorem qBinomial_eq_canonical (n k : ℕ) :
           exact ⟨x, rfl⟩
         · exact hg_strictMono
       have := congr_fun heq i
-      simp only at this
+      try simp only at this
       have hge := orderEmbOfFin_ge_index hScard i
       omega
     · -- Exponents match
@@ -2779,7 +2782,7 @@ theorem nonBlocky_contributions_cancel {K : Type*} [Field K] {ω : K} {d : ℕ}
       let m := d / Nat.gcd d j
       ∑ k ∈ Finset.range m, ω ^ ((rotateSetInBlockK d i k S).sum id) = 0 := by
     intro S hS i hi hsplit
-    simp only
+    try simp only
     -- Use rotateSetInBlockK_sum_pow to rewrite each term
     have hd_pos : 0 < d := by omega
     have hj_pos : 0 < (blockOffsets d i S).card := hsplit.2.1
@@ -2938,7 +2941,7 @@ private lemma componentsToSubset_isBlocky (d n : ℕ) (hd : 0 < d)
     · intro i' hi' j' hj' heq
       have h1 : i' = i := by
         have h := congrArg (· / d) heq
-        simp only at h
+        try simp only at h
         rw [mul_div_add_mod' i' j' d hd hj', mul_div_add_mod' i j d hd hj] at h
         exact h
       rw [h1] at hi'
@@ -3351,7 +3354,7 @@ private lemma sum_complete_block (i d : ℕ) :
     ((Finset.range d).image (fun j => i * d + j)).sum id = d * d * i + d * (d - 1) / 2 := by
   have hinj : Set.InjOn (fun j => i * d + j) (Finset.range d) := by
     intro a _ b _ hab
-    simp only at hab
+    try simp only at hab
     omega
   rw [Finset.sum_image hinj]
   simp only [id]
@@ -3388,7 +3391,7 @@ private lemma sum_partial_block (P : Finset ℕ) (base : ℕ) :
     (P.image (fun p => base + p)).sum id = P.card * base + P.sum id := by
   have hinj : Set.InjOn (fun p => base + p) P := by
     intro a _ b _ hab
-    simp only at hab
+    try simp only at hab
     omega
   rw [Finset.sum_image hinj]
   simp only [id]

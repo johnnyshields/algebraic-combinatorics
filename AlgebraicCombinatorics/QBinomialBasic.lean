@@ -4,6 +4,9 @@ All rights reserved.
 -/
 import Mathlib
 
+-- Many proofs here unify through semireducible definitions; opt out of the stricter check.
+set_option backward.isDefEq.respectTransparency false
+
 /-!
 # q-Binomial Coefficients: Basic Definitions and Properties
 
@@ -1340,7 +1343,7 @@ def monotoneFunctionsEquivSym (k ℓ : ℕ) :
     refine ⟨fun i => sorted.get (i.cast hlen.symm), ?_⟩
     intro i j hij
     apply List.Pairwise.rel_get_of_le (Multiset.pairwise_sort s.val (· ≤ ·))
-    simp [hij]
+    exact hij
   case left_inv =>
     intro ⟨f, hf⟩
     simp only [Subtype.mk.injEq]
@@ -1352,7 +1355,9 @@ def monotoneFunctionsEquivSym (k ℓ : ℕ) :
     have hlen : ((Multiset.ofList (List.ofFn f)).sort (· ≤ ·)).length = k := by simp
     have eq1 : ((Multiset.ofList (List.ofFn f)).sort (· ≤ ·)).get (i.cast hlen.symm) =
                ((Multiset.ofList (List.ofFn f)).sort (· ≤ ·))[i.val] := by
-      simp [List.get_eq_getElem]
+      rfl
+    show ((((Multiset.ofList (List.ofFn f)).sort (· ≤ ·)).get (i.cast hlen.symm) : Fin (ℓ + 1)) : ℕ) =
+      (f i : ℕ)
     rw [eq1]
     simp only [h]
     simp [List.getElem_ofFn]
@@ -1367,7 +1372,7 @@ def monotoneFunctionsEquivSym (k ℓ : ℕ) :
       · simp
       · intro i hi1 hi2
         simp only [List.get_ofFn]
-        simp
+        (try simp); (try rfl)
     rw [h1]
     exact Multiset.sort_eq s.val (· ≤ ·)
 

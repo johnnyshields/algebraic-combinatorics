@@ -9,6 +9,9 @@ Authors: AlgebraicCombinatorics Contributors
 import Mathlib
 import AlgebraicCombinatorics.FPS.XnEquivalence
 
+-- Many proofs here unify through semireducible definitions; opt out of the stricter check.
+set_option backward.isDefEq.respectTransparency false
+
 /-!
 # Limits of Formal Power Series
 
@@ -273,7 +276,7 @@ theorem xnEquiv_mul {n : ℕ} {f₁ f₂ g₁ g₂ : PowerSeries K}
   simp only [coeff_mul]
   apply Finset.sum_congr rfl
   intro p hp
-  rw [Finset.mem_antidiagonal] at hp
+  rw [Finset.HasAntidiagonal.mem_antidiagonal] at hp
   have hi : p.1 ≤ n := by omega
   have hj : p.2 ≤ n := by omega
   rw [hf p.1 hi, hg p.2 hj]
@@ -396,7 +399,7 @@ theorem xnEquiv_invOfUnit {n : ℕ} {f g : PowerSeries K} (u : Kˣ)
       congr 1
       apply Finset.sum_congr rfl
       intro p hp
-      rw [Finset.mem_antidiagonal] at hp
+      rw [Finset.HasAntidiagonal.mem_antidiagonal] at hp
       split_ifs with hlt
       · -- p.2 < k: use IH
         have hp1 : p.1 ≤ n := by omega
@@ -429,7 +432,7 @@ theorem xnEquiv_invOfUnit' {n : ℕ} {f g : PowerSeries K} (u v : Kˣ)
       congr 1
       apply Finset.sum_congr rfl
       intro p hp
-      rw [Finset.mem_antidiagonal] at hp
+      rw [Finset.HasAntidiagonal.mem_antidiagonal] at hp
       split_ifs with hlt
       · have hp1 : p.1 ≤ n := by omega
         have hp2 : p.2 ≤ n := by omega
@@ -620,13 +623,13 @@ theorem coeffStabilizesTo_invOfUnit
     -- coeff n (invOfUnit g u) = -u⁻¹ * ∑ x ∈ antidiagonal n, if x.2 < n then coeff x.1 g * coeff x.2 (invOfUnit g u) else 0
     have h_lhs : ∀ i, coeff n (invOfUnit (g i) (hunit i).unit) =
         -(↑(hunit i).unit⁻¹ : K) *
-          ∑ x ∈ Finset.antidiagonal n,
+          ∑ x ∈ Finset.HasAntidiagonal.antidiagonal n,
             if x.2 < n then coeff x.1 (g i) * coeff x.2 (invOfUnit (g i) (hunit i).unit) else 0 := by
       intro i
       rw [coeff_invOfUnit, if_neg hn]
     have h_rhs : coeff n (invOfUnit lg (isUnit_constantCoeff_of_coeffStabilizesTo hg hunit).unit) =
         -(↑((isUnit_constantCoeff_of_coeffStabilizesTo hg hunit).unit⁻¹) : K) *
-          ∑ x ∈ Finset.antidiagonal n,
+          ∑ x ∈ Finset.HasAntidiagonal.antidiagonal n,
             if x.2 < n then coeff x.1 lg * coeff x.2 (invOfUnit lg (isUnit_constantCoeff_of_coeffStabilizesTo hg hunit).unit) else 0 := by
       rw [coeff_invOfUnit, if_neg hn]
     conv_lhs => ext i; rw [h_lhs]
@@ -641,11 +644,11 @@ theorem coeffStabilizesTo_invOfUnit
       rw [hN i hi]
     -- The sum stabilizes by induction hypothesis
     have h_sum_stab : Seq.StabilizesTo
-        (fun i => ∑ x ∈ Finset.antidiagonal n, if x.2 < n then coeff x.1 (g i) * coeff x.2 (invOfUnit (g i) (hunit i).unit) else 0)
-        (∑ x ∈ Finset.antidiagonal n, if x.2 < n then coeff x.1 lg * coeff x.2 (invOfUnit lg (isUnit_constantCoeff_of_coeffStabilizesTo hg hunit).unit) else 0) := by
+        (fun i => ∑ x ∈ Finset.HasAntidiagonal.antidiagonal n, if x.2 < n then coeff x.1 (g i) * coeff x.2 (invOfUnit (g i) (hunit i).unit) else 0)
+        (∑ x ∈ Finset.HasAntidiagonal.antidiagonal n, if x.2 < n then coeff x.1 lg * coeff x.2 (invOfUnit lg (isUnit_constantCoeff_of_coeffStabilizesTo hg hunit).unit) else 0) := by
       apply Seq.stabilizesTo_finset_sum
       intro ⟨a, b⟩ hab
-      simp only [Finset.mem_antidiagonal] at hab
+      simp only [Finset.HasAntidiagonal.mem_antidiagonal] at hab
       by_cases hb : b < n
       · simp only [hb, ↓reduceIte]
         apply Seq.stabilizesTo_mul
@@ -704,7 +707,9 @@ theorem coeffStabilizesTo_derivativeFun
     CoeffStabilizesTo (fun i => derivativeFun (f i)) (derivativeFun lf) := by
   intro n
   -- By coeff_derivativeFun: coeff n (derivativeFun g) = coeff (n+1) g * (n+1)
-  simp only [coeff_derivativeFun]
+  have e : ∀ g : PowerSeries K, coeff n (derivativeFun g) = coeff (n + 1) g * (n + 1) :=
+    fun g => coeff_derivative g n
+  simp only [e]
   -- The sequence (coeff (n+1) (f i) * (n+1))_i stabilizes to coeff (n+1) lf * (n+1)
   exact Seq.stabilizesTo_mul (hf (n + 1)) (Seq.stabilizesTo_const _)
 
@@ -807,10 +812,10 @@ lemma coeff_mul_one_plus_higher {g f : PowerSeries K} {n : ℕ}
   -- The sum is over pairs (a, b) with a + b = k
   -- For b > 0, coeff b f = 0 (since b ≤ k ≤ n)
   -- For b = 0, coeff 0 f = 1
-  have hsplit : ∀ p ∈ Finset.antidiagonal k, coeff p.1 g * coeff p.2 f =
+  have hsplit : ∀ p ∈ Finset.HasAntidiagonal.antidiagonal k, coeff p.1 g * coeff p.2 f =
       if p.2 = 0 then coeff p.1 g else 0 := by
     intro ⟨a, b⟩ hab
-    simp only [Finset.mem_antidiagonal] at hab
+    simp only [Finset.HasAntidiagonal.mem_antidiagonal] at hab
     have hb : b ≤ n := by omega
     rw [hf b hb]
     split_ifs with hb0
@@ -819,11 +824,11 @@ lemma coeff_mul_one_plus_higher {g f : PowerSeries K} {n : ℕ}
   rw [Finset.sum_congr rfl hsplit]
   -- Now we need to simplify ∑ x ∈ antidiagonal k, if x.2 = 0 then coeff x.1 g else 0
   -- The only element with x.2 = 0 is (k, 0)
-  have hmem : (k, 0) ∈ Finset.antidiagonal k := by simp [Finset.mem_antidiagonal]
-  have huniq : ∀ p ∈ Finset.antidiagonal k, p.2 = 0 → p = (k, 0) := by
+  have hmem : (k, 0) ∈ Finset.HasAntidiagonal.antidiagonal k := by simp [Finset.HasAntidiagonal.mem_antidiagonal]
+  have huniq : ∀ p ∈ Finset.HasAntidiagonal.antidiagonal k, p.2 = 0 → p = (k, 0) := by
     intro ⟨a, b⟩ hab hb
-    simp only [Finset.mem_antidiagonal] at hab
-    simp only at hb
+    simp only [Finset.HasAntidiagonal.mem_antidiagonal] at hab
+    try simp only at hb
     subst hb
     simp only [add_zero] at hab
     simp [hab]
@@ -1061,20 +1066,20 @@ theorem isMultipliable_of_coeffStabilizesTo_partial_prod
       rw [coeff_mul] at hstab_eq
 
       -- Split off the (k, 0) term
-      have hanti : (k, 0) ∈ Finset.antidiagonal k := by simp [Finset.mem_antidiagonal]
+      have hanti : (k, 0) ∈ Finset.HasAntidiagonal.antidiagonal k := by simp [Finset.HasAntidiagonal.mem_antidiagonal]
 
       rw [← Finset.insert_erase hanti, Finset.sum_insert (Finset.notMem_erase _ _)] at hstab_eq
       simp only [hfi0, mul_one] at hstab_eq
 
       -- So the sum equals 0
-      have hsum_zero : ∑ p ∈ (Finset.antidiagonal k).erase (k, 0), coeff p.1 P * coeff p.2 (f i) = 0 := by
-        have heq : coeff k P + ∑ p ∈ (Finset.antidiagonal k).erase (k, 0), coeff p.1 P * coeff p.2 (f i) = coeff k P + 0 := by
+      have hsum_zero : ∑ p ∈ (Finset.HasAntidiagonal.antidiagonal k).erase (k, 0), coeff p.1 P * coeff p.2 (f i) = 0 := by
+        have heq : coeff k P + ∑ p ∈ (Finset.HasAntidiagonal.antidiagonal k).erase (k, 0), coeff p.1 P * coeff p.2 (f i) = coeff k P + 0 := by
           rw [add_zero, hstab_eq]
         exact add_left_cancel heq
 
       -- The (0, k) term is in the sum
-      have hanti2 : (0, k) ∈ (Finset.antidiagonal k).erase (k, 0) := by
-        simp only [Finset.mem_erase, Finset.mem_antidiagonal, Prod.mk.injEq, ne_eq]
+      have hanti2 : (0, k) ∈ (Finset.HasAntidiagonal.antidiagonal k).erase (k, 0) := by
+        simp only [Finset.mem_erase, Finset.HasAntidiagonal.mem_antidiagonal, Prod.mk.injEq, ne_eq]
         constructor
         · intro ⟨h1, h2⟩
           exact hk0 h2
@@ -1090,10 +1095,10 @@ theorem isMultipliable_of_coeffStabilizesTo_partial_prod
       -- So 0 < p.1 < k and 0 < p.2 < k
       -- By induction hypothesis, coeff p.2 (f i) = 0 for all such p
 
-      have hrest_zero : ∑ x ∈ ((Finset.antidiagonal k).erase (k, 0)).erase (0, k), coeff x.1 P * coeff x.2 (f i) = 0 := by
+      have hrest_zero : ∑ x ∈ ((Finset.HasAntidiagonal.antidiagonal k).erase (k, 0)).erase (0, k), coeff x.1 P * coeff x.2 (f i) = 0 := by
         apply Finset.sum_eq_zero
         intro p hp
-        simp only [Finset.mem_erase, Finset.mem_antidiagonal, ne_eq] at hp
+        simp only [Finset.mem_erase, Finset.HasAntidiagonal.mem_antidiagonal, ne_eq] at hp
         -- hp : (p ≠ (0, k) ∧ p ≠ (k, 0) ∧ p.1 + p.2 = k)
         obtain ⟨hp1, hp2, hp_sum⟩ := hp
         -- p.2 < k because p.1 > 0 (since p ≠ (0, k))
@@ -1136,11 +1141,11 @@ private lemma coeff_mul_one_mod {f g : PowerSeries K} {n : ℕ}
     (hg : ∀ k ≤ n, coeff k g = if k = 0 then 1 else 0) :
     coeff n (f * g) = coeff n f := by
   rw [coeff_mul]
-  have : ∑ p ∈ Finset.antidiagonal n, coeff p.1 f * coeff p.2 g =
+  have : ∑ p ∈ Finset.HasAntidiagonal.antidiagonal n, coeff p.1 f * coeff p.2 g =
          coeff n f * coeff 0 g := by
     apply Finset.sum_eq_single (n, 0)
     · intro ⟨i, j⟩ hij hne
-      simp only [Finset.mem_antidiagonal] at hij
+      simp only [Finset.HasAntidiagonal.mem_antidiagonal] at hij
       have hj : j ≤ n := by omega
       have hj_pos : j ≠ 0 := by
         intro hj0
@@ -1153,7 +1158,7 @@ private lemma coeff_mul_one_mod {f g : PowerSeries K} {n : ℕ}
     · intro h
       exfalso
       apply h
-      simp only [Finset.mem_antidiagonal, add_zero]
+      simp only [Finset.HasAntidiagonal.mem_antidiagonal, add_zero]
   rw [this, hg 0 (Nat.zero_le n), if_pos rfl, mul_one]
 
 -- Helper lemma: if f i ≡ 1 (mod x^{n+1}) for i ≥ N, then partial products stabilize at coefficient n

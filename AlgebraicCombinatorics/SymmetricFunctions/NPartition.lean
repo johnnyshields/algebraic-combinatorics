@@ -4,6 +4,9 @@ All rights reserved.
 -/
 import Mathlib
 
+-- Many proofs here unify through semireducible definitions; opt out of the stricter check.
+set_option backward.isDefEq.respectTransparency false
+
 /-!
 # N-Partitions
 
@@ -546,7 +549,7 @@ def ofPartition {n : ℕ} (p : Nat.Partition n) (_hp : Multiset.card p.parts ≤
     if h : i.val < sorted.length then sorted.get ⟨i.val, h⟩ else 0
   antitone := by
     intro i j hij
-    simp only
+    try simp only
     split_ifs with hi hj hj
     · -- Both in range: use that sorted list is decreasing
       have hsorted : (p.parts.sort (· ≥ ·)).Pairwise (· ≥ ·) :=
@@ -1016,7 +1019,7 @@ def colPartition (N : ℕ) (n : ℕ) (_hn : n ≤ N) : NPartition N where
   parts := fun i => if i.val < n then 1 else 0
   antitone := by
     intro i j hij
-    simp only
+    try simp only
     by_cases hi : i.val < n
     · by_cases hj : j.val < n
       · simp [hi, hj]

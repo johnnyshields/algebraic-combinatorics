@@ -5,6 +5,9 @@ All rights reserved.
 import Mathlib
 import AlgebraicCombinatorics.Permutations.Basics
 
+-- Many proofs here unify through semireducible definitions; opt out of the stricter check.
+set_option backward.isDefEq.respectTransparency false
+
 /-!
 # Definitions and Examples of Symmetric Polynomials
 
@@ -115,6 +118,8 @@ noncomputable instance permMulAction : MulAction (Equiv.Perm (Fin N)) (P K N) wh
     show permAction (σ * τ) f = permAction σ (permAction τ f)
     exact permAction_mul σ τ f
 
+-- Instance search for this `rfl` times out when transparency checks are relaxed.
+set_option backward.isDefEq.respectTransparency true in
 /-- The Mathlib smul action agrees with our permAction notation.
     Label: prop.sf.SN-acts -/
 @[simp]
@@ -1156,7 +1161,7 @@ These are implemented in Mathlib as `MvPolynomial.mul_esymm_eq_sum` and related 
     Label: thm.sf.NG -/
 theorem newtonGirard_esymm (k : ℕ) :
     (k : P K N) * e k = (-1 : P K N) ^ (k + 1) *
-      ∑ a ∈ antidiagonal k with a.1 < k, (-1 : P K N) ^ a.1 * e a.1 * p a.2 :=
+      ∑ a ∈ Finset.HasAntidiagonal.antidiagonal k with a.1 < k, (-1 : P K N) ^ a.1 * e a.1 * p a.2 :=
   mul_esymm_eq_sum (Fin N) K k
 
 /-- Newton-Girard formula: recurrence for power sums.
@@ -1165,7 +1170,7 @@ theorem newtonGirard_esymm (k : ℕ) :
     Label: thm.sf.NG -/
 theorem newtonGirard_psum (k : ℕ) (hk : 0 < k) :
     p (K := K) (N := N) k = (-1 : P K N) ^ (k + 1) * (k : P K N) * e k -
-      ∑ a ∈ antidiagonal k with a.1 ∈ Set.Ioo 0 k, (-1 : P K N) ^ a.fst * e a.1 * p a.2 :=
+      ∑ a ∈ Finset.HasAntidiagonal.antidiagonal k with a.1 ∈ Set.Ioo 0 k, (-1 : P K N) ^ a.fst * e a.1 * p a.2 :=
   psum_eq_mul_esymm_sub_sum (Fin N) K k hk
 
 section WithDecidableEq'
@@ -1188,7 +1193,7 @@ private lemma coeff_one_sub_X_mul_C (i : Fin N) (a : ℕ) :
     | zero =>
       rw [PowerSeries.coeff_mul]
       simp only [PowerSeries.coeff_X, PowerSeries.coeff_C]
-      rw [show Finset.antidiagonal 1 = {(0, 1), (1, 0)} by decide]
+      rw [show Finset.HasAntidiagonal.antidiagonal 1 = {(0, 1), (1, 0)} by decide]
       simp only [Finset.sum_pair (by decide : (0, 1) ≠ (1, 0))]
       simp
     | succ a =>
@@ -1198,7 +1203,7 @@ private lemma coeff_one_sub_X_mul_C (i : Fin N) (a : ℕ) :
       simp only [zero_sub, neg_eq_zero]
       apply Finset.sum_eq_zero
       intro ⟨k, l⟩ hkl
-      simp only [Finset.mem_antidiagonal] at hkl
+      simp only [Finset.HasAntidiagonal.mem_antidiagonal] at hkl
       by_cases hk1 : k = 1
       · subst hk1
         simp only [if_true, one_mul]
@@ -1221,34 +1226,34 @@ lemma geom_series_mul_one_sub (i : Fin N) :
   | succ n =>
     simp only [if_neg (Nat.succ_ne_zero n)]
     simp_rw [coeff_one_sub_X_mul_C]
-    have h0 : (0, n + 1) ∈ Finset.antidiagonal (n + 1) := by simp [Finset.mem_antidiagonal]
-    have h1 : (1, n) ∈ Finset.antidiagonal (n + 1) := by simp [Finset.mem_antidiagonal]; omega
-    rw [← Finset.sum_filter_add_sum_filter_not (Finset.antidiagonal (n + 1)) (fun x => x.1 = 0)]
-    have hfilt0 : Finset.filter (fun x => x.1 = 0) (Finset.antidiagonal (n + 1)) = {(0, n + 1)} := by
+    have h0 : (0, n + 1) ∈ Finset.HasAntidiagonal.antidiagonal (n + 1) := by simp [Finset.HasAntidiagonal.mem_antidiagonal]
+    have h1 : (1, n) ∈ Finset.HasAntidiagonal.antidiagonal (n + 1) := by simp [Finset.HasAntidiagonal.mem_antidiagonal]; omega
+    rw [← Finset.sum_filter_add_sum_filter_not (Finset.HasAntidiagonal.antidiagonal (n + 1)) (fun x => x.1 = 0)]
+    have hfilt0 : Finset.filter (fun x => x.1 = 0) (Finset.HasAntidiagonal.antidiagonal (n + 1)) = {(0, n + 1)} := by
       ext x
-      simp only [Finset.mem_filter, Finset.mem_antidiagonal, Finset.mem_singleton, Prod.ext_iff]
+      simp only [Finset.mem_filter, Finset.HasAntidiagonal.mem_antidiagonal, Finset.mem_singleton, Prod.ext_iff]
       constructor
       · intro ⟨h1, h2⟩; exact ⟨h2, by omega⟩
       · intro ⟨h1, h2⟩; exact ⟨by omega, h1⟩
     rw [hfilt0, Finset.sum_singleton]
     simp only [if_true, one_mul]
     rw [← Finset.sum_filter_add_sum_filter_not
-        (Finset.filter (fun x => ¬x.1 = 0) (Finset.antidiagonal (n + 1))) (fun x => x.1 = 1)]
+        (Finset.filter (fun x => ¬x.1 = 0) (Finset.HasAntidiagonal.antidiagonal (n + 1))) (fun x => x.1 = 1)]
     have hfilt1 : Finset.filter (fun x => x.1 = 1)
-        (Finset.filter (fun x => ¬x.1 = 0) (Finset.antidiagonal (n + 1))) = {(1, n)} := by
+        (Finset.filter (fun x => ¬x.1 = 0) (Finset.HasAntidiagonal.antidiagonal (n + 1))) = {(1, n)} := by
       ext x
-      simp only [Finset.mem_filter, Finset.mem_antidiagonal, Finset.mem_singleton, Prod.ext_iff]
+      simp only [Finset.mem_filter, Finset.HasAntidiagonal.mem_antidiagonal, Finset.mem_singleton, Prod.ext_iff]
       constructor
       · intro ⟨⟨h1, h2⟩, h3⟩; exact ⟨h3, by omega⟩
       · intro ⟨h1, h2⟩; exact ⟨⟨by omega, by omega⟩, h1⟩
     rw [hfilt1, Finset.sum_singleton]
     simp only [if_neg (by decide : (1 : ℕ) ≠ 0), if_true, neg_mul]
     have hrest : ∑ x ∈ Finset.filter (fun x => ¬x.1 = 1)
-        (Finset.filter (fun x => ¬x.1 = 0) (Finset.antidiagonal (n + 1))),
+        (Finset.filter (fun x => ¬x.1 = 0) (Finset.HasAntidiagonal.antidiagonal (n + 1))),
         (if x.1 = 0 then 1 else if x.1 = 1 then -(X i : P K N) else 0) * (X i) ^ x.2 = 0 := by
       apply Finset.sum_eq_zero
       intro x hx
-      simp only [Finset.mem_filter, Finset.mem_antidiagonal] at hx
+      simp only [Finset.mem_filter, Finset.HasAntidiagonal.mem_antidiagonal] at hx
       simp [hx.1.2, hx.2]
     rw [hrest, add_zero]
     ring_nf
@@ -1303,8 +1308,8 @@ theorem esymm_genfunc :
   conv_lhs =>
     arg 2
     ext i
-    rw [show (1 : Polynomial (P K N)) - Polynomial.X * Polynomial.C (X i) =
-            1 + (-(Polynomial.X * Polynomial.C (X i))) by ring]
+    rw [show (1 : Polynomial (P K N)) - Polynomial.X * Polynomial.C (X i : P K N) =
+            (1 : Polynomial (P K N)) + (-(Polynomial.X * Polynomial.C (X i : P K N))) by ring]
   rw [prod_one_add]
   -- Now we have: ∑ t ∈ powerset univ, ∏ i ∈ t, (-(X * C(x_i)))
   -- Use powerset_card_biUnion to group by cardinality
@@ -1393,8 +1398,8 @@ theorem newtonGirard_eh (n : ℕ) (hn : 0 < n) :
       conv_lhs =>
         arg 2
         ext i
-        rw [show (1 : Polynomial (P K N)) - Polynomial.X * Polynomial.C (X i) =
-                1 + (-(Polynomial.X * Polynomial.C (X i))) by ring]
+        rw [show (1 : Polynomial (P K N)) - Polynomial.X * Polynomial.C (X i : P K N) =
+                (1 : Polynomial (P K N)) + (-(Polynomial.X * Polynomial.C (X i : P K N))) by ring]
       rw [prod_one_add]
       -- Use powerset_card_biUnion to group by cardinality
       rw [powerset_card_biUnion, sum_biUnion]
@@ -1532,7 +1537,7 @@ theorem newtonGirard_eh (n : ℕ) (hn : 0 < n) :
     rw [coeff_E p.1, coeff_H p.2]
 
   -- Simplify: for j > N, e_j = 0, so we can drop the condition
-  have h_simp : ∀ p ∈ Finset.antidiagonal n,
+  have h_simp : ∀ p ∈ Finset.HasAntidiagonal.antidiagonal n,
       (if p.1 ≤ N then (-1 : P K N) ^ p.1 * e (K := K) (N := N) p.1 else 0) * h (K := K) (N := N) p.2 =
       (-1 : P K N) ^ p.1 * e (K := K) (N := N) p.1 * h (K := K) (N := N) p.2 := by
     intro p _
@@ -1545,7 +1550,7 @@ theorem newtonGirard_eh (n : ℕ) (hn : 0 < n) :
 
   -- Convert antidiagonal sum to range sum
   have h_eq : ∑ j ∈ range (n + 1), (-1 : P K N) ^ j * e (K := K) (N := N) j * h (K := K) (N := N) (n - j) =
-      ∑ x ∈ Finset.antidiagonal n, (-1 : P K N) ^ x.1 * e (K := K) (N := N) x.1 * h (K := K) (N := N) x.2 := by
+      ∑ x ∈ Finset.HasAntidiagonal.antidiagonal n, (-1 : P K N) ^ x.1 * e (K := K) (N := N) x.1 * h (K := K) (N := N) x.2 := by
     rw [← Finset.Nat.sum_antidiagonal_eq_sum_range_succ
         (fun i j => (-1 : P K N) ^ i * e (K := K) (N := N) i * h (K := K) (N := N) j)]
   rw [h_eq, h_coeff]
@@ -1961,21 +1966,21 @@ theorem hsymm_genfunc [DecidableEq (Fin N)] :
   rcases Nat.eq_zero_or_pos n with hn | hn
   · -- Case n = 0
     subst hn
-    simp only [antidiagonal_zero, sum_singleton, Nat.zero_le, ite_true, pow_zero, one_mul]
+    simp only [Finset.Nat.antidiagonal_zero, sum_singleton, Nat.zero_le, ite_true, pow_zero, one_mul]
     rw [h_zero, e_zero]; ring
   · -- Case n > 0
     simp only [ite_false, hn.ne']
-    have hsum : ∑ p ∈ antidiagonal n, h (K := K) (N := N) p.1 *
+    have hsum : ∑ p ∈ Finset.HasAntidiagonal.antidiagonal n, h (K := K) (N := N) p.1 *
         (if p.2 ≤ N then (-1 : P K N) ^ p.2 * e (K := K) (N := N) p.2 else 0) =
-        ∑ p ∈ antidiagonal n, (if p.2 ≤ N then h (K := K) (N := N) p.1 *
+        ∑ p ∈ Finset.HasAntidiagonal.antidiagonal n, (if p.2 ≤ N then h (K := K) (N := N) p.1 *
           (-1 : P K N) ^ p.2 * e (K := K) (N := N) p.2 else 0) := by
       apply sum_congr rfl
       intro p _
       split_ifs with h <;> ring
     rw [hsum]
-    have hdrop : ∑ p ∈ antidiagonal n, (if p.2 ≤ N then h (K := K) (N := N) p.1 *
+    have hdrop : ∑ p ∈ Finset.HasAntidiagonal.antidiagonal n, (if p.2 ≤ N then h (K := K) (N := N) p.1 *
         (-1 : P K N) ^ p.2 * e (K := K) (N := N) p.2 else 0) =
-        ∑ p ∈ antidiagonal n, h (K := K) (N := N) p.1 *
+        ∑ p ∈ Finset.HasAntidiagonal.antidiagonal n, h (K := K) (N := N) p.1 *
           (-1 : P K N) ^ p.2 * e (K := K) (N := N) p.2 := by
       apply sum_congr rfl
       intro p _
@@ -2537,7 +2542,7 @@ private lemma psum_ne_zero (hN : 0 < N) (n : ℕ) (hn : n > 0) : psum (Fin N) K 
   apply ne_zero_iff.mpr
   use Finsupp.single i₀ n
   rw [coeff_sum]
-  have heq : (∑ x : Fin N, coeff (Finsupp.single i₀ n) (X x ^ n)) = (1 : K) := by
+  have heq : (∑ x : Fin N, (X x ^ n).coeff (Finsupp.single i₀ n)) = (1 : K) := by
     rw [Fintype.sum_eq_single i₀]
     · rw [coeff_X_pow, if_pos rfl]
     · intro j hj
@@ -2560,10 +2565,10 @@ private lemma psumAeval_preserves_homogeneous (P : MvPolynomial (Fin N) K) (w : 
   apply IsHomogeneous.sum
   intro d hd
   rw [monomial_eq, map_mul]
-  have hC : (aeval (fun i : Fin N => psum (Fin N) K (i.val + 1))) (C (coeff d P)) = C (coeff d P) := by
+  have hC : (aeval (fun i : Fin N => psum (Fin N) K (i.val + 1))) (C (P.coeff d)) = C (P.coeff d) := by
     simp [algebraMap_eq]
   rw [hC]
-  have h1 : (C (coeff d P) : MvPolynomial (Fin N) K).IsHomogeneous 0 := isHomogeneous_C _ _
+  have h1 : (C (P.coeff d) : MvPolynomial (Fin N) K).IsHomogeneous 0 := isHomogeneous_C _ _
   have h2 : ((aeval (fun i : Fin N => psum (Fin N) K (i.val + 1))) (d.prod fun i n => (X i : MvPolynomial (Fin N) K) ^ n)).IsHomogeneous
       (Finsupp.weight psumWeight' d) := by
     rw [Finsupp.prod, map_prod]
@@ -2697,11 +2702,11 @@ private lemma homogeneousComponent_psumAeval_eq (P : MvPolynomial (Fin N) K) (w 
   rw [sum_filter]
   apply Finset.sum_congr rfl
   intro d hd
-  have h_hom : (aeval (fun k : Fin N => psum (Fin N) K (k.val + 1)) (monomial d (coeff d P))).IsHomogeneous 
+  have h_hom : (aeval (fun k : Fin N => psum (Fin N) K (k.val + 1)) (monomial d (P.coeff d))).IsHomogeneous 
       (Finsupp.weight psumWeight' d) := by
     apply psumAeval_preserves_homogeneous
-    exact isWeightedHomogeneous_monomial psumWeight' d (coeff d P) rfl
-  have h_mem : aeval (fun k : Fin N => psum (Fin N) K (k.val + 1)) (monomial d (coeff d P)) ∈ 
+    exact isWeightedHomogeneous_monomial psumWeight' d (P.coeff d) rfl
+  have h_mem : aeval (fun k : Fin N => psum (Fin N) K (k.val + 1)) (monomial d (P.coeff d)) ∈ 
       homogeneousSubmodule (Fin N) K (Finsupp.weight psumWeight' d) := by
     rw [mem_homogeneousSubmodule]; exact h_hom
   rw [homogeneousComponent_of_mem h_mem]
@@ -2760,14 +2765,14 @@ private lemma esymm_triangular_poly_aux (psumAeval' : MvPolynomial (Fin N) K →
       obtain ⟨u, hu⟩ := h_inv
       
       -- The antidiagonal set and its split
-      let S := (antidiagonal (k + 1)).filter (fun a => a.1 < k + 1)
+      let S := (Finset.HasAntidiagonal.antidiagonal (k + 1)).filter (fun a => a.1 < k + 1)
       let S' := S.filter (fun a => 0 < a.1)
       
-      have h_mem_0 : (0, k + 1) ∈ S := by simp [S, mem_antidiagonal]
-      have h_nmem_0 : (0, k + 1) ∉ S' := by simp [S', S, mem_antidiagonal]
+      have h_mem_0 : (0, k + 1) ∈ S := by simp [S, Finset.HasAntidiagonal.mem_antidiagonal]
+      have h_nmem_0 : (0, k + 1) ∉ S' := by simp [S', S, Finset.HasAntidiagonal.mem_antidiagonal]
       have h_S_eq : S = insert (0, k + 1) S' := by
         ext a
-        simp only [S, S', mem_insert, mem_filter, mem_antidiagonal]
+        simp only [S, S', mem_insert, mem_filter, Finset.HasAntidiagonal.mem_antidiagonal]
         constructor
         · intro ⟨ha, hlt⟩
           by_cases h0 : a.1 = 0
@@ -2811,7 +2816,7 @@ private lemma esymm_triangular_poly_aux (psumAeval' : MvPolynomial (Fin N) K →
       
       have h_S'_bound : ∀ a ∈ S', a.1 < k + 1 ∧ a.1 ≤ N ∧ 0 < a.2 ∧ a.2 ≤ N := by
         intro a ha
-        simp only [S', S, mem_filter, mem_antidiagonal] at ha
+        simp only [S', S, mem_filter, Finset.HasAntidiagonal.mem_antidiagonal] at ha
         omega
       
       have h_ih_S'_full : ∀ a ∈ S', ∃ Q_a : MvPolynomial (Fin N) K, 
@@ -2962,7 +2967,7 @@ private lemma esymm_triangular_poly_aux (psumAeval' : MvPolynomial (Fin N) K →
           
           -- Get bounds on a from S'
           have h_a_bound : a.1 + a.2 = k + 1 ∧ 0 < a.1 ∧ a.1 < k + 1 := by
-            simp only [S', S, mem_filter, mem_antidiagonal] at ha
+            simp only [S', S, mem_filter, Finset.HasAntidiagonal.mem_antidiagonal] at ha
             exact ⟨ha.1.1, ha.2, ha.1.2⟩
           
           rcases hj''' with hj_Qa | hj_Qp
@@ -3057,11 +3062,11 @@ theorem psum_algebraicIndependent :
         | zero => use 1; simp only [esymm_zero, map_one]
         | succ k =>
           have newton := mul_esymm_eq_sum (Fin N) K (k + 1)
-          let S := (antidiagonal (k + 1)).filter (fun a => a.1 < k + 1)
+          let S := (Finset.HasAntidiagonal.antidiagonal (k + 1)).filter (fun a => a.1 < k + 1)
           have h_term : ∀ a ∈ S, ∃ Q : MvPolynomial (Fin N) K, 
               psumAeval' Q = (-1 : P K N) ^ a.1 * esymm (Fin N) K a.1 * psum (Fin N) K a.2 := by
             intro a ha
-            rw [mem_filter, mem_antidiagonal] at ha
+            rw [mem_filter, Finset.HasAntidiagonal.mem_antidiagonal] at ha
             obtain ⟨P_e, hP_e⟩ := ih a.1 ha.2 (by omega)
             obtain ⟨P_p, hP_p⟩ := h_psum_range a.2 (by have := ha.1; omega) (by have := ha.1; omega)
             use (-1) ^ a.1 * P_e * P_p
@@ -3197,7 +3202,7 @@ theorem psum_algebraicIndependent :
         rw [as_sum q]
         apply Subalgebra.sum_mem
         intro m hm
-        have h_monomial : monomial m (coeff m q) = C (coeff m q) * m.prod (fun j n => X j ^ n) := by
+        have h_monomial : monomial m (q.coeff m) = C (q.coeff m) * m.prod (fun j n => X j ^ n) := by
           rw [monomial_eq]
         rw [h_monomial]
         apply Subalgebra.mul_mem
@@ -3344,13 +3349,13 @@ private lemma esymm_mem_psumRange (k : ℕ) (hk : k ≤ N) : esymm (Fin N) K k �
       have newton := mul_esymm_eq_sum (Fin N) K (k + 1)
       -- The RHS is in psumRange
       have h_rhs_mem : (-1 : P K N) ^ (k + 1 + 1) *
-          ∑ a ∈ antidiagonal (k + 1) with a.1 < k + 1,
+          ∑ a ∈ Finset.HasAntidiagonal.antidiagonal (k + 1) with a.1 < k + 1,
             (-1) ^ a.1 * esymm (Fin N) K a.1 * psum (Fin N) K a.2 ∈ psumRange := by
         apply Subalgebra.mul_mem
         · exact Subalgebra.pow_mem _ (Subalgebra.neg_mem _ (Subalgebra.one_mem _)) _
         · apply Subalgebra.sum_mem
           intro a ha
-          rw [mem_filter, mem_antidiagonal] at ha
+          rw [mem_filter, Finset.HasAntidiagonal.mem_antidiagonal] at ha
           apply Subalgebra.mul_mem
           · apply Subalgebra.mul_mem
             · exact Subalgebra.pow_mem _ (Subalgebra.neg_mem _ (Subalgebra.one_mem _)) _
@@ -3370,7 +3375,7 @@ private lemma esymm_mem_psumRange (k : ℕ) (hk : k ≤ N) : esymm (Fin N) K k �
       obtain ⟨u, hu⟩ := h_inv
       have h_esymm_eq : esymm (Fin N) K (k + 1) =
           (↑u⁻¹ : K) • ((-1 : P K N) ^ (k + 1 + 1) *
-            ∑ a ∈ antidiagonal (k + 1) with a.1 < k + 1,
+            ∑ a ∈ Finset.HasAntidiagonal.antidiagonal (k + 1) with a.1 < k + 1,
               (-1) ^ a.1 * esymm (Fin N) K a.1 * psum (Fin N) K a.2) := by
         have h1 : (u : K) • esymm (Fin N) K (k + 1) = (k + 1 : ℕ) • esymm (Fin N) K (k + 1) := by
           simp only [Algebra.smul_def, MvPolynomial.algebraMap_eq, MvPolynomial.C_eq_coe_nat, hu]

@@ -4,6 +4,9 @@ All rights reserved.
 -/
 import Mathlib
 
+-- Many proofs here unify through semireducible definitions; opt out of the stricter check.
+set_option backward.isDefEq.respectTransparency false
+
 /-!
 # The Generating Function of a Weighted Set
 
@@ -272,10 +275,10 @@ theorem weightGenFun_prod [DecidableEq α] [DecidableEq β] (W₁ : WeightedSet 
   have hft_prod := prod_isFiniteType W₁ W₂ hft₁ hft₂
   -- Show that the toFinset of the product weight set equals the biUnion of toFinsets
   have key : (hft_prod n).toFinset =
-      (antidiagonal n).biUnion (fun ij => (hft₁ ij.1).toFinset ×ˢ (hft₂ ij.2).toFinset) := by
+      (Finset.HasAntidiagonal.antidiagonal n).biUnion (fun ij => (hft₁ ij.1).toFinset ×ˢ (hft₂ ij.2).toFinset) := by
     ext ⟨a, b⟩
     simp only [Set.Finite.mem_toFinset, Set.mem_setOf_eq, mem_biUnion, mem_product,
-      mem_antidiagonal, prod]
+      Finset.HasAntidiagonal.mem_antidiagonal, prod]
     constructor
     · intro h
       exact ⟨(W₁.weight a, W₂.weight b), h, rfl, rfl⟩
@@ -284,7 +287,7 @@ theorem weightGenFun_prod [DecidableEq α] [DecidableEq β] (W₁ : WeightedSet 
       exact hij
   rw [key]
   -- The biUnion is disjoint, so card equals sum of cards
-  have hdisj : (antidiagonal n : Set (ℕ × ℕ)).PairwiseDisjoint
+  have hdisj : (Finset.HasAntidiagonal.antidiagonal n : Set (ℕ × ℕ)).PairwiseDisjoint
       (fun ij => (hft₁ ij.1).toFinset ×ˢ (hft₂ ij.2).toFinset) := by
     intro ⟨i₁, j₁⟩ _ ⟨i₂, j₂⟩ _ hne
     simp only [Function.onFun, Finset.disjoint_iff_ne]
@@ -1254,7 +1257,7 @@ theorem twoHorizontalDominos_isFaultfree : isFaultfree 2 twoHorizontalDominos :=
     have hk1 : k = 1 := by omega
     subst hk1
     have hcontra := hdom (Domino.horizontal 1 1) (by simp [twoHorizontalDominos])
-    simp only at hcontra
+    try simp only at hcontra
     omega
 
 /-- For a faultfree tiling of width 2, there must be a horizontal domino straddling position 1 -/
@@ -1429,7 +1432,7 @@ theorem countOfWeight_faultfreeHeight2_two :
     simp only [FaultfreeTilingsHeight2, Set.mem_setOf_eq, Set.mem_singleton_iff]
     constructor
     · intro hn
-      simp only at hn
+      try simp only at hn
       subst hn
       have heq := faultfree_tiling_width2_unique T hT
       subst heq
@@ -1676,7 +1679,7 @@ private lemma shifted_domino_x_in_range' {n : ℕ} {T : Tiling (Rectangle n 2)} 
   obtain ⟨p', hp', rfl⟩ := hp
   have hsub := domino_subset_rect n T d hd hp'
   simp only [Rectangle, Set.mem_setOf_eq] at hsub
-  simp only
+  try simp only
   constructor <;> linarith
 
 /-- Helper lemma for finding which component a point belongs to based on its x-coordinate.
@@ -2829,7 +2832,7 @@ theorem decomposeTiling_hasFault_fst (n : ℕ) (T : Tiling (Rectangle (n + 1) 2)
 theorem composeTilings_decomposeTiling (n : ℕ) (T : Tiling (Rectangle n 2)) :
     let ⟨k, ts⟩ := decomposeTiling n T
     composeTilings k ts = ⟨n, T⟩ := by
-  simp only
+  try simp only
   induction n using Nat.strong_induction_on with
   | _ n ih =>
     match n with
@@ -2890,7 +2893,7 @@ theorem composeTilings_decomposeTiling (n : ℕ) (T : Tiling (Rectangle n 2)) :
         
         -- Rewrite using decomposeTiling_hasFault to get the concrete form
         have hdecomp := decomposeTiling_hasFault n' T hne
-        simp only at hdecomp
+        try simp only at hdecomp
         rw [hdecomp]
         
         -- The goal is now in terms of the concrete decomposition
@@ -3014,7 +3017,7 @@ theorem composeTilings_decomposeTiling (n : ℕ) (T : Tiling (Rectangle n 2)) :
             -- Now use Fin.sum_univ_succ on f
             have h_sum : ∑ i : Fin j.succ.val, f i = f zero_idx + ∑ i : Fin j.val, f i.succ := by
               have h := Fin.sum_univ_succ f
-              convert h using 2
+              convert h using 2 <;> rfl
             
             calc ∑ i : Fin j.succ.val, (ts' ⟨i.val, Nat.lt_trans i.isLt j.succ.isLt⟩).1
                 = ∑ i : Fin j.succ.val, f i := rfl
@@ -3168,7 +3171,7 @@ private lemma sigma_fin_fun_ext {α : Type*} (n m : ℕ) (h : n = m)
     (hfg : ∀ i : Fin m, f ⟨i.val, by omega⟩ = g i) :
     (⟨n, f⟩ : Σ k, Fin k → α) = ⟨m, g⟩ := by
   apply Sigma.ext h
-  simp only
+  try simp only
   apply Function.hfunext (by simp only [h])
   intro i j hij
   have hi_eq : i.val = j.val := by
@@ -3479,7 +3482,7 @@ theorem decomposeTiling_composeTilings (k : ℕ)
       
       -- Step 4: Prove elementwise equality
       intro i
-      simp only
+      try simp only
       -- Case split on whether i = 0
       by_cases hi : i.val = 0
       · -- Case i = 0: Show ⟨minF, ⟨left, left_ff⟩⟩ = ts 0
@@ -3542,7 +3545,7 @@ theorem decomposeTiling_composeTilings (k : ℕ)
         -- Extract h1 : decomp_right.1 = k' + 1
         have h1 : decomp_right.1 = k' + 1 := by
           have := congrArg Sigma.fst hdecomp_tail
-          simp only at this
+          try simp only at this
           exact this
         -- Use Sigma.ext_iff to extract the HEq of second components
         rw [Sigma.ext_iff] at hdecomp_tail
@@ -3579,9 +3582,9 @@ theorem composeTilings_width (k : ℕ)
 theorem decomposeTiling_weight_sum (n : ℕ) (T : Tiling (Rectangle n 2)) :
     let ⟨k, ts⟩ := decomposeTiling n T
     (∑ i : Fin k, (ts i).1) = n := by
-  simp only
+  try simp only
   have h1 := composeTilings_decomposeTiling n T
-  simp only at h1
+  try simp only at h1
   have h2 := composeTilings_width (decomposeTiling n T).1 (decomposeTiling n T).2
   rw [← h2]
   exact congrArg Sigma.fst h1

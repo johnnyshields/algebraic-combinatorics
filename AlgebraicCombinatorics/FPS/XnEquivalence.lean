@@ -4,6 +4,9 @@ All rights reserved.
 -/
 import Mathlib
 
+-- Many proofs here unify through semireducible definitions; opt out of the stricter check.
+set_option backward.isDefEq.respectTransparency false
+
 /-!
 # x^n-Equivalence of Formal Power Series
 
@@ -139,7 +142,7 @@ theorem XnEquiv.mul {n : ℕ} {a b c d : R⟦X⟧} (hab : XnEquiv n a b) (hcd : 
   simp only [coeff_mul]
   apply Finset.sum_congr rfl
   intro ⟨i, j⟩ hij
-  simp only [mem_antidiagonal] at hij
+  simp only [Finset.HasAntidiagonal.mem_antidiagonal] at hij
   have hi : i ≤ n := by omega
   have hj : j ≤ n := by omega
   rw [hab i hi, hcd j hj]
@@ -181,7 +184,7 @@ theorem XnEquiv.invOfUnit {R : Type*} [CommRing R] {n : ℕ} {a b : R⟦X⟧}
       · simp only [huab_inv]
       · apply Finset.sum_congr rfl
         intro ⟨i, j⟩ hij
-        simp only [mem_antidiagonal] at hij
+        simp only [Finset.HasAntidiagonal.mem_antidiagonal] at hij
         split_ifs with hj
         · -- When j < m, we can use induction hypothesis
           have hi : i ≤ n := by omega
@@ -220,7 +223,7 @@ theorem XnEquiv.invOfUnit' {R : Type*} [CommRing R] {n : ℕ} {f g : R⟦X⟧} (
       · simp only [huv_inv]
       · apply Finset.sum_congr rfl
         intro ⟨i, j⟩ hij
-        simp only [mem_antidiagonal] at hij
+        simp only [Finset.HasAntidiagonal.mem_antidiagonal] at hij
         split_ifs with hj
         · have hi : i ≤ n := by omega
           have hj' : j ≤ n := by omega

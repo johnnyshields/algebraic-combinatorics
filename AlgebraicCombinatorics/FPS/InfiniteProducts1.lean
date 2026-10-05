@@ -10,6 +10,9 @@ import Mathlib
 import AlgebraicCombinatorics.FPS.InfiniteProducts
 import AlgebraicCombinatorics.FPS.XnEquivalence
 
+-- Many proofs here unify through semireducible definitions; opt out of the stricter check.
+set_option backward.isDefEq.respectTransparency false
+
 /-!
 # Infinite Products of Formal Power Series (Part 1)
 
@@ -692,7 +695,7 @@ theorem infprod_union_eq {ι : Type*} {a : ι → K⟦X⟧} {J : Set ι}
     simp only [coeff_mul]
     apply Finset.sum_congr rfl
     intro ⟨i, j⟩ hij
-    simp only [mem_antidiagonal] at hij
+    simp only [Finset.HasAntidiagonal.mem_antidiagonal] at hij
     rw [h5 i (by omega), h6 j (by omega)]
   rw [h1, h2, h3, h4, h7]
 
@@ -731,7 +734,7 @@ theorem multipliable_mul {ι : Type*} {a b : ι → K⟦X⟧}
   rw [coeff_mul, coeff_mul]
   apply Finset.sum_congr rfl
   intro ⟨p, q⟩ hpq
-  rw [mem_antidiagonal] at hpq
+  rw [Finset.HasAntidiagonal.mem_antidiagonal] at hpq
   -- p + q = n, so p ≤ n and q ≤ n
   have hp : p ≤ n := by omega
   have hq : q ≤ n := by omega
@@ -816,7 +819,7 @@ theorem infprod_mul_eq {ι : Type*} {a b : ι → K⟦X⟧}
     rw [coeff_mul, coeff_mul]
     apply Finset.sum_congr rfl
     intro ⟨p, q⟩ hpq
-    rw [Finset.mem_antidiagonal] at hpq
+    rw [Finset.HasAntidiagonal.mem_antidiagonal] at hpq
     have hp : p ≤ n := by omega
     have hq : q ≤ n := by omega
     rw [coeff_infprod_eq_coeff_finprod ha (hU_det_a p hp),
@@ -865,7 +868,7 @@ theorem multipliable_div {ι : Type*} {a b : ι → K⟦X⟧}
   rw [coeff_mul, coeff_mul]
   apply Finset.sum_congr rfl
   intro ⟨p, q⟩ hpq
-  rw [mem_antidiagonal] at hpq
+  rw [Finset.HasAntidiagonal.mem_antidiagonal] at hpq
   -- p + q = n, so p ≤ n and q ≤ n
   have hp : p ≤ n := by omega
   have hq : q ≤ n := by omega
@@ -944,7 +947,7 @@ theorem multipliable_div {ι : Type*} {a b : ι → K⟦X⟧}
         congr 1
         apply Finset.sum_congr rfl
         intro ⟨i, j⟩ hij
-        simp only [Finset.mem_antidiagonal] at hij
+        simp only [Finset.HasAntidiagonal.mem_antidiagonal] at hij
         split_ifs with hj
         · congr 1
           · exact hb_eq i (by omega)

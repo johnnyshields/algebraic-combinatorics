@@ -9,6 +9,9 @@ Authors: AlgebraicCombinatorics Contributors
 import Mathlib
 import AlgebraicCombinatorics.QBinomialBasic
 
+-- Many proofs here unify through semireducible definitions; opt out of the stricter check.
+set_option backward.isDefEq.respectTransparency false
+
 /-!
 # q-Binomial Formulas
 
@@ -2540,8 +2543,8 @@ theorem qBinomial_subspace_count (n k : ℕ) (hn : Module.finrank F V = n) :
       refine prod_bij' (fun i _ => k - 1 - i) (fun j _ => k - 1 - j) ?_ ?_ ?_ ?_ ?_
       · intro i hi; simp only [mem_range] at hi ⊢; omega
       · intro j hj; simp only [mem_range] at hj ⊢; omega
-      · intro i hi; simp only [mem_range] at hi; simp only; omega
-      · intro j hj; simp only [mem_range] at hj; simp only; omega
+      · intro i hi; simp only [mem_range] at hi; (try simp only); omega
+      · intro j hj; simp only [mem_range] at hj; (try simp only); omega
       · intro i hi
         simp only [mem_range] at hi
         have h1 : k - 1 - i + 1 = k - i := by omega
@@ -2913,7 +2916,7 @@ private noncomputable def conjugatePartition' (m : ℕ) (p : Nat.Partition m) : 
 private lemma conjugatePartition_parts_card' (m : ℕ) (p : Nat.Partition m) :
     (conjugatePartition' m p).parts.card = (partitionToYoungDiagram' m p).rowLen 0 := by
   unfold conjugatePartition'
-  simp only
+  try simp only
   exact transpose_rowLens_length' _
 
 -- If all parts ≤ k, then conjugate has ≤ k parts

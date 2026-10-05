@@ -68,6 +68,9 @@ Both represent the same mathematical object; use whichever is more convenient fo
 
 import Mathlib
 
+-- Many proofs here unify through semireducible definitions; opt out of the stricter check.
+set_option backward.isDefEq.respectTransparency false
+
 set_option maxHeartbeats 400000
 
 namespace AlgebraicCombinatorics
@@ -990,7 +993,7 @@ private lemma card_typeB_helper (m : ℕ) :
   rw [Finset.card_image_of_injective]
   · simp
   · intro i j hij
-    simp only at hij
+    try simp only at hij
     apply Fin.ext
     by_contra hne
     have h_or : i.val < j.val ∨ j.val < i.val := by
@@ -3174,7 +3177,7 @@ theorem lexLt_trichotomous {n : ℕ} (a b : Fin n → ℤ) (hab : a ≠ b) :
   -- There exists some index where they differ
   have h : ∃ i, a i ≠ b i := Function.ne_iff.mp hab
   -- Find the minimal such index using well-founded recursion on Fin n
-  have wf : WellFounded (fun (i j : Fin n) => i < j) := IsWellFounded.wf
+  have wf : WellFounded (fun (i j : Fin n) => i < j) := wellFounded_lt
   obtain ⟨k, hk_mem, hk_min⟩ := wf.has_min {i : Fin n | a i ≠ b i} h
   have hk : a k ≠ b k := hk_mem
   have hk_min' : ∀ i, i < k → a i = b i := by
@@ -3375,7 +3378,7 @@ theorem Perm.lehmerCode_preserves_lexLt {n : ℕ} (σ τ : Equiv.Perm (Fin n))
       intro j hj
       have hji : j < k := lt_of_le_of_lt hj hi
       have h_eq_val : (σ j).val = (τ j).val := by
-        simp only at h_agree
+        try simp only at h_agree
         exact Int.ofNat_inj.mp (h_agree j hji)
       exact Fin.ext h_eq_val
     have := lehmerEntry_eq_of_agree_on σ τ i h_agree_le
@@ -3385,14 +3388,14 @@ theorem Perm.lehmerCode_preserves_lexLt {n : ℕ} (σ τ : Equiv.Perm (Fin n))
     have h_agree_fin : ∀ i : Fin n, i < k → σ i = τ i := by
       intro i hi
       have h_eq_val : (σ i).val = (τ i).val := by
-        simp only at h_agree
+        try simp only at h_agree
         exact Int.ofNat_inj.mp (h_agree i hi)
       exact Fin.ext h_eq_val
     have h_lt_fin : σ k < τ k := by
       simp only [Fin.lt_def]
       exact Int.ofNat_lt.mp h_lt
     have := lehmerEntry_lt_of_agree_below_and_lt σ τ k h_agree_fin h_lt_fin
-    simp only
+    try simp only
     exact Int.ofNat_lt.mpr this
 
 /-! ### Generating function for length -/

@@ -4,6 +4,9 @@ All rights reserved.
 -/
 import Mathlib
 
+-- Many proofs here unify through semireducible definitions; opt out of the stricter check.
+set_option backward.isDefEq.respectTransparency false
+
 /-!
 # Domino Tilings of Height-3 Rectangles
 
@@ -4213,7 +4216,7 @@ private lemma reflectCell3_surjective_on_rect {n : ℕ} {c : Cell}
   use (c.1, 4 - c.2)
   constructor
   · rw [mem_Rectangle]
-    simp only
+    try simp only
     omega
   · simp only [reflectCell3]
     ext <;> omega
@@ -4450,7 +4453,7 @@ theorem reflectTiling3_involutive {n : ℕ} (T : DominoTiling n 3) :
     cases hT : reflectTiling3 (reflectTiling3 { dominos, dominos_in_rect, covers_all, pairwise_disjoint }) with
     | mk dominos' dominos_in_rect' covers_all' pairwise_disjoint' =>
       rw [hT] at h
-      simp only at h
+      try simp only at h
       subst h
       rfl
 
@@ -6241,7 +6244,7 @@ theorem faultfree_top_vertical_classification (n : ℕ) (T : DominoTiling n 3)
         simp only [Domino.cells, hd_cell1, hd_cell2]
         -- Need to show: {(2 * j + 1, 1), (2 * j + 2, 1)} = {(2 * (j + 1) - 1, 1), (2 * (j + 1), 1)}
         -- which simplifies to the same set since 2*(j+1)-1 = 2*j+1 and 2*(j+1) = 2*j+2
-        convert hd'_cells using 2
+        convert hd'_cells using 2 <;> first | rfl | omega | (ext <;> simp <;> omega) | (simp <;> omega) | simp
       · -- j = n/2 - 1: last basement domino (n-1, 1) - (n, 1)
         have hj_eq : j = n / 2 - 1 := by omega
         have hd_c1 : d.cell1 = (n - 1, 1) := by
@@ -6425,7 +6428,7 @@ theorem faultfree_top_vertical_classification (n : ℕ) (T : DominoTiling n 3)
       rw [← hd_cells]
       simp only [Domino.cells, hd_cell1, hd_cell2]
       -- Need to show: {(2 * j + 2, 2), (2 * j + 3, 2)} = {(2 * (j + 1), 2), (2 * (j + 1) + 1, 2)}
-      convert hd'_cells using 2
+      convert hd'_cells using 2 <;> first | rfl | omega | (ext <;> simp <;> omega) | (simp <;> omega) | simp
     · -- d ∈ topDominos n
       simp only [topDominos, Finset.mem_map, Finset.mem_range] at hd
       obtain ⟨j, hj_lt, hd_eq⟩ := hd
@@ -6441,7 +6444,7 @@ theorem faultfree_top_vertical_classification (n : ℕ) (T : DominoTiling n 3)
       rw [← hd_cells]
       simp only [Domino.cells, hd_cell1, hd_cell2]
       -- Need to show: {(2 * j + 2, 3), (2 * j + 3, 3)} = {(2 * (j + 1), 3), (2 * (j + 1) + 1, 3)}
-      convert hd'_cells using 2
+      convert hd'_cells using 2 <;> first | rfl | omega | (ext <;> simp <;> omega) | (simp <;> omega) | simp
   -- Now use cardinality to show equality
   have h_image_card_eq : (T.dominos.image Domino.cells).card =
       ((TilingA n hn_even hn_ge).dominos.image Domino.cells).card := by

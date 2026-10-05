@@ -6,6 +6,9 @@ import Mathlib
 import AlgebraicCombinatorics.SymmetricFunctions.SchurBasics
 import AlgebraicCombinatorics.SymmetricFunctions.PieriJacobiTrudi
 
+-- Many proofs here unify through semireducible definitions; opt out of the stricter check.
+set_option backward.isDefEq.respectTransparency false
+
 /-!
 # Equivalence Between SSYT Definitions
 
@@ -269,7 +272,7 @@ theorem SSYT_eq_of_entries_eq {lam : SymmetricFunctions.NPartition N}
     {T1 T2 : SymmetricFunctions.SSYT lam}
     (h : T1.entries = T2.entries) : T1 = T2 := by
   cases T1; cases T2
-  simp only at h
+  try simp only at h
   subst h
   rfl
 
@@ -493,7 +496,7 @@ theorem sfSSYT_to_Filling_isSSYT {lam : SymmetricFunctions.NPartition N}
     simp only [Subtype.coe_mk] at hrow hcol hc1_lt hc2_lt hc1_lt' h ⊢
     cases c1val with | mk c1fst c1snd =>
     cases c2val with | mk c2fst c2snd =>
-    simp only at hrow
+    try simp only at hrow
     simp only at hrow hcol hc1_lt hc2_lt hc1_lt' h ⊢
     subst hrow
     exact h
