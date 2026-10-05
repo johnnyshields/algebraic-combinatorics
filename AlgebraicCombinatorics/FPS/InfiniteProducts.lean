@@ -263,7 +263,7 @@ theorem coeffFinitelyDeterminedInSum_of_finite_support (a : I → PowerSeries R)
   rw [map_sum]
   apply Finset.sum_eq_zero
   intro i hi
-  simp only [Finset.mem_sdiff, Set.Finite.mem_toFinset, Set.mem_setOf_eq, ne_eq, not_not] at hi
+  simp only [Finset.mem_sdiff, Set.Finite.mem_toFinset, Set.mem_ofPred_eq, ne_eq, not_not] at hi
   exact hi.2
 
 /-!
@@ -296,7 +296,7 @@ theorem summable_iff_coeff_finitely_determined (a : I → PowerSeries R) :
     simp only [Finset.mem_sdiff] at hi
     have hnotM := hi.2
     have : i ∉ (hfin n).toFinset := hnotM
-    simp only [Set.Finite.mem_toFinset, Set.mem_setOf_eq, ne_eq, not_not] at this
+    simp only [Set.Finite.mem_toFinset, Set.mem_ofPred_eq, ne_eq, not_not] at this
     exact this
   · -- Backward direction: if finitely determined, then only finitely many non-zero
     intro hdet n
@@ -310,7 +310,7 @@ theorem summable_iff_coeff_finitely_determined (a : I → PowerSeries R) :
     have hJ : M ⊆ insert i M := Finset.subset_insert i M
     have heq := hM (insert i M) hJ
     rw [Finset.sum_insert h, map_add] at heq
-    simp only [Set.mem_setOf_eq, ne_eq] at hi
+    simp only [Set.mem_ofPred_eq, ne_eq] at hi
     -- heq says (a i).coeff n + (∑ M) = (∑ M), so (a i).coeff n = 0
     have hzero : (a i).coeff n = 0 := by
       have h1 : (a i).coeff n + (∑ x ∈ M, a x).coeff n = (∑ x ∈ M, a x).coeff n := heq
@@ -595,7 +595,7 @@ theorem multipliable_of_finite_ne_one (a : I → PowerSeries R)
     intro i hi
     have : i ∉ h.toFinset := Finset.mem_sdiff.mp hi |>.2
     rw [Set.Finite.mem_toFinset] at this
-    simp only [Set.mem_setOf_eq, not_not] at this
+    simp only [Set.mem_ofPred_eq, not_not] at this
     exact this
   rw [h_ones, mul_one]
 
@@ -716,7 +716,7 @@ theorem multipliable_one_add_pow_two :
   -- For a given n, there is at most one i such that 2^i = n
   have h : {i : ℕ | (X ^ 2 ^ i : PowerSeries R).coeff n ≠ 0} ⊆ {i : ℕ | 2 ^ i = n} := by
     intro i hi
-    simp only [Set.mem_setOf_eq] at hi ⊢
+    simp only [Set.mem_ofPred_eq] at hi ⊢
     simp only [coeff_X_pow] at hi
     split_ifs at hi with heq
     · exact heq.symm
@@ -729,7 +729,7 @@ theorem multipliable_one_add_pow_two :
   -- The set is a subsingleton
   have hs : Set.Subsingleton {i : ℕ | 2 ^ i = n} := by
     intro x hx y hy
-    simp only [Set.mem_setOf_eq] at hx hy
+    simp only [Set.mem_ofPred_eq] at hx hy
     exact inj (hx.trans hy.symm)
   exact hs.finite
 
@@ -870,7 +870,7 @@ theorem multipliable_of_union {a : I → PowerSeries R} {J : Set I}
     · exact hK (Finset.mem_union_right _ hx)
     · simp only [MIJ', Finset.mem_map, Function.Embedding.coe_subtype] at hx
       obtain ⟨⟨y, hy⟩, _, rfl⟩ := hx
-      simp only [Set.mem_diff, Set.mem_univ, true_and] at hy
+      simp only [Set.mem_sdiff, Set.mem_univ, true_and] at hy
       exact hy
   -- The products split
   have hK_prod : ∏ i ∈ K, a i = (∏ i ∈ KJ, a i) * (∏ i ∈ KIJ, a i) := by
@@ -890,7 +890,7 @@ theorem multipliable_of_union {a : I → PowerSeries R} {J : Set I}
     simp only [MIJ', Finset.mem_map, Function.Embedding.coe_subtype] at hy
     obtain ⟨⟨x', hx'⟩, _, hx_eq⟩ := hx
     obtain ⟨⟨y', hy'⟩, _, hy_eq⟩ := hy
-    simp only [Set.mem_diff, Set.mem_univ, true_and] at hy'
+    simp only [Set.mem_sdiff, Set.mem_univ, true_and] at hy'
     rw [← hx_eq, ← hy_eq] at hxy
     simp only at hxy
     rw [hxy] at hx'
@@ -923,7 +923,7 @@ theorem multipliable_of_union {a : I → PowerSeries R} {J : Set I}
     simp only [Function.Embedding.coe_subtype]
   have hKIJ_eq_subtype : ∏ i ∈ KIJ, a i = ∏ i ∈ KIJ.subtype (· ∈ (Set.univ \ J)), a i := by
     conv_lhs => rw [show KIJ = KIJ.filter (· ∈ (Set.univ \ J)) from by
-      ext x; simp only [KIJ, Finset.mem_filter, Set.mem_diff, Set.mem_univ, true_and]; tauto]
+      ext x; simp only [KIJ, Finset.mem_filter, Set.mem_sdiff, Set.mem_univ, true_and]; tauto]
     rw [← Finset.subtype_map (· ∈ (Set.univ \ J)), Finset.prod_map]
     simp only [Function.Embedding.coe_subtype]
   have hMJ'_eq_subtype : ∏ i ∈ MJ', a i = ∏ i ∈ MJ, a i := by
@@ -972,7 +972,7 @@ theorem tprod_eq_tprod_mul_tprod {a : I → PowerSeries R} {J : Set I}
     simp only [MIJ', Finset.mem_map, Function.Embedding.coe_subtype] at hy
     obtain ⟨⟨x', hx'⟩, _, hx_eq⟩ := hx
     obtain ⟨⟨y', hy'⟩, _, hy_eq⟩ := hy
-    simp only [Set.mem_diff, Set.mem_univ, true_and] at hy'
+    simp only [Set.mem_sdiff, Set.mem_univ, true_and] at hy'
     rw [← hx_eq, ← hy_eq] at hxy
     simp only at hxy
     rw [hxy] at hx'
@@ -1001,7 +1001,7 @@ theorem tprod_eq_tprod_mul_tprod {a : I → PowerSeries R} {J : Set I}
       · exact hK (Finset.mem_union_right _ hx)
       · simp only [MIJ', Finset.mem_map, Function.Embedding.coe_subtype] at hx
         obtain ⟨⟨y, hy⟩, _, rfl⟩ := hx
-        simp only [Set.mem_diff, Set.mem_univ, true_and] at hy
+        simp only [Set.mem_sdiff, Set.mem_univ, true_and] at hy
         exact hy
     have hK_prod : ∏ i ∈ K, a i = (∏ i ∈ KJ, a i) * (∏ i ∈ KIJ, a i) := by
       rw [← Finset.prod_union]
@@ -1038,7 +1038,7 @@ theorem tprod_eq_tprod_mul_tprod {a : I → PowerSeries R} {J : Set I}
       simp only [Function.Embedding.coe_subtype]
     have hKIJ_eq_subtype : ∏ i ∈ KIJ, a i = ∏ i ∈ KIJ.subtype (· ∈ (Set.univ \ J)), a i := by
       conv_lhs => rw [show KIJ = KIJ.filter (· ∈ (Set.univ \ J)) from by
-        ext x; simp only [KIJ, Finset.mem_filter, Set.mem_diff, Set.mem_univ, true_and]; tauto]
+        ext x; simp only [KIJ, Finset.mem_filter, Set.mem_sdiff, Set.mem_univ, true_and]; tauto]
       rw [← Finset.subtype_map (· ∈ (Set.univ \ J)), Finset.prod_map]
       simp only [Function.Embedding.coe_subtype]
     have hJ_approx : ∀ m ≤ n, (∏ i ∈ KJ.subtype (· ∈ J), a i).coeff m = (∏ i ∈ MJ, a i).coeff m := by
@@ -1310,7 +1310,7 @@ theorem multipliable_div {a b : I → PowerSeries R}
     | _ m ih =>
       cases m with
       | zero =>
-        rw [coeff_invOfUnit, coeff_invOfUnit, if_pos rfl, if_pos rfl]
+        rw [coeff_invOfUnit, coeff_invOfUnit, ite_eq_left rfl, ite_eq_left rfl]
         have huv' : hprod_b_J.unit⁻¹ = hprod_b_M.unit⁻¹ := by
           apply Units.ext
           show (hprod_b_J.unit⁻¹ : Rˣ).val = (hprod_b_M.unit⁻¹ : Rˣ).val
@@ -1319,7 +1319,7 @@ theorem multipliable_div {a b : I → PowerSeries R}
             _ = (hprod_b_M.unit⁻¹ : Rˣ).val := Ring.inverse_unit hprod_b_M.unit
         rw [huv']
       | succ k =>
-        rw [coeff_invOfUnit, coeff_invOfUnit, if_neg (Nat.succ_ne_zero k), if_neg (Nat.succ_ne_zero k)]
+        rw [coeff_invOfUnit, coeff_invOfUnit, ite_eq_right (Nat.succ_ne_zero k), ite_eq_right (Nat.succ_ne_zero k)]
         have huv' : hprod_b_J.unit⁻¹ = hprod_b_M.unit⁻¹ := by
           apply Units.ext
           show (hprod_b_J.unit⁻¹ : Rˣ).val = (hprod_b_M.unit⁻¹ : Rˣ).val
@@ -1371,7 +1371,7 @@ private lemma coeff_invOfUnit_eq_of_coeff_eq {φ ψ : R⟦X⟧} {u : Rˣ} {v : R
   | _ m ih =>
     cases m with
     | zero =>
-      rw [coeff_invOfUnit, coeff_invOfUnit, if_pos rfl, if_pos rfl]
+      rw [coeff_invOfUnit, coeff_invOfUnit, ite_eq_left rfl, ite_eq_left rfl]
       have : u⁻¹ = v⁻¹ := by
         apply Units.ext
         show (u⁻¹ : Rˣ).val = (v⁻¹ : Rˣ).val
@@ -1380,7 +1380,7 @@ private lemma coeff_invOfUnit_eq_of_coeff_eq {φ ψ : R⟦X⟧} {u : Rˣ} {v : R
           _ = (v⁻¹ : Rˣ).val := Ring.inverse_unit v
       rw [this]
     | succ k =>
-      rw [coeff_invOfUnit, coeff_invOfUnit, if_neg (Nat.succ_ne_zero k), if_neg (Nat.succ_ne_zero k)]
+      rw [coeff_invOfUnit, coeff_invOfUnit, ite_eq_right (Nat.succ_ne_zero k), ite_eq_right (Nat.succ_ne_zero k)]
       have huv' : u⁻¹ = v⁻¹ := by
         apply Units.ext
         show (u⁻¹ : Rˣ).val = (v⁻¹ : Rˣ).val

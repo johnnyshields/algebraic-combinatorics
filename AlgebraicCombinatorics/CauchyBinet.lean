@@ -249,7 +249,7 @@ lemma det_mul_aux_nonsquare {n m : ℕ} {A : Matrix (Fin n) (Fin m) R} {B : Matr
     {f : Fin n → Fin m} (hf : ¬Function.Injective f) :
     (∑ σ : Equiv.Perm (Fin n), (Equiv.Perm.sign σ : R) * ∏ i, A (σ i) (f i) * B (f i) i) = 0 := by
   obtain ⟨i, j, hfij, hij⟩ : ∃ i j, f i = f j ∧ i ≠ j := by
-    rw [Function.Injective] at hf; push_neg at hf; exact hf
+    rw [Function.Injective] at hf; push Not at hf; exact hf
   exact Finset.sum_involution (fun σ _ => σ * Equiv.swap i j)
     (fun σ _ => by
       have h1 : (∏ k, A (σ k) (f k)) = ∏ k, A ((σ * Equiv.swap i j) k) (f k) := by
@@ -385,7 +385,7 @@ private lemma sum_injective_eq_sum_over_subsets {n m : ℕ} (F : (Fin n → Fin 
     simp only [g, Finset.mem_powersetCard, Finset.subset_univ, true_and]
     rw [Finset.card_image_of_injective _ hf]; simp
   rw [← Finset.sum_fiberwise_of_maps_to hg F]; apply Finset.sum_congr rfl; intro S hS
-  simp only [Finset.mem_powersetCard, Finset.subset_univ, true_and] at hS; rw [dif_pos hS]
+  simp only [Finset.mem_powersetCard, Finset.subset_univ, true_and] at hS; rw [dite_eq_left hS]
   have h_fiber : (Finset.filter Function.Injective Finset.univ).filter (fun f => g f = S) =
       ((Finset.univ : Finset (Fin n → Fin m)).filter Function.Injective).filter 
         (fun f => Finset.univ.image f = S) := by ext f; simp [g]
@@ -856,25 +856,25 @@ noncomputable def constructSigma {n : ℕ} (P Q : Finset (Fin n)) (hcard : P.car
     intro a b hab
     simp only [f] at hab
     by_cases ha : a ∈ P <;> by_cases hb : b ∈ P
-    · simp only [ha, hb, dif_pos] at hab
+    · simp only [ha, hb, dite_eq_left] at hab
       have := qEmb.injective hab
       have := α.injective this
       have := (P.orderIsoOfFin rfl).symm.injective this
       simp only [Subtype.mk.injEq] at this
       exact this
-    · simp only [ha, hb, dif_pos, dif_neg, not_false_eq_true] at hab
+    · simp only [ha, hb, dite_eq_left, dite_eq_right, not_false_eq_true] at hab
       have h1 : qEmb (α ((P.orderIsoOfFin rfl).symm ⟨a, ha⟩)) ∈ Q := Finset.orderEmbOfFin_mem _ _ _
       have h2 : qCEmb (β ((Pᶜ.orderIsoOfFin rfl).symm ⟨b, Finset.mem_compl.mpr hb⟩)) ∈ Qᶜ := 
         Finset.orderEmbOfFin_mem _ _ _
       rw [hab] at h1
       exact absurd h1 (Finset.mem_compl.mp h2)
-    · simp only [ha, hb, dif_pos, dif_neg, not_false_eq_true] at hab
+    · simp only [ha, hb, dite_eq_left, dite_eq_right, not_false_eq_true] at hab
       have h1 : qEmb (α ((P.orderIsoOfFin rfl).symm ⟨b, hb⟩)) ∈ Q := Finset.orderEmbOfFin_mem _ _ _
       have h2 : qCEmb (β ((Pᶜ.orderIsoOfFin rfl).symm ⟨a, Finset.mem_compl.mpr ha⟩)) ∈ Qᶜ := 
         Finset.orderEmbOfFin_mem _ _ _
       rw [← hab] at h1
       exact absurd h1 (Finset.mem_compl.mp h2)
-    · simp only [ha, hb, dif_neg, not_false_eq_true] at hab
+    · simp only [ha, hb, dite_eq_right, not_false_eq_true] at hab
       have := qCEmb.injective hab
       have := β.injective this
       have := (Pᶜ.orderIsoOfFin rfl).symm.injective this
@@ -892,7 +892,7 @@ lemma constructSigma_imageFinset {n : ℕ} (P Q : Finset (Fin n)) (hcard : P.car
   constructor
   · intro ⟨y, hy, hyx⟩
     simp only [constructSigma, Equiv.ofBijective_apply] at hyx
-    simp only [hy, dif_pos] at hyx
+    simp only [hy, dite_eq_left] at hyx
     rw [← hyx]
     exact Finset.orderEmbOfFin_mem Q (by rw [hcard]) _
   · intro hx
@@ -906,7 +906,7 @@ lemma constructSigma_imageFinset {n : ℕ} (P Q : Finset (Fin n)) (hcard : P.car
     · exact Finset.orderEmbOfFin_mem P rfl idx
     · simp only [constructSigma, Equiv.ofBijective_apply]
       have hy_mem : y ∈ P := Finset.orderEmbOfFin_mem P rfl idx
-      simp only [hy_mem, dif_pos]
+      simp only [hy_mem, dite_eq_left]
       -- Need to show: Q.orderEmbOfFin _ (α ((P.orderIsoOfFin rfl).symm ⟨y, hy_mem⟩)) = x
       -- (P.orderIsoOfFin rfl).symm ⟨y, hy_mem⟩ = idx since y = P.orderEmbOfFin rfl idx
       have h1 : (P.orderIsoOfFin rfl).symm ⟨y, hy_mem⟩ = idx :=
@@ -1533,7 +1533,7 @@ lemma exists_left_shift_witness {n k : ℕ} (hk : k ≤ n) (P : Finset (Fin n))
   -- there must be some i < k with i ∉ P
   have hexists_not_in_P : ∃ i : Fin n, i.val < k ∧ i ∉ P := by
     by_contra h
-    push_neg at h
+    push Not at h
     -- h says: all i with i.val < k are in P
     have hsub : prefixFinset n k hk ⊆ P := by
       intro x hx
@@ -1657,7 +1657,7 @@ lemma exists_shift_opportunity {n k : ℕ} (hk : k ≤ n) (hk_pos : 0 < k) (_hn 
     (hcard : P.card = k) (hne : P ≠ prefixFinset n k hk) :
     ∃ (i : Fin n) (hi : i.val + 1 < n), i ∉ P ∧ (⟨i.val + 1, hi⟩ : Fin n) ∈ P := by
   by_contra h_no_shift
-  push_neg at h_no_shift
+  push Not at h_no_shift
   
   have h_downward := downward_closure_aux P h_no_shift
   
@@ -1667,7 +1667,7 @@ lemma exists_shift_opportunity {n k : ℕ} (hk : k ≤ n) (hk_pos : 0 < k) (_hn 
   constructor
   · intro hx
     by_contra hxge
-    push_neg at hxge
+    push Not at hxge
     have hx1_le : x.val + 1 ≤ n := x.isLt
     have h_subset : prefixFinset n (x.val + 1) hx1_le ⊆ P := by
       intro y hy
@@ -1776,7 +1776,7 @@ noncomputable def finEquivSubtypeGe (n k : ℕ) (hk : k ≤ n) :
   · have hx := x.prop
     have hxlt := x.val.isLt
     simp only [ltPred] at hx
-    push_neg at hx
+    push Not at hx
     omega
   · intro j
     simp only [Fin.ext_iff]
@@ -1787,7 +1787,7 @@ noncomputable def finEquivSubtypeGe (n k : ℕ) (hk : k ≤ n) :
     simp only [Subtype.ext_iff, Fin.ext_iff]
     have hx := x.prop
     simp only [ltPred] at hx
-    push_neg at hx
+    push Not at hx
     have : x.val.val - k + k = x.val.val := Nat.sub_add_cancel hx
     exact this
 
@@ -2985,7 +2985,7 @@ lemma extractAlpha_constructSigma {n : ℕ} (P Q : Finset (Fin n)) (hcard : P.ca
   have h_eval : (constructSigma P Q hcard α β) (P.orderEmbOfFin rfl i) = 
       Q.orderEmbOfFin hcard.symm (α ((P.orderIsoOfFin rfl).symm ⟨P.orderEmbOfFin rfl i, hi_mem⟩)) := by
     simp only [constructSigma, Equiv.ofBijective_apply]
-    simp only [hi_mem, dif_pos]
+    simp only [hi_mem, dite_eq_left]
   -- Use orderIsoOfFin_symm_orderEmbOfFin to simplify
   have h1 : (P.orderIsoOfFin rfl).symm ⟨P.orderEmbOfFin rfl i, hi_mem⟩ = i :=
     orderIsoOfFin_symm_orderEmbOfFin P rfl i
@@ -3018,7 +3018,7 @@ lemma extractBeta_constructSigma {n : ℕ} (P Q : Finset (Fin n)) (hcard : P.car
   have h_eval : (constructSigma P Q hcard α β) (Pᶜ.orderEmbOfFin rfl i) = 
       Qᶜ.orderEmbOfFin hcard'' (β ((Pᶜ.orderIsoOfFin rfl).symm ⟨Pᶜ.orderEmbOfFin rfl i, hi_mem⟩)) := by
     simp only [constructSigma, Equiv.ofBijective_apply]
-    simp only [hi_notP, dif_neg, not_false_eq_true]
+    simp only [hi_notP, dite_eq_right, not_false_eq_true]
   -- Use orderIsoOfFin_symm_orderEmbOfFin to simplify
   have h1 : (Pᶜ.orderIsoOfFin rfl).symm ⟨Pᶜ.orderEmbOfFin rfl i, hi_mem⟩ = i :=
     orderIsoOfFin_symm_orderEmbOfFin Pᶜ rfl i
@@ -3045,7 +3045,7 @@ lemma constructSigma_extract {n : ℕ} (P Q : Finset (Fin n)) (hcard : P.card = 
   simp only [constructSigma, Equiv.ofBijective_apply]
   by_cases hx : x ∈ P
   · -- Case x ∈ P: constructSigma uses extractAlpha
-    simp only [hx, dif_pos]
+    simp only [hx, dite_eq_left]
     simp only [extractAlpha, Equiv.ofBijective_apply]
     -- First simplify P.orderEmbOfFin rfl ((P.orderIsoOfFin rfl).symm ⟨x, hx⟩) = x
     have hPiso : P.orderEmbOfFin rfl ((P.orderIsoOfFin rfl).symm ⟨x, hx⟩) = x := by
@@ -3064,7 +3064,7 @@ lemma constructSigma_extract {n : ℕ} (P Q : Finset (Fin n)) (hcard : P.card = 
     simp only [Fin.val_inj]
     exact hQiso
   · -- Case x ∉ P: constructSigma uses extractBeta
-    simp only [hx, dif_neg, not_false_eq_true]
+    simp only [hx, dite_eq_right, not_false_eq_true]
     have hxC : x ∈ Pᶜ := Finset.mem_compl.mpr hx
     simp only [extractBeta, Equiv.ofBijective_apply]
     have hPCiso : Pᶜ.orderEmbOfFin rfl ((Pᶜ.orderIsoOfFin rfl).symm ⟨x, hxC⟩) = x := by
@@ -3394,11 +3394,11 @@ theorem det_add_sum {n : ℕ} (A B : Matrix (Fin n) (Fin n) R) :
   congr 1
   ext Q
   by_cases hcard : Q.card = P.card
-  · rw [dif_pos hcard]
+  · rw [dite_eq_left hcard]
     -- Use sum_perms_mapping_eq_det_product
     have h := sum_perms_mapping_eq_det_product A B P Q hcard.symm
     convert h using 2
-  · rw [dif_neg hcard]
+  · rw [dite_eq_right hcard]
     rw [permsMapping_empty_of_card_ne P Q (fun h => hcard h.symm)]
     simp
 
@@ -3438,7 +3438,7 @@ theorem det_diagonal_submatrix_off_diag {n : ℕ} (d : Fin n → R)
   -- Since P ≠ Q but |P| = |Q|, there exists some element in P but not in Q
   have hne' : ∃ x, x ∈ P ∧ x ∉ Q := by
     by_contra h
-    push_neg at h
+    push Not at h
     have hsub : P ⊆ Q := fun x hx => h x hx
     exact hne (Finset.eq_of_subset_of_card_le hsub (hcard ▸ le_refl _))
   obtain ⟨x, hxP, hxQ⟩ := hne'
@@ -3495,7 +3495,7 @@ theorem det_add_diagonal {n : ℕ} (A : Matrix (Fin n) (Fin n) R) (d : Fin n →
     -- Use Finset.sum_eq_single
     rw [Finset.sum_eq_single P]
     · -- The P = P term
-      rw [dif_pos (rfl : P.card = P.card)]
+      rw [dite_eq_left (rfl : P.card = P.card)]
       -- (-1)^(finsetSumFin P + finsetSumFin P) = 1
       have hone : (-1 : R) ^ (finsetSumFin P + finsetSumFin P) = 1 := by
         rw [← two_mul, pow_mul]
@@ -3511,7 +3511,7 @@ theorem det_add_diagonal {n : ℕ} (A : Matrix (Fin n) (Fin n) R) (d : Fin n →
     · -- For Q ≠ P, the term is zero
       intro Q _ hQP
       by_cases hcard : Q.card = P.card
-      · rw [dif_pos hcard]
+      · rw [dite_eq_left hcard]
         -- submatrixDet (diagonal d) Qᶜ Pᶜ ... = 0 because Qᶜ ≠ Pᶜ
         have hne : Qᶜ ≠ Pᶜ := by
           intro h
@@ -3522,7 +3522,7 @@ theorem det_add_diagonal {n : ℕ} (A : Matrix (Fin n) (Fin n) R) (d : Fin n →
         have hcard' : Qᶜ.card = Pᶜ.card := by simp [Finset.card_compl, hcard]
         rw [det_diagonal_submatrix_off_diag d Qᶜ Pᶜ hcard' hne]
         ring
-      · rw [dif_neg hcard]
+      · rw [dite_eq_right hcard]
     · intro hP
       exact (hP (mem_univ P)).elim
   exact h1
@@ -4004,7 +4004,7 @@ theorem det_pascalLowerTriangular (n : ℕ) :
     simp only [transpose_apply]
     exact hLower j i hij
   rw [← det_transpose]
-  rw [det_of_upperTriangular hT]
+  rw [det_of_isUpperTriangular hT]
   simp only [transpose_apply, map_apply]
   apply Finset.prod_eq_one
   intro i _
@@ -4021,7 +4021,7 @@ theorem det_pascalUpperTriangular (n : ℕ) :
     simp only [map_apply, pascalUpperTriangular]
     have : j.val.choose i.val = 0 := Nat.choose_eq_zero_of_lt (Fin.val_fin_lt.mpr hij)
     simp [this]
-  rw [det_of_upperTriangular hUpper]
+  rw [det_of_isUpperTriangular hUpper]
   simp only [map_apply]
   apply Finset.prod_eq_one
   intro i _

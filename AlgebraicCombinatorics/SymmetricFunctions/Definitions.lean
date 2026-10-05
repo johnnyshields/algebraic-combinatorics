@@ -589,13 +589,13 @@ theorem Monomial.isSquarefree_single (i : Fin N) : (Monomial.single i).IsSquaref
     Label: def.sf.monomial -/
 theorem Monomial.isPrimal_single (i : Fin N) : (Monomial.single i).IsPrimal := by
   unfold IsPrimal single
-  rw [Finsupp.support_single_ne_zero _ (one_ne_zero), card_singleton]
+  rw [Finsupp.support_single _ (one_ne_zero), card_singleton]
 
 /-- Multiplication of monomials corresponds to addition of exponent vectors.
     Label: def.sf.monomial -/
 theorem Monomial.toPoly_add (m₁ m₂ : Monomial N) :
     (m₁ + m₂).toPoly = (m₁.toPoly : P K N) * m₂.toPoly := by
-  simp only [toPoly, monomial_mul, one_mul]
+  simp only [toPoly, monomial_mul_monomial, one_mul]
 
 /-- The degree of a product of monomials is the sum of degrees.
     Label: def.sf.monomial -/
@@ -653,7 +653,7 @@ theorem Monomial.isPrimal_iff (m : Monomial N) :
     | inr h =>
       obtain ⟨i, k, rfl, hk⟩ := h
       unfold IsPrimal
-      rw [Finsupp.support_single_ne_zero _ (Nat.pos_iff_ne_zero.mp hk), card_singleton]
+      rw [Finsupp.support_single _ (Nat.pos_iff_ne_zero.mp hk), card_singleton]
 
 /-- The monomial corresponding to a subset S ⊆ [N] is ∏_{i ∈ S} x_i.
     This is the squarefree monomial with support S.
@@ -675,7 +675,7 @@ theorem Monomial.toPoly_ofFinset (s : Finset (Fin N)) :
     show monomial (Finsupp.single a 1 + ∑ x ∈ s', Finsupp.single x 1) 1 = X a * ∏ x ∈ s', X x
     have eq1 : monomial (Finsupp.single a 1 + ∑ x ∈ s', Finsupp.single x 1) (1 : K) =
                monomial (Finsupp.single a 1) 1 * monomial (∑ x ∈ s', Finsupp.single x 1) 1 := by
-      rw [monomial_mul, one_mul]
+      rw [monomial_mul_monomial, one_mul]
     rw [eq1, ih]
     rfl
 
@@ -694,7 +694,7 @@ theorem Monomial.isSquarefree_ofFinset (s : Finset (Fin N)) :
     · -- i = a (the inserted element)
       subst h
       have : (Finset.sum s' (fun x => Finsupp.single x 1)) a = 0 := by
-        simp only [Finsupp.finset_sum_apply, Finsupp.single_apply]
+        simp only [Finsupp.finsetSum_apply, Finsupp.single_apply]
         apply Finset.sum_eq_zero
         intro j hj
         simp only [ite_eq_right_iff, one_ne_zero]
@@ -735,10 +735,10 @@ theorem Monomial.support_ofFinset (s : Finset (Fin N)) :
     constructor
     · intro h
       by_contra hni
-      push_neg at hni
+      push Not at hni
       have h1 : (if a = i then 1 else 0) = 0 := by simp only [ite_eq_right_iff, one_ne_zero]; exact fun h => (hni.1 h.symm).elim
       have h2 : (Finset.sum s' (fun x => Finsupp.single x 1)) i = 0 := by
-        simp only [Finsupp.finset_sum_apply, Finsupp.single_apply]
+        simp only [Finsupp.finsetSum_apply, Finsupp.single_apply]
         apply Finset.sum_eq_zero
         intro j hj
         simp only [ite_eq_right_iff, one_ne_zero]
@@ -1183,7 +1183,7 @@ private lemma coeff_one_sub_X_mul_C (i : Fin N) (a : ℕ) :
   cases a with
   | zero => simp
   | succ a =>
-    simp only [if_neg (Nat.succ_ne_zero a)]
+    simp only [ite_eq_right (Nat.succ_ne_zero a)]
     cases a with
     | zero =>
       rw [PowerSeries.coeff_mul]
@@ -1192,7 +1192,7 @@ private lemma coeff_one_sub_X_mul_C (i : Fin N) (a : ℕ) :
       simp only [Finset.sum_pair (by decide : (0, 1) ≠ (1, 0))]
       simp
     | succ a =>
-      simp only [if_neg (by omega : a + 1 + 1 ≠ 1)]
+      simp only [ite_eq_right (by omega : a + 1 + 1 ≠ 1)]
       rw [PowerSeries.coeff_mul]
       simp only [PowerSeries.coeff_X, PowerSeries.coeff_C]
       simp only [zero_sub, neg_eq_zero]
@@ -1201,10 +1201,10 @@ private lemma coeff_one_sub_X_mul_C (i : Fin N) (a : ℕ) :
       simp only [Finset.HasAntidiagonal.mem_antidiagonal] at hkl
       by_cases hk1 : k = 1
       · subst hk1
-        simp only [if_true, one_mul]
+        simp only [ite_true, one_mul]
         have hl : l = a + 1 := by omega
-        simp only [if_neg (by omega : l ≠ 0)]
-      · simp only [if_neg hk1, zero_mul]
+        simp only [ite_eq_right (by omega : l ≠ 0)]
+      · simp only [ite_eq_right hk1, zero_mul]
 
 omit [DecidableEq (Fin N)] in
 /-- Geometric series identity: (1 - t·x) * (∑_{k≥0} t^k x^k) = 1.
@@ -1219,7 +1219,7 @@ lemma geom_series_mul_one_sub (i : Fin N) :
     simp only [Finset.Nat.antidiagonal_zero, Finset.sum_singleton, pow_zero, mul_one]
     simp [coeff_one_sub_X_mul_C]
   | succ n =>
-    simp only [if_neg (Nat.succ_ne_zero n)]
+    simp only [ite_eq_right (Nat.succ_ne_zero n)]
     simp_rw [coeff_one_sub_X_mul_C]
     have h0 : (0, n + 1) ∈ antidiagonal (n + 1) := by simp [Finset.HasAntidiagonal.mem_antidiagonal]
     have h1 : (1, n) ∈ antidiagonal (n + 1) := by simp [Finset.HasAntidiagonal.mem_antidiagonal]; omega
@@ -1232,7 +1232,7 @@ lemma geom_series_mul_one_sub (i : Fin N) :
       · intro ⟨h1, h2⟩; exact ⟨h2, by omega⟩
       · intro ⟨h1, h2⟩; exact ⟨by omega, h1⟩
     rw [hfilt0, Finset.sum_singleton]
-    simp only [if_true, one_mul]
+    simp only [ite_true, one_mul]
     rw [← Finset.sum_filter_add_sum_filter_not
         (Finset.filter (fun x => ¬x.1 = 0) (antidiagonal (n + 1))) (fun x => x.1 = 1)]
     have hfilt1 : Finset.filter (fun x => x.1 = 1)
@@ -1244,7 +1244,7 @@ lemma geom_series_mul_one_sub (i : Fin N) :
       · intro ⟨⟨h1, h2⟩, h3⟩; exact ⟨h3, by omega⟩
       · intro ⟨h1, h2⟩; exact ⟨⟨by omega, by omega⟩, h1⟩
     rw [hfilt1, Finset.sum_singleton]
-    simp only [if_neg (by decide : (1 : ℕ) ≠ 0), if_true, neg_mul]
+    simp only [ite_eq_right (by decide : (1 : ℕ) ≠ 0), ite_true, neg_mul]
     have hrest : ∑ x ∈ Finset.filter (fun x => ¬x.1 = 1)
         (Finset.filter (fun x => ¬x.1 = 0) (antidiagonal (n + 1))),
         (if x.1 = 0 then 1 else if x.1 = 1 then -(X i : P K N) else 0) * (X i) ^ x.2 = 0 := by
@@ -1289,7 +1289,7 @@ private lemma prod_neg_eq' {α R : Type*} [DecidableEq α] [CommRing R] (s : Fin
   induction s using Finset.induction_on with
   | empty => simp [prod_empty, pow_zero]
   | insert x s ha ih =>
-    simp only [prod_insert ha, card_insert_eq_ite, if_neg ha, pow_succ]
+    simp only [prod_insert ha, card_insert_eq_ite, ite_eq_right ha, pow_succ]
     rw [ih]
     ring
 
@@ -1414,7 +1414,7 @@ theorem newtonGirard_eh (n : ℕ) (hn : 0 < n) :
             induction s using Finset.induction_on with
             | empty => simp [prod_empty, pow_zero]
             | insert x s' ha ih =>
-              simp only [prod_insert ha, card_insert_eq_ite, if_neg ha, pow_succ]
+              simp only [prod_insert ha, card_insert_eq_ite, ite_eq_right ha, pow_succ]
               rw [ih]
               ring
           rw [hprod_neg t, ht.2]
@@ -1431,7 +1431,7 @@ theorem newtonGirard_eh (n : ℕ) (hn : 0 < n) :
     show E_poly.coeff j = _
     rw [h_genfunc]
     -- Step 3: Extract coefficient from the sum
-    rw [Polynomial.finset_sum_coeff]
+    rw [Polynomial.finsetSum_coeff]
     simp_rw [neg_one_pow_poly_eq_C]
     -- Step 4: Rearrange and extract coefficients
     conv_lhs =>
@@ -1445,11 +1445,11 @@ theorem newtonGirard_eh (n : ℕ) (hn : 0 < n) :
     split_ifs with h
     · -- j ≤ N: exactly one term contributes (n = j)
       rw [Finset.sum_eq_single j]
-      · simp only [le_refl, if_true, Nat.sub_self, if_true]
+      · simp only [le_refl, ite_true, Nat.sub_self, ite_true]
       · intro k hk hkj
         simp only [Finset.mem_range] at hk
         by_cases hle : k ≤ j
-        · simp only [hle, if_true]
+        · simp only [hle, ite_true]
           have hne : j - k ≠ 0 := by omega
           simp [hne]
         · simp [hle]
@@ -1461,7 +1461,7 @@ theorem newtonGirard_eh (n : ℕ) (hn : 0 < n) :
       intro k hk
       simp only [Finset.mem_range] at hk
       by_cases hle : k ≤ j
-      · simp only [hle, if_true]
+      · simp only [hle, ite_true]
         by_cases hkj : k = j
         · subst hkj; omega
         · have hne : j - k ≠ 0 := by omega
@@ -1521,7 +1521,7 @@ theorem newtonGirard_eh (n : ℕ) (hn : 0 < n) :
       ((∏ i : Fin N, (1 - PowerSeries.X * PowerSeries.C (X i : P K N))) *
        (∏ i : Fin N, PowerSeries.mk (fun k => (X i : P K N) ^ k))) =
       PowerSeries.coeff n (1 : PowerSeries (P K N)) := by rw [h_prod]
-  simp only [PowerSeries.coeff_one, if_neg (ne_of_gt hn)] at h_coeff
+  simp only [PowerSeries.coeff_one, ite_eq_right (ne_of_gt hn)] at h_coeff
 
   -- Use convolution formula
   rw [PowerSeries.coeff_mul] at h_coeff
@@ -1540,7 +1540,7 @@ theorem newtonGirard_eh (n : ℕ) (hn : 0 < n) :
     intro p _
     split_ifs with hle
     · ring
-    · push_neg at hle
+    · push Not at hle
       have he0 : e (K := K) (N := N) p.1 = 0 := e_eq_zero_of_gt hle
       simp [he0]
   rw [Finset.sum_congr rfl h_simp] at h_coeff
@@ -1926,7 +1926,7 @@ theorem hsymm_genfunc [DecidableEq (Fin N)] :
         (-1 : Polynomial (P K N)) ^ n * Polynomial.X ^ n * Polynomial.C (e (K := K) (N := N) n) :=
       esymm_genfunc
     rw [hE]
-    simp only [Polynomial.finset_sum_coeff]
+    simp only [Polynomial.finsetSum_coeff]
     have h1 : ∀ n ∈ range (N + 1),
         Polynomial.coeff ((-1 : Polynomial (P K N)) ^ n * Polynomial.X ^ n *
           Polynomial.C (e (K := K) (N := N) n)) j =
@@ -1984,7 +1984,7 @@ theorem hsymm_genfunc [DecidableEq (Fin N)] :
       intro p _
       split_ifs with hle
       · rfl
-      · push_neg at hle
+      · push Not at hle
         rw [e_eq_zero_of_gt hle]; ring
     rw [hdrop]
     rw [Nat.sum_antidiagonal_eq_sum_range_succ (fun k j => h (K := K) (N := N) k *
@@ -2268,7 +2268,7 @@ theorem hsymm_algebraicIndependent [IsDomain K] :
   have h_φ_eq_X : ∀ (P : MvPolynomial (Fin N) K) (i : Fin N),
       hsymmAeval' P = esymm (Fin N) K (i + 1) → φ P = X i := by
     intro P i hP
-    simp only [φ, AlgHom.comp_apply, AlgEquiv.toAlgHom_eq_coe, AlgHom.coe_coe]
+    simp only [φ, AlgHom.comp_apply, AlgHom.coe_ofClass]
     have heq : hsymmToS P = ⟨esymm (Fin N) K (i + 1), esymm_isSymmetric _ _ _⟩ := by
       apply Subtype.ext
       simp only [hsymmToS, AlgHom.coe_mk, RingHom.coe_mk, MonoidHom.coe_mk, OneHom.coe_mk]
@@ -2367,7 +2367,7 @@ theorem hsymm_algebraicIndependent [IsDomain K] :
   intro p q hpq
   have h : hsymmToS p = hsymmToS q := Subtype.ext hpq
   have h' : φ p = φ q := by
-    simp only [φ, AlgHom.comp_apply, AlgEquiv.toAlgHom_eq_coe, AlgHom.coe_coe]
+    simp only [φ, AlgHom.comp_apply, AlgHom.coe_ofClass]
     rw [h]
   exact h_φ_bij.injective h'
 
@@ -2542,9 +2542,9 @@ private lemma psum_ne_zero (hN : 0 < N) (n : ℕ) (hn : n > 0) : psum (Fin N) K 
   rw [coeff_sum]
   have heq : (∑ x : Fin N, (X x ^ n).coeff (Finsupp.single i₀ n)) = (1 : K) := by
     rw [Fintype.sum_eq_single i₀]
-    · rw [coeff_X_pow, if_pos rfl]
+    · rw [coeff_X_pow, ite_eq_left rfl]
     · intro j hj
-      rw [coeff_X_pow, if_neg]
+      rw [coeff_X_pow, ite_eq_right]
       intro heq
       rw [Finsupp.single_eq_single_iff] at heq
       cases heq with
@@ -2634,7 +2634,7 @@ private lemma monomial_with_var_i_is_single (i : Fin N) (d : Fin N →₀ ℕ)
     have h3 : d j * (j.val + 1) ≤ j.val + 1 := by rw [hd] at h2; exact h2
     have h4 : d j ≤ 1 := by
       by_contra h
-      push_neg at h
+      push Not at h
       have : d j * (j.val + 1) ≥ 2 * (j.val + 1) := by nlinarith
       omega
     simp only [Finsupp.single_eq_same]
@@ -3139,7 +3139,7 @@ theorem psum_algebraicIndependent :
     have h_φ_eq_X : ∀ (P : MvPolynomial (Fin N) K) (i : Fin N),
         psumAeval' P = esymm (Fin N) K (i + 1) → φ P = X i := by
       intro P i hP
-      simp only [φ, AlgHom.comp_apply, AlgEquiv.toAlgHom_eq_coe, AlgHom.coe_coe]
+      simp only [φ, AlgHom.comp_apply, AlgHom.coe_ofClass]
       have heq : psumToS P = ⟨esymm (Fin N) K (i + 1), esymm_isSymmetric _ _ _⟩ := by
         apply Subtype.ext
         simp only [psumToS, AlgHom.coe_mk, RingHom.coe_mk, MonoidHom.coe_mk, OneHom.coe_mk]
@@ -3211,7 +3211,7 @@ theorem psum_algebraicIndependent :
           apply Subalgebra.pow_mem
           apply hX_mem
           apply hq_vars
-          rw [mem_vars]
+          rw [mem_vars_iff_mem_support]
           exact ⟨m, hm, hj⟩
       
       let A := Algebra.adjoin K (Set.range (fun i => ψ (X i)))
@@ -3305,7 +3305,7 @@ theorem psum_algebraicIndependent :
   intro p q hpq
   have h : psumToS p = psumToS q := Subtype.ext hpq
   have h' : φ p = φ q := by
-    simp only [φ, AlgHom.comp_apply, AlgEquiv.toAlgHom_eq_coe, AlgHom.coe_coe]
+    simp only [φ, AlgHom.comp_apply, AlgHom.coe_ofClass]
     rw [h]
   exact h_φ_bij.injective h'
 

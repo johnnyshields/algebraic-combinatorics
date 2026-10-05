@@ -924,7 +924,7 @@ theorem multipliable_div {ι : Type*} {a b : ι → K⟦X⟧}
     | _ m ih =>
       cases m with
       | zero =>
-        rw [coeff_invOfUnit, coeff_invOfUnit, if_pos rfl, if_pos rfl]
+        rw [coeff_invOfUnit, coeff_invOfUnit, ite_eq_left rfl, ite_eq_left rfl]
         have huv' : hT_inv.unit⁻¹ = hU_inv.unit⁻¹ := by
           apply Units.ext
           show (hT_inv.unit⁻¹ : Kˣ).val = (hU_inv.unit⁻¹ : Kˣ).val
@@ -933,7 +933,7 @@ theorem multipliable_div {ι : Type*} {a b : ι → K⟦X⟧}
             _ = (hU_inv.unit⁻¹ : Kˣ).val := Ring.inverse_unit hU_inv.unit
         rw [huv']
       | succ k =>
-        rw [coeff_invOfUnit, coeff_invOfUnit, if_neg (Nat.succ_ne_zero k), if_neg (Nat.succ_ne_zero k)]
+        rw [coeff_invOfUnit, coeff_invOfUnit, ite_eq_right (Nat.succ_ne_zero k), ite_eq_right (Nat.succ_ne_zero k)]
         have huv' : hT_inv.unit⁻¹ = hU_inv.unit⁻¹ := by
           apply Units.ext
           show (hT_inv.unit⁻¹ : Kˣ).val = (hU_inv.unit⁻¹ : Kˣ).val
@@ -1248,7 +1248,7 @@ theorem multipliable_fiber_prods {S W : Type*} {a : S → K⟦X⟧} {f : S → W
     have h_empty : ∀ w ∈ V \ U.image f, U.filter (fun s => f s = w) = ∅ := by
       intro w hw
       rw [Finset.mem_sdiff, Finset.mem_image] at hw
-      push_neg at hw
+      push Not at hw
       rw [Finset.eq_empty_iff_forall_notMem]
       intro s hs
       rw [Finset.mem_filter] at hs
@@ -1509,7 +1509,7 @@ theorem infprod_eq_infprod_fiber {S W : Type*} {a : S → K⟦X⟧} {f : S → W
     intro s hs
     simp only [mem_filter] at hs
     simp only [mem_image] at hnw
-    push_neg at hnw
+    push Not at hnw
     exact absurd hs.2 (hnw s hs.1)
 
   -- And: ∏ w ∈ W', b w ≡[x^n] ∏ w ∈ W', (∏ s ∈ U.filter (f · = w), a s)

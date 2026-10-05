@@ -425,9 +425,9 @@ theorem summableFPS_add {ι : Type*} {f g : ι → R⟦X⟧}
   intro n
   have h : {i | coeff n (f i + g i) ≠ 0} ⊆ {i | coeff n (f i) ≠ 0} ∪ {i | coeff n (g i) ≠ 0} := by
     intro i hi
-    simp only [Set.mem_setOf_eq, map_add, Set.mem_union] at *
+    simp only [Set.mem_ofPred_eq, map_add, Set.mem_union] at *
     by_contra h
-    push_neg at h
+    push Not at h
     simp [h.1, h.2] at hi
   exact Set.Finite.subset (Set.Finite.union (hf n) (hg n)) h
 
@@ -437,7 +437,7 @@ theorem summableFPS_neg {ι : Type*} {f : ι → R⟦X⟧}
   intro n
   have h : {i | coeff n (-f i) ≠ 0} = {i | coeff n (f i) ≠ 0} := by
     ext i
-    simp only [Set.mem_setOf_eq, map_neg, neg_ne_zero]
+    simp only [Set.mem_ofPred_eq, map_neg, neg_ne_zero]
   rw [h]
   exact hf n
 
@@ -453,7 +453,7 @@ theorem summableFPS_smul {ι : Type*} {f : ι → R⟦X⟧} (c : R)
   intro n
   have h : {i | coeff n (c • f i) ≠ 0} ⊆ {i | coeff n (f i) ≠ 0} := by
     intro i hi
-    simp only [Set.mem_setOf_eq] at hi ⊢
+    simp only [Set.mem_ofPred_eq] at hi ⊢
     intro hfi
     simp [hfi] at hi
   exact Set.Finite.subset (hf n) h
@@ -475,7 +475,7 @@ theorem summableFPS_monomial_family (a : ℕ → R) :
   have h : {n | coeff m (C (a n) * (X : R⟦X⟧) ^ n) ≠ 0} ⊆ {m} := by
     intro n hn
     simp only [Set.mem_singleton_iff]
-    simp only [coeff_C_mul, coeff_X_pow, mul_ite, mul_one, mul_zero, Set.mem_setOf_eq] at hn
+    simp only [coeff_C_mul, coeff_X_pow, mul_ite, mul_one, mul_zero, Set.mem_ofPred_eq] at hn
     by_contra hne
     have : m ≠ n := fun h => hne h.symm
     simp [this] at hn
@@ -660,7 +660,7 @@ theorem essFinSum_add {ι : Type*} [DecidableEq ι] {f g : ι → R}
     simp only [Set.Finite.mem_toFinset, Function.mem_support] at hx
     simp only [S, Finset.mem_union, Set.Finite.mem_toFinset, Function.mem_support]
     by_contra h
-    push_neg at h
+    push Not at h
     simp [h.1, h.2] at hx
   calc essFinSum (fun i => f i + g i) hfg
       = ∑ i ∈ S, (f i + g i) := by

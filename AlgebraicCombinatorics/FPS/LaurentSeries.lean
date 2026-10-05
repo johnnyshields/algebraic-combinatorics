@@ -239,14 +239,14 @@ theorem laurentPoly_iff_essentiallyFinite (f : ℤ → K) :
     have h := laurentPoly_support_finite p
     have heq : {n : ℤ | f n ≠ 0} = {n : ℤ | p.coeff n ≠ 0} := by
       ext n
-      simp only [Set.mem_setOf_eq]
+      simp only [Set.mem_ofPred_eq]
       rw [hp n]
     rw [heq]
     exact h
   · intro hf
     refine ⟨AddMonoidAlgebra.ofCoeff ⟨hf.toFinset, fun n => f n, ?_⟩, fun n => rfl⟩
     intro n
-    simp only [Set.Finite.mem_toFinset, Set.mem_setOf_eq, ne_eq]
+    simp only [Set.Finite.mem_toFinset, Set.mem_ofPred_eq, ne_eq]
 
 end LaurentPolynomialDefinition
 
@@ -487,7 +487,7 @@ def singleFamily (x : LaurentSeries K) : SummableFamily ℤ K x.support where
     by_cases hg : x.coeff g = 0
     · convert Set.finite_empty
       ext ⟨g', _⟩
-      simp only [Set.mem_setOf_eq, coeff_single, Set.mem_empty_iff_false, iff_false]
+      simp only [Set.mem_ofPred_eq, coeff_single, Set.mem_empty_iff_false, iff_false]
       intro h
       split_ifs at h with heq
       · subst heq
@@ -496,7 +496,7 @@ def singleFamily (x : LaurentSeries K) : SummableFamily ℤ K x.support where
     · have hg_supp : g ∈ x.support := by simpa [mem_support] using hg
       refine Set.Finite.subset (Set.finite_singleton ⟨g, hg_supp⟩) ?_
       intro ⟨g', hg'⟩ h
-      simp only [Set.mem_setOf_eq, coeff_single, ne_eq] at h
+      simp only [Set.mem_ofPred_eq, coeff_single, ne_eq] at h
       simp only [Set.mem_singleton_iff, Subtype.mk.injEq]
       split_ifs at h with heq
       · exact heq.symm
@@ -677,7 +677,7 @@ theorem laurentPolynomialToSeries_mul (p q : K[T;T⁻¹]) :
       (laurentPolynomialToSeries q).isPWO_support n =
       (p.coeff.support ×ˢ q.coeff.support).filter (fun ij => ij.1 + ij.2 = n) := by
     ext ⟨i, j⟩
-    simp only [Finset.mem_addAntidiagonal, Finsupp.mem_support_iff,
+    simp only [Finset.mem_antidiagonal, Finsupp.mem_support_iff,
                Finset.mem_filter, Finset.mem_product, laurentPolynomialToSeries]
     tauto
   rw [hs_eq]
@@ -1077,8 +1077,8 @@ noncomputable def kBoundedToFinsupp (k : ℕ) (f : Fin (k + 1) → ℤ) : ℕ �
     (fun i hi => by
       simp only [mem_range, ne_eq] at hi ⊢
       by_contra h
-      push_neg at h
-      exact hi (dif_neg (not_lt.mpr h)))
+      push Not at h
+      exact hi (dite_eq_right (not_lt.mpr h)))
 
 theorem kBoundedToFinsupp_apply (k : ℕ) (f : Fin (k + 1) → ℤ) (i : ℕ) (hi : i < k + 1) :
     kBoundedToFinsupp k f i = f ⟨i, hi⟩ := by
@@ -1193,7 +1193,7 @@ theorem btDigits_sum_unique (f g : ℕ →₀ ℤ)
   by_contra hne
   have hdiff : ∃ i, f i ≠ g i := by
     by_contra hall
-    push_neg at hall
+    push Not at hall
     exact hne (Finsupp.ext hall)
   let S := f.support ∪ g.support
   have hf_sum : ∑ i ∈ S, f i * (3 : ℤ) ^ i = ∑ i ∈ f.support, f i * (3 : ℤ) ^ i := 
@@ -1215,7 +1215,7 @@ theorem btDigits_sum_unique (f g : ℕ →₀ ℤ)
     simp only [D, mem_filter, S, mem_union, Finsupp.mem_support_iff, ne_eq]
     constructor
     · by_contra h
-      push_neg at h
+      push Not at h
       exact hi (h.1.trans h.2.symm)
     · exact hi
   let k := D.max' hD_nonempty
@@ -1393,7 +1393,7 @@ noncomputable def BTRep.toFinsupp {n : ℤ} (r : BTRep n) : BalancedTernaryRep n
     toFun := fun i => (r.digits i).toInt
     mem_support_toFun := by
       intro i
-      simp only [Set.Finite.mem_toFinset, Set.mem_setOf_eq,
+      simp only [Set.Finite.mem_toFinset, Set.mem_ofPred_eq,
                  AlgebraicCombinatorics.BalancedTernaryDigit.ne_zero_iff_toInt_ne_zero, ne_eq]
   }
   digits_range := fun i => BTDigit.toInt_mem_btDigits _
@@ -1404,7 +1404,7 @@ noncomputable def BTRep.toFinsupp {n : ℤ} (r : BTRep n) : BalancedTernaryRep n
     · convert h using 1
     · intro i hi
       simp only [Function.mem_support, ne_eq] at hi
-      simp only [Set.Finite.coe_toFinset, Set.mem_setOf_eq]
+      simp only [Set.Finite.coe_toFinset, Set.mem_ofPred_eq]
       intro heq
       apply hi
       simp only [heq, AlgebraicCombinatorics.BalancedTernaryDigit.toInt_zero, zero_mul]
@@ -1416,7 +1416,7 @@ noncomputable def BalancedTernaryRep.toInductive {n : ℤ} (r : BalancedTernaryR
   finite_support := by
     have h : {i | btDigitOfInt (r.digits i) ≠ 0} ⊆ r.digits.support := by
       intro i hi
-      simp only [Set.mem_setOf_eq] at hi
+      simp only [Set.mem_ofPred_eq] at hi
       simp only [Finset.mem_coe, Finsupp.mem_support_iff]
       rw [btDigitOfInt_ne_zero_iff _ (r.digits_range i)] at hi
       exact hi

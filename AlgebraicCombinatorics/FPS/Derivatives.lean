@@ -65,8 +65,8 @@ For `f = ∑ fₙ xⁿ`, the textbook defines `f' := ∑_{n>0} n · fₙ · x^{n
 Reindexing with m = n-1 (so n = m+1), this becomes:
 `f' = ∑_{m≥0} (m+1) · f_{m+1} · x^m`
 
-This is exactly `PowerSeries.derivativeFun` from Mathlib, which defines:
-`derivativeFun f := mk (fun n => coeff (n + 1) f * (n + 1))`
+This is exactly the coefficient formula of `PowerSeries.derivative` in Mathlib:
+`d⁄dX f = mk (fun n => coeff (n + 1) f * (n + 1))`
 
 The derivative is then packaged as a `Derivation R R⟦X⟧ R⟦X⟧`.
 -/
@@ -88,9 +88,12 @@ theorem derivative_eq_mk (f : R⟦X⟧) :
   ext n
   rw [PowerSeries.coeff_derivative, PowerSeries.coeff_mk, mul_comm]
 
-/-- The derivative operation is exactly `derivativeFun` from Mathlib. -/
+/-- The derivative operation is exactly the coefficient formula
+`mk (fun n => coeff (n + 1) f * (n + 1))`. -/
 theorem derivative_eq_derivativeFun (f : R⟦X⟧) :
-    d⁄dX f = PowerSeries.derivativeFun f := rfl
+    d⁄dX f = PowerSeries.mk (fun n => PowerSeries.coeff (n + 1) f * (n + 1)) := by
+  ext n
+  rw [PowerSeries.coeff_derivative, PowerSeries.coeff_mk]
 
 /-- Alternative characterization: the coefficient of xⁿ in f' is (n+1) · f_{n+1}.
 This is the "shift and multiply" form of the derivative. -/
@@ -183,7 +186,7 @@ theorem summableFPS_derivative {ι : Type*} (f : ι → R'⟦X⟧) (hf : Summabl
   have h := hf (n + 1)
   apply Set.Finite.subset h
   intro i hi
-  simp only [Set.mem_setOf_eq] at hi ⊢
+  simp only [Set.mem_ofPred_eq] at hi ⊢
   rw [PowerSeries.coeff_derivative] at hi
   intro hcontra
   apply hi

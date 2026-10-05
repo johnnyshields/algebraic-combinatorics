@@ -534,7 +534,7 @@ private lemma filter_ne_zero_sum (m : Multiset ℕ) : (m.filter (· ≠ 0)).sum 
     simp only [Multiset.filter_cons, Multiset.sum_cons]
     split_ifs with ha
     · simp [ih]
-    · push_neg at ha; simp [ha, ih]
+    · push Not at ha; simp [ha, ih]
 
 /-- Convert a partition (as a `Nat.Partition`) to an N-partition by padding with zeros.
     Requires that the partition has at most N parts.
@@ -789,7 +789,7 @@ theorem le_iff_youngDiagram_subset {μ ν : NPartition N} :
     exact lt_of_lt_of_le hc (h c.1)
   · intro h i
     by_contra hne
-    push_neg at hne
+    push Not at hne
     have hmem : (i, ν.parts i) ∈ μ.youngDiagram := by
       rw [mem_youngDiagram]
       exact hne
@@ -931,7 +931,7 @@ theorem skewYoungDiagram_eq_empty_iff {lam mu : NPartition N} :
   constructor
   · intro h i
     by_contra hne
-    push_neg at hne
+    push Not at hne
     have : (i, mu.parts i) ∈ skewYoungDiagram lam mu := by
       rw [mem_skewYoungDiagram]
       exact ⟨le_refl _, hne⟩

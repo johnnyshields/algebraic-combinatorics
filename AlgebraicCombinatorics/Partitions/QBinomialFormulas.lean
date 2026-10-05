@@ -860,7 +860,7 @@ theorem qBinomial_eq_sum_subsets (q : R) (n k : ℕ) :
             omega
         _ = S.sum id - ∑ i ∈ range k, (i + 1) := by rw [hSsum, htri]
   · -- Case k > n: both sides are 0
-    push_neg at hkn
+    push Not at hkn
     rw [qBinomial_gt q n k hkn, kSubsetsOfIcc_empty_of_gt n k hkn, sum_empty]
 
 /-- The q-analog addition formula: [a+b]_q = [a]_q + q^a * [b]_q -/
@@ -978,7 +978,7 @@ theorem qBinomial_eq_prod_div {F : Type*} [Field F] (q : F) (n k : ℕ) (hk : k 
           have hn1k' : n + 1 - k = n - k + 1 := by omega
           rw [hn1k'] at hident
           rw [← hsplit, hident]
-        · push_neg at hk1n
+        · push Not at hk1n
           have hkn_eq : k = n := by omega
           rw [hkn_eq]
           rw [qBinomial_gt q n (n + 1) (Nat.lt_succ_self n), mul_zero, add_zero]
@@ -1112,7 +1112,7 @@ private lemma partitionsInBox_succ_split (size k m : ℕ) :
     by_cases hcard : p.parts.card ≤ k
     · left; exact ⟨hcard, hlp⟩
     · right
-      push_neg at hcard
+      push Not at hcard
       exact ⟨by omega, hlp⟩
   · intro h
     rcases h with ⟨hlen, hlp⟩ | ⟨hcard, hlp⟩
@@ -1576,7 +1576,7 @@ theorem qBinomialEval_eq_direct (n k : ℕ) (a : R) :
     qBinomialEval n k a = qBinomialEvalDirect n k a := by
   simp only [qBinomialEval, qBinomialEvalDirect, qBinomialPolyDef]
   split_ifs with hk
-  · rw [Polynomial.eval₂_finset_sum]
+  · rw [Polynomial.eval₂_finsetSum]
     congr 1
     ext size
     simp only [Polynomial.eval₂_mul, Polynomial.eval₂_natCast,
@@ -2187,7 +2187,7 @@ omit [Field F] [AddCommGroup V] [Module F V] in
 private lemma range_init_eq_image_lt {n : ℕ} (v : Fin (n + 1) → V) :
     Set.range (Fin.init v) = v '' {j : Fin (n + 1) | j.val < n} := by
   ext x
-  simp only [Set.mem_range, Set.mem_image, Set.mem_setOf_eq, Fin.init]
+  simp only [Set.mem_range, Set.mem_image, Set.mem_ofPred_eq, Fin.init]
   constructor
   · rintro ⟨j, rfl⟩
     exact ⟨j.castSucc, j.isLt, rfl⟩
@@ -2207,7 +2207,7 @@ theorem linearIndependent_iff_not_mem_span_of_lt {k : ℕ} (v : Fin k → V) :
     simp only [IsEmpty.forall_iff, iff_true]
     exact linearIndependent_empty_type
   | succ n ih =>
-    rw [linearIndependent_fin_succ']
+    rw [linearIndependent_finSucc']
     constructor
     · intro ⟨hind, hlast⟩ i
       by_cases hi : i = Fin.last n
@@ -2227,7 +2227,7 @@ theorem linearIndependent_iff_not_mem_span_of_lt {k : ℕ} (v : Fin k → V) :
         rw [hieq] at hmem
         apply Submodule.span_mono _ hmem
         intro x hx
-        simp only [Set.mem_image, Set.mem_setOf_eq] at hx ⊢
+        simp only [Set.mem_image, Set.mem_ofPred_eq] at hx ⊢
         obtain ⟨j, hj, rfl⟩ := hx
         have hjn : j.val < n := Nat.lt_of_lt_of_le hj (Nat.le_of_lt hi')
         exact ⟨⟨j.val, hjn⟩, hj, by simp [Fin.castSucc, Fin.castAdd]⟩
@@ -2246,7 +2246,7 @@ theorem linearIndependent_iff_not_mem_span_of_lt {k : ℕ} (v : Fin k → V) :
         rw [← hieq] at hmem
         apply Submodule.span_mono _ hmem
         intro x hx
-        simp only [Set.mem_image, Set.mem_setOf_eq] at hx ⊢
+        simp only [Set.mem_image, Set.mem_ofPred_eq] at hx ⊢
         obtain ⟨j, hj, rfl⟩ := hx
         have hjn : j.val < n.succ := Nat.lt_succ_of_lt (Nat.lt_of_lt_of_le hj (Nat.le_of_lt i.isLt))
         refine ⟨⟨j.val, hjn⟩, hj, ?_⟩
@@ -2288,7 +2288,7 @@ theorem card_linearIndependent_tuples (n k : ℕ) (hn : Module.finrank F V = n) 
     convert this using 1
     rw [Finset.prod_range]
   · -- Case k > n: both sides are 0 (no linearly independent k-tuples exist)
-    push_neg at hk
+    push Not at hk
     have h1 : Nat.card {v : Fin k → V // LinearIndependent F v} = 0 := by
       rw [Nat.card_eq_zero]
       left
@@ -2452,7 +2452,7 @@ theorem qBinomial_subspace_count (n k : ℕ) (hn : Module.finrank F V = n) :
       have : Module.finrank F W ≤ Module.finrank F V := Submodule.finrank_le W
       omega
     simp only [this, Nat.cast_zero]
-  · push_neg at hkn
+  · push Not at hkn
     -- Main case: k ≤ n
     haveI : Finite V := Module.finite_of_finite (R := F) (M := V)
     -- Get the count of linearly independent k-tuples in V
@@ -2798,9 +2798,9 @@ private lemma prod_inv_eq_restricted_gf (k : ℕ) :
     simp only [Function.mem_mulSupport, ne_eq] at hi
     simp only [mem_coe, mem_range]
     by_contra h
-    push_neg at h
+    push Not at h
     have hcond : ¬ (i + 1 ≤ k) := by omega
-    rw [if_neg hcond] at hi
+    rw [ite_eq_right hcond] at hi
     exact hi rfl
   rw [tprod_eq_prod' hsupp]
   apply Finset.prod_congr rfl

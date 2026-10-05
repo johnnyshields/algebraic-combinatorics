@@ -190,7 +190,7 @@ theorem fpsLog_one : fpsLog (1 : K⟦X⟧) = 0 := by
       intro d
       match d with
       | 0 => simp [pow_zero]
-      | d + 1 => rw [if_neg (Nat.succ_ne_zero d), zero_pow (Nat.succ_ne_zero d)]
+      | d + 1 => rw [ite_eq_right (Nat.succ_ne_zero d), zero_pow (Nat.succ_ne_zero d)]
     simp_rw [h]
     rw [finsum_eq_zero_of_forall_eq_zero]
     intro d
@@ -879,7 +879,7 @@ private theorem polynomial_zero_of_nat_roots (p : Polynomial ℚ)
   intro x hx
   simp only [Set.mem_range] at hx
   obtain ⟨n, rfl⟩ := hx
-  simp only [Set.mem_setOf_eq, Polynomial.IsRoot]
+  simp only [Set.mem_ofPred_eq, Polynomial.IsRoot]
   have h1 : (p.map (algebraMap ℚ K)).eval (↑n : K) = algebraMap ℚ K (p.eval (↑n : ℚ)) := by
     rw [Polynomial.eval_map, Polynomial.eval₂_at_natCast]
   rw [h n] at h1
@@ -1006,7 +1006,7 @@ theorem coeff_fpsPow_eq_coeffExpPoly_eval (k : ℕ) (c : K) :
     simp only [Function.mem_support, ne_eq] at hd
     simp only [Finset.coe_range, Set.mem_Iio]
     by_contra h
-    push_neg at h
+    push Not at h
     have hzero : coeff k ((c • logSeries (K := K))^d) = 0 := by
       rw [coeff_smul_pow, coeff_logSeries_pow_eq_zero_of_gt k d h, smul_zero]
     rw [hzero, smul_zero] at hd
@@ -1014,7 +1014,7 @@ theorem coeff_fpsPow_eq_coeffExpPoly_eval (k : ℕ) (c : K) :
   rw [finsum_eq_sum_of_support_subset _ hsupp]
   -- Now show the sums are equal
   unfold coeffExpPoly
-  rw [Polynomial.map_sum, Polynomial.eval_finset_sum]
+  rw [Polynomial.map_sum, Polynomial.eval_finsetSum]
   congr 1
   ext d
   simp only [Polynomial.map_mul, Polynomial.map_pow, Polynomial.map_C, Polynomial.map_X,
@@ -1890,7 +1890,7 @@ theorem key_product_identity' (n : K) :
       obtain ⟨m, hm⟩ := hk
       subst hm
       have h_even : Even (m + m) := ⟨m, rfl⟩
-      rw [if_pos h_even]
+      rw [ite_eq_left h_even]
       have h_div : (m + m) / 2 = m := by omega
       rw [h_div]
       -- The coefficient identity: ∑_{i+j=2m} (-1)^i * C(-n,i) * C(-n,j) = C(n+m-1,m)
@@ -2149,7 +2149,7 @@ theorem key_product_identity' (n : K) :
               intro c'
               simp only [coeffFn, coeffFnPoly]
               rw [coeff_mul]
-              simp only [Polynomial.map_sum, Polynomial.eval_finset_sum]
+              simp only [Polynomial.map_sum, Polynomial.eval_finsetSum]
               apply Finset.sum_congr rfl
               intro x hx
               simp only [Polynomial.map_smul, Polynomial.eval_smul, smul_eq_mul]
@@ -2200,7 +2200,7 @@ theorem key_product_identity' (n : K) :
           -- Hence chooseFn n = coeffFn n by symmetry
           exact (congrFun h_eq n).symm
     · -- k is odd: coefficient is 0
-      rw [if_neg hk]
+      rw [ite_eq_right hk]
       -- For k odd, the sum ∑_{i+j=k} (-1)^i * C(-n,i) * C(-n,j) = 0
       -- Proof: pair (i, k-i) with (k-i, i). Their sum involves (-1)^i + (-1)^{k-i}.
       -- Since k is odd, i and k-i have opposite parities, so (-1)^i + (-1)^{k-i} = 0.
@@ -2304,7 +2304,7 @@ theorem fpsPow_int {K' : Type*} [Field K'] [Algebra ℚ K'] {f : K'⟦X⟧}
     exact fpsPow_nat hf n.toNat
   · -- Case n < 0
     simp only [hn, ↓reduceIte]
-    push_neg at hn
+    push Not at hn
     have hpos : 0 ≤ -n := le_of_lt (Int.neg_pos.mpr hn)
     have h_cast : ((-n) : K') = ((-n).toNat : K') := by
       have h : ((-n).toNat : ℤ) = -n := Int.toNat_of_nonneg hpos
@@ -2362,7 +2362,7 @@ theorem polynomial_identity_trick {R : Type*} [CommRing R] [IsDomain R] [CharZer
     intro x hx
     simp only [Set.mem_range] at hx
     obtain ⟨n, rfl⟩ := hx
-    simp only [Set.mem_setOf_eq, Polynomial.IsRoot, h n]
+    simp only [Set.mem_ofPred_eq, Polynomial.IsRoot, h n]
   exact hnat.mono hsub
 
 end FPS

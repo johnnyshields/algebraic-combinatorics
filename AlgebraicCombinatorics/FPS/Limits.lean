@@ -341,7 +341,7 @@ theorem coeff_subst_eq_finite_sum
   simp only [Finset.coe_range, Set.mem_Iio]
   rw [Function.mem_support] at hd
   by_contra h
-  push_neg at h
+  push Not at h
   apply hd
   simp only [smul_eq_mul]
   rw [coeff_pow_eq_zero_of_constantCoeff_zero g hg n d (by omega), mul_zero]
@@ -623,12 +623,12 @@ theorem coeffStabilizesTo_invOfUnit
           ∑ x ∈ Finset.HasAntidiagonal.antidiagonal n,
             if x.2 < n then coeff x.1 (g i) * coeff x.2 (invOfUnit (g i) (hunit i).unit) else 0 := by
       intro i
-      rw [coeff_invOfUnit, if_neg hn]
+      rw [coeff_invOfUnit, ite_eq_right hn]
     have h_rhs : coeff n (invOfUnit lg (isUnit_constantCoeff_of_coeffStabilizesTo hg hunit).unit) =
         -(↑((isUnit_constantCoeff_of_coeffStabilizesTo hg hunit).unit⁻¹) : K) *
           ∑ x ∈ Finset.HasAntidiagonal.antidiagonal n,
             if x.2 < n then coeff x.1 lg * coeff x.2 (invOfUnit lg (isUnit_constantCoeff_of_coeffStabilizesTo hg hunit).unit) else 0 := by
-      rw [coeff_invOfUnit, if_neg hn]
+      rw [coeff_invOfUnit, ite_eq_right hn]
     conv_lhs => ext i; rw [h_lhs]
     rw [h_rhs]
     -- The -u⁻¹ factor stabilizes
@@ -701,12 +701,10 @@ theorem coeffStabilizesTo_subst
 theorem coeffStabilizesTo_derivativeFun
     {f : ℕ → PowerSeries K} {lf : PowerSeries K}
     (hf : CoeffStabilizesTo f lf) :
-    CoeffStabilizesTo (fun i => derivativeFun (f i)) (derivativeFun lf) := by
+    CoeffStabilizesTo (fun i => d⁄dX (f i)) (d⁄dX lf) := by
   intro n
-  -- By coeff_derivativeFun: coeff n (derivativeFun g) = coeff (n+1) g * (n+1)
-  have e : ∀ g : PowerSeries K, coeff n (derivativeFun g) = coeff (n + 1) g * (n + 1) :=
-    fun g => coeff_derivative g n
-  simp only [e]
+  -- coeff n (g') = coeff (n+1) g * (n+1)
+  simp only [coeff_derivative]
   -- The sequence (coeff (n+1) (f i) * (n+1))_i stabilizes to coeff (n+1) lf * (n+1)
   exact Seq.stabilizesTo_mul (hf (n + 1)) (Seq.stabilizesTo_const _)
 
@@ -862,7 +860,7 @@ lemma coeff_prod_range_eq_of_ge {f : ℕ → PowerSeries K} {n N : ℕ}
     by_cases hi' : i + 1 ≤ N
     · have : i + 1 = N := Nat.le_antisymm hi' hi
       simp only [this]
-    · push_neg at hi'
+    · push Not at hi'
       have hi'' : i ≥ N := Nat.lt_succ_iff.mp hi'
       have hi_succ_ge : i + 1 ≥ N := Nat.le_of_lt hi'
       rw [coeff_prod_extend (hN (i + 1) hi_succ_ge) k hk]
@@ -927,11 +925,11 @@ theorem isSummable_of_coeffStabilizesTo_partial_sum
   -- The set of indices where coeff n (f i) ≠ 0 is contained in {0, 1, ..., N}
   apply Set.Finite.subset (Finset.finite_toSet (Finset.range (N + 1)))
   intro i hi
-  simp only [Set.mem_setOf_eq] at hi
+  simp only [Set.mem_ofPred_eq] at hi
   simp only [Finset.coe_range, Set.mem_Iio]
   -- We need to show i < N + 1, i.e., i ≤ N
   by_contra h_ge
-  push_neg at h_ge
+  push Not at h_ge
   -- If i ≥ N + 1, then both i - 1 ≥ N and i ≥ N
   have hi_ge_N : i ≥ N := Nat.le_of_succ_le h_ge
   have hi_pred_ge_N : i - 1 ≥ N := Nat.le_sub_one_of_lt h_ge
@@ -1104,7 +1102,7 @@ theorem isMultipliable_of_coeffStabilizesTo_partial_prod
         have hp2_lt : p.2 < k := by
           have hp1_pos : p.1 > 0 := by
             by_contra h
-            push_neg at h
+            push Not at h
             have hp1_zero : p.1 = 0 := Nat.eq_zero_of_le_zero h
             simp only [hp1_zero, zero_add] at hp_sum
             have : p = (0, k) := Prod.ext hp1_zero hp_sum
@@ -1113,7 +1111,7 @@ theorem isMultipliable_of_coeffStabilizesTo_partial_prod
         -- p.2 > 0 because p ≠ (k, 0)
         have hp2_pos : p.2 > 0 := by
           by_contra h
-          push_neg at h
+          push Not at h
           have hp2_zero : p.2 = 0 := Nat.eq_zero_of_le_zero h
           simp only [hp2_zero, add_zero] at hp_sum
           have : p = (k, 0) := Prod.ext hp_sum hp2_zero
@@ -1158,7 +1156,7 @@ private lemma coeff_mul_one_mod {f g : PowerSeries K} {n : ℕ}
       exfalso
       apply h
       simp only [Finset.HasAntidiagonal.mem_antidiagonal, add_zero]
-  rw [this, hg 0 (Nat.zero_le n), if_pos rfl, mul_one]
+  rw [this, hg 0 (Nat.zero_le n), ite_eq_left rfl, mul_one]
 
 -- Helper lemma: if f i ≡ 1 (mod x^{n+1}) for i ≥ N, then partial products stabilize at coefficient n
 private lemma coeff_prod_eq_of_eventually_one {f : ℕ → PowerSeries K} {n N : ℕ}
@@ -1175,7 +1173,7 @@ private lemma coeff_prod_eq_of_eventually_one {f : ℕ → PowerSeries K} {n N :
     by_cases hiN : i < N
     · have : i + 1 = N := by omega
       simp only [this]
-    · push_neg at hiN
+    · push Not at hiN
       have ih' := ih hiN
       rw [Finset.prod_range_succ]
       have hfi : ∀ k ≤ n, coeff k (f (i + 1)) = if k = 0 then 1 else 0 := hf (i + 1) (by omega)

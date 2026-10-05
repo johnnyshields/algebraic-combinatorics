@@ -166,7 +166,7 @@ private lemma finset_card_filter_get_eq_count {α : Type*} [DecidableEq α] (L :
         ext i; simp only [Finset.mem_filter, Finset.mem_univ, true_and, Finset.mem_union, S₀, S₁]
         constructor
         · intro hi; cases' i using Fin.cases with j
-          · left; simp only [List.get_cons_zero] at hi; rw [if_pos hi]; exact Finset.mem_singleton_self 0
+          · left; simp only [List.get_cons_zero] at hi; rw [ite_eq_left hi]; exact Finset.mem_singleton_self 0
           · right; simp only [List.get_eq_getElem] at hi
             simp only [Finset.mem_map, Finset.mem_filter, Finset.mem_univ, true_and, Function.Embedding.coeFn_mk]
             exact ⟨j, hi, rfl⟩
@@ -212,7 +212,7 @@ private lemma toPartition_ofPartition_parts {n : ℕ} (p : Nat.Partition n) (hp 
     rw [Multiset.count_eq_zero]
     exact fun h => Nat.lt_irrefl 0 (p.parts_pos h)
   · -- x ≠ 0
-    rw [if_pos hx, ← hsorted_eq, Multiset.coe_count]
+    rw [ite_eq_left hx, ← hsorted_eq, Multiset.coe_count]
 
     have hfilter_card : (Finset.filter (fun a : Fin N => x = f a) Finset.univ).card =
                         List.count x sorted := by
@@ -265,7 +265,7 @@ private lemma lt_filter_length_iff_ne_zero (f : Fin N → ℕ) (hf : Antitone f)
   · intro hi hfi
     have hbound : ∀ j : Fin N, f j ≠ 0 → j.val < i.val := fun j hfj => by
       by_contra hge
-      push_neg at hge
+      push Not at hge
       exact hfj (antitone_zero_tail f hf i j hfi (Fin.mk_le_mk.mpr hge))
     have hlen_le : ((List.ofFn f).filter (· ≠ 0)).length ≤ i.val := by
       rw [List.countP_eq_length_filter.symm]
@@ -458,7 +458,7 @@ noncomputable def equivPartition (n : ℕ) :
       simp only [List.get_eq_getElem, List.getElem_take, List.getElem_ofFn]
     · -- Case: i ≥ filter.length, need: 0 = mu.parts i
       have hge : ¬(i.val < ((List.ofFn mu.parts).filter (· ≠ 0)).length) := hi
-      push_neg at hge
+      push Not at hge
       have heq : mu.parts i = 0 := by
         by_contra hne
         have : i.val < ((List.ofFn mu.parts).filter (· ≠ 0)).length :=
@@ -516,7 +516,7 @@ theorem ofPartition_injective (n : ℕ) :
       have hi1' : i < N := Nat.lt_of_lt_of_le hi1 (len1.symm ▸ hp₁)
       have hfun := congr_fun hparts ⟨i, hi1'⟩
       simp only [_root_.NPartition.ofPartition] at hfun
-      simp only [dif_pos hi1, dif_pos hi2] at hfun
+      simp only [dite_eq_left hi1, dite_eq_left hi2] at hfun
       exact hfun
   apply Nat.Partition.ext_iff.mpr
   rw [← Multiset.sort_eq p₁.parts (· ≥ ·), ← Multiset.sort_eq p₂.parts (· ≥ ·), hsorted]
@@ -574,7 +574,7 @@ theorem monomialExp_eq_monomial (a : Fin N → ℕ) :
 @[simp]
 theorem monomialExp_coeff_self (a : Fin N → ℕ) :
     (monomialExp a : MvPolynomial (Fin N) R).coeff (Finsupp.equivFunOnFinite.symm a) = 1 := by
-  rw [monomialExp_eq_monomial, coeff_monomial, if_pos rfl]
+  rw [monomialExp_eq_monomial, coeff_monomial, ite_eq_left rfl]
 
 /-- Coefficient of a different monomial in monomialExp a is 0. -/
 theorem monomialExp_coeff_ne (a b : Fin N → ℕ) (h : a ≠ b) :
@@ -667,7 +667,7 @@ theorem sortTuple_of_antitone (a : Fin N → ℕ) (ha : Antitone a) :
   simp only [sortTuple]
   have hlen : ((Finset.univ.val.map a).sort (· ≥ ·)).length = N := sortTuple_sorted_length a
   have hi_lt : i.val < ((Finset.univ.val.map a).sort (· ≥ ·)).length := by rw [hlen]; exact i.isLt
-  rw [dif_pos hi_lt]
+  rw [dite_eq_left hi_lt]
   -- Key: The list (List.ofFn a) is already sorted in decreasing order
   have hsorted : List.Pairwise (· ≥ ·) (List.ofFn a) := by
     rw [List.pairwise_iff_get]
@@ -745,10 +745,10 @@ theorem sortTuple_eq_iff (a b : Fin N → ℕ) :
         -- (sortTuple a).parts ⟨n, hn_a⟩ = sorted_a.get ⟨n, h1⟩
         have eq_a : (sortTuple a).parts ⟨n, hn_a⟩ = sorted_a.get ⟨n, h1⟩ := by
           simp only [sortTuple]
-          rw [dif_pos h1]
+          rw [dite_eq_left h1]
         have eq_b : (sortTuple b).parts ⟨n, hn_b⟩ = sorted_b.get ⟨n, h2⟩ := by
           simp only [sortTuple]
-          rw [dif_pos h2]
+          rw [dite_eq_left h2]
         rw [← eq_a, ← eq_b]
         exact congrFun h_parts ⟨n, hn_a⟩
     -- Now use that equal lists have equal multisets
@@ -926,7 +926,7 @@ lemma monomialSymm_coeff_self (mu : NPartition N) :
     exfalso
     apply hne
     exact (Finsupp.equivFunOnFinite.symm.injective heq.symm).symm
-  rw [h, monomialExp_eq_monomial, coeff_monomial, if_pos rfl]
+  rw [h, monomialExp_eq_monomial, coeff_monomial, ite_eq_left rfl]
 
 /-- The coefficient of x^{μ.parts} in m_ν is 0 when μ ≠ ν.
     This is because the only monomial in m_ν with exponent sorting to ν must have
@@ -1061,15 +1061,15 @@ private lemma sortTuple_indicatorTuple {n : ℕ} (S : Finset (Fin N)) (hn : S.ca
       ext j
       simp only [Finset.mem_filter, Finset.mem_univ, true_and, Finset.mem_sdiff]
       constructor
-      · intro h hj; rw [if_pos hj] at h; exact Nat.zero_ne_one h
-      · intro hj; rw [if_neg hj]
+      · intro h hj; rw [ite_eq_left hj] at h; exact Nat.zero_ne_one h
+      · intro hj; rw [ite_eq_right hj]
     have h2 : (Finset.univ.filter (fun j : Fin N => 0 = (if j.val < n then 1 else 0))) =
               Finset.univ.filter (fun j : Fin N => n ≤ j.val) := by
       ext j
       simp only [Finset.mem_filter, Finset.mem_univ, true_and]
       constructor
-      · intro h; by_contra hj; push_neg at hj; rw [if_pos hj] at h; exact Nat.zero_ne_one h
-      · intro hj; rw [if_neg (not_lt.mpr hj)]
+      · intro h; by_contra hj; push Not at hj; rw [ite_eq_left hj] at h; exact Nat.zero_ne_one h
+      · intro hj; rw [ite_eq_right (not_lt.mpr hj)]
     have h3 : (Finset.univ.filter (fun j : Fin N => n ≤ j.val)).card = N - n := by
       have hbij : (Finset.univ.filter (fun j : Fin N => n ≤ j.val)) =
                   (Finset.univ : Finset (Fin (N - n))).map
@@ -1092,15 +1092,15 @@ private lemma sortTuple_indicatorTuple {n : ℕ} (S : Finset (Fin N)) (hn : S.ca
         ext j
         simp only [Finset.mem_filter, Finset.mem_univ, true_and]
         constructor
-        · intro h; by_contra hj; rw [if_neg hj] at h; exact Nat.one_ne_zero h
-        · intro hj; rw [if_pos hj]
+        · intro h; by_contra hj; rw [ite_eq_right hj] at h; exact Nat.one_ne_zero h
+        · intro hj; rw [ite_eq_left hj]
       have h2 : (Finset.univ.filter (fun j : Fin N => 1 = (if j.val < n then 1 else 0))) =
                 Finset.univ.filter (fun j : Fin N => j.val < n) := by
         ext j
         simp only [Finset.mem_filter, Finset.mem_univ, true_and]
         constructor
-        · intro h; by_contra hj; push_neg at hj; rw [if_neg (not_lt.mpr hj)] at h; exact Nat.one_ne_zero h
-        · intro hj; rw [if_pos hj]
+        · intro h; by_contra hj; push Not at hj; rw [ite_eq_right (not_lt.mpr hj)] at h; exact Nat.one_ne_zero h
+        · intro hj; rw [ite_eq_left hj]
       have h3 : (Finset.univ.filter (fun j : Fin N => j.val < n)).card = n := by
         have hbij : (Finset.univ.filter (fun j : Fin N => j.val < n)) =
                     (Finset.univ : Finset (Fin n)).map ⟨Fin.castLE hn', Fin.castLE_injective hn'⟩ := by
@@ -1244,9 +1244,9 @@ private lemma sortPreimage_singletonPartition_values (a : Fin N → ℕ) (n : �
   simp only [Multiset.mem_map, Finset.mem_val, Finset.mem_univ, true_and, singletonPartition] at hmem
   obtain ⟨j, hj⟩ := hmem
   by_cases hj0 : j.val = 0
-  · simp only [if_pos hj0] at hj
+  · simp only [ite_eq_left hj0] at hj
     right; exact hj.symm
-  · simp only [if_neg hj0] at hj
+  · simp only [ite_eq_right hj0] at hj
     left; exact hj.symm
 
 /-- If a ∈ sortPreimage (singletonPartition n hN) and n > 0, then a = singleTuple i n for some i. -/
@@ -1267,7 +1267,7 @@ private lemma mem_sortPreimage_singletonPartition_exists_singleTuple (a : Fin N 
   -- Find an index with value n
   have hexists : ∃ i, a i = n := by
     by_contra hall
-    push_neg at hall
+    push Not at hall
     -- If all values are 0 or n but none is n, all are 0
     have hall0 : ∀ i, a i = 0 := by
       intro i
@@ -1310,10 +1310,10 @@ private lemma indicatorSupport_indicatorTuple (S : Finset (Fin N)) :
   constructor
   · intro h
     by_contra hne
-    simp only [if_neg hne] at h
+    simp only [ite_eq_right hne] at h
     exact Nat.one_ne_zero h.symm
   · intro h
-    simp only [if_pos h]
+    simp only [ite_eq_left h]
 
 /-- Values in sortPreimage of onesThenZeros are in {0, 1}.
     This follows because sortTuple preserves multisets, and onesThenZeros has only 0s and 1s. -/
@@ -1333,9 +1333,9 @@ private lemma sortPreimage_onesThenZeros_values {n : ℕ} (a : Fin N → ℕ) (h
   simp only [Multiset.mem_map, Finset.mem_val, Finset.mem_univ, true_and, onesThenZeros] at hmem
   obtain ⟨j, hj⟩ := hmem
   by_cases hjn : j.val < n
-  · simp only [if_pos hjn] at hj
+  · simp only [ite_eq_left hjn] at hj
     right; exact hj.symm
-  · simp only [if_neg hjn] at hj
+  · simp only [ite_eq_right hjn] at hj
     left; exact hj.symm
 
 /-- indicatorTuple ∘ indicatorSupport = id for elements of sortPreimage of onesThenZeros. -/

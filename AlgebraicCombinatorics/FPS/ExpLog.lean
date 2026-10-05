@@ -587,7 +587,7 @@ def PowerSeries₁.subgroup : Subgroup (R⟦X⟧)ˣ where
   one_mem' := PowerSeries₁.one_mem
   mul_mem' := fun hf hg => PowerSeries₁.mul_mem hf hg
   inv_mem' := fun {u} hf => by
-    simp only [Set.mem_setOf_eq] at hf ⊢
+    simp only [Set.mem_ofPred_eq] at hf ⊢
     rw [mem_PowerSeries₁_iff] at hf ⊢
     -- For a unit u, we have u * u⁻¹ = 1, so constantCoeff(u) * constantCoeff(u⁻¹) = 1
     have h : (u : R⟦X⟧) * u.inv = 1 := Units.mul_inv u
@@ -1333,7 +1333,7 @@ theorem Log_summable_of_multipliable (f : I → PowerSeries₁ (R := K))
   -- Claim: {i | (Log (f i)).val.coeff n ≠ 0} ⊆ M
   apply Set.Finite.subset M.finite_toSet
   intro i hi
-  simp only [Set.mem_setOf_eq, ne_eq] at hi
+  simp only [Set.mem_ofPred_eq, ne_eq] at hi
   by_contra h_not_in_M
   apply hi
   -- Log(f i) = logbar ∘ (f i - 1)
@@ -1584,13 +1584,13 @@ private lemma expbar_subst_coeff_zero (g : K⟦X⟧) (hg : constantCoeff g = 0) 
     coeff n ((expbar K).subst g) = 0 := by
   have hord : n < order g := by
     by_contra h
-    push_neg at h
+    push Not at h
     have hord_le : order g ≤ n := h
     cases hord' : order g with
     | top => rw [hord'] at hord_le; simp at hord_le
     | coe m =>
       have hne : coeff m g ≠ 0 := by rw [order_eq_nat] at hord'; exact hord'.1
-      have hm_le : m ≤ n := by rw [hord'] at hord_le; exact ENat.coe_le_coe.mp hord_le
+      have hm_le : m ≤ n := by rw [hord'] at hord_le; exact ENat.natCast_le_natCast.mp hord_le
       exact hne (hcoeff m hm_le)
   have hord' := expbar_subst_order g hg n hord
   exact coeff_of_lt_order n hord'
@@ -1627,10 +1627,10 @@ theorem Exp_multipliable_of_summable (g : I → PowerSeries₀ (R := K))
   have hsub : {i : I | coeff n ((expbar K).subst (g i).val) ≠ 0} ⊆
               ⋃ k ∈ Finset.range (n + 1), {i : I | coeff k (g i).val ≠ 0} := by
     intro i hi
-    simp only [Set.mem_setOf_eq] at hi
-    simp only [Set.mem_iUnion, Finset.mem_range, Set.mem_setOf_eq]
+    simp only [Set.mem_ofPred_eq] at hi
+    simp only [Set.mem_iUnion, Finset.mem_range, Set.mem_ofPred_eq]
     by_contra h
-    push_neg at h
+    push Not at h
     have hcoeff : ∀ k ≤ n, coeff k (g i).val = 0 := by
       intro k hk
       have hk' : k < n + 1 := Nat.lt_succ_of_le hk
@@ -1671,7 +1671,7 @@ theorem Exp_sum (g : I → PowerSeries₀ (R := K))
     intro n
     convert hg n using 1
     ext i
-    simp only [Set.mem_setOf_eq]
+    simp only [Set.mem_ofPred_eq]
     rw [hLogExp i]
 
   -- Apply Log_tprod: Log(∏ f_i) = ∑ Log(f_i)

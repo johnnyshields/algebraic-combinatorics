@@ -459,7 +459,7 @@ theorem fibonacci_gf : (PowerSeries.mk (fun n => (fibonacci n : ℚ)) : PowerSer
     · -- n = 1: fib 1 - fib 0 - 0 = 1
       simp [Nat.fib_zero, Nat.fib_one]
     · -- n >= 2: fib (n+2) - fib (n+1) - fib n = 0 by recurrence
-      simp only [show ¬(n + 2 = 0) by omega, if_false,
+      simp only [show ¬(n + 2 = 0) by omega, ite_false,
         show ¬(n + 2 = 1) by omega, show ¬(n + 2 < 2) by omega]
       -- fib (n+2) - fib (n+1) - fib n = 0
       have h1 : n + 2 - 1 = n + 1 := by omega

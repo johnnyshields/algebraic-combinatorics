@@ -211,7 +211,7 @@ theorem omegaInvolution_esymm_succ {σ : Type*} [Fintype σ] [DecidableEq σ]
     {R : Type*} [CommRing R] {n : ℕ} (hn : Fintype.card σ = n) (k : ℕ) (hk : k < n) :
     (omegaInvolution hn ⟨esymm σ R (k + 1), esymm_isSymmetric σ R (k + 1)⟩ : 
       symmetricSubalgebra σ R).val = hsymm σ R (k + 1) := by
-  simp only [omegaInvolution, AlgHom.comp_apply, AlgEquiv.toAlgHom_eq_coe, AlgHom.coe_coe]
+  simp only [omegaInvolution, AlgHom.comp_apply, AlgHom.coe_ofClass]
   have h : (esymmAlgEquiv σ R hn).symm ⟨esymm σ R (k + 1), esymm_isSymmetric σ R (k + 1)⟩ = X ⟨k, hk⟩ := 
     @esymmAlgEquiv_symm_apply σ R n _ _ hn ⟨k, hk⟩
   erw [h]

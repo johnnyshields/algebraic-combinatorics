@@ -502,9 +502,9 @@ theorem pathsFromTo_finite (a b : LatticePoint) : (pathsFromTo a b).Finite := by
     -- The set of paths is a subset of all lists of length at most n
     have hsub : pathsFromTo a b ⊆ {path : LatticePath | path.length ≤ n} := by
       intro path hpath
-      simp only [Set.mem_setOf_eq]
+      simp only [Set.mem_ofPred_eq]
       unfold pathsFromTo LatticePath.isPathFromTo at hpath
-      rw [Set.mem_setOf_eq] at hpath
+      rw [Set.mem_ofPred_eq] at hpath
       rw [endpoint_eq] at hpath
       have hpath_pair : a.1 + ↑(path.count LatticeStep.east) = b.1 ∧
                         a.2 + ↑(path.count LatticeStep.north) = b.2 := by
@@ -525,11 +525,11 @@ theorem pathsFromTo_finite (a b : LatticePoint) : (pathsFromTo a b).Finite := by
     -- Lists of bounded length from a finite type form a finite set
     exact List.finite_length_le LatticeStep n
   · -- Case: invalid direction, no paths exist
-    push_neg at h
+    push Not at h
     have hempty : pathsFromTo a b = ∅ := by
       ext path
       unfold pathsFromTo LatticePath.isPathFromTo
-      rw [Set.mem_setOf_eq, Set.mem_empty_iff_false, iff_false]
+      rw [Set.mem_ofPred_eq, Set.mem_empty_iff_false, iff_false]
       intro hpath
       rw [endpoint_eq] at hpath
       have hpath_pair : a.1 + ↑(path.count LatticeStep.east) = b.1 ∧
@@ -604,7 +604,7 @@ private lemma isPathFromTo_le' (path : LatticePath) (a b : LatticePoint)
 private lemma pathsFromTo_empty' (a b : LatticePoint) (h : ¬(a.1 ≤ b.1 ∧ a.2 ≤ b.2)) :
     pathsFromTo a b = ∅ := by
   ext path
-  simp only [Set.mem_setOf_eq, pathsFromTo, Set.mem_empty_iff_false, iff_false]
+  simp only [Set.mem_ofPred_eq, pathsFromTo, Set.mem_empty_iff_false, iff_false]
   intro hp
   exact h (isPathFromTo_le' path a b hp)
 
@@ -641,10 +641,10 @@ private lemma pathFromSubset_injective (m n : ℕ) : Function.Injective (pathFro
   by_cases hi : i ∈ S <;> by_cases hi' : i ∈ T
   · exact ⟨fun _ => hi', fun _ => hi⟩
   · -- hi : i ∈ S, hi' : i ∉ T, so LHS = east, RHS = north
-    rw [if_pos hi, if_neg hi'] at h
+    rw [ite_eq_left hi, ite_eq_right hi'] at h
     exact absurd h (by decide)
   · -- hi : i ∉ S, hi' : i ∈ T, so LHS = north, RHS = east
-    rw [if_neg hi, if_pos hi'] at h
+    rw [ite_eq_right hi, ite_eq_left hi'] at h
     exact absurd h (by decide)
   · exact ⟨fun hf => (hi hf).elim, fun hf => (hi' hf).elim⟩
 
@@ -831,7 +831,7 @@ private lemma pathsWithMEastSteps_eq_toFinset (m n : ℕ)
     obtain ⟨S, hS, rfl⟩ := hp
     exact pathFromSubset_isPath m n S hS
   · intro hp
-    simp only [Set.Finite.mem_toFinset, pathsFromTo, Set.mem_setOf_eq] at hp
+    simp only [Set.Finite.mem_toFinset, pathsFromTo, Set.mem_ofPred_eq] at hp
     simp only [pathsWithMEastSteps, Finset.mem_image, Finset.mem_filter, Finset.mem_univ, true_and]
     rw [isPathFromTo_iff'] at hp
     obtain ⟨heast, hnorth⟩ := hp
@@ -867,7 +867,7 @@ theorem numPaths_eq_card (a b : LatticePoint)
     -- Key insight: pathsFromTo a b = pathsFromTo (0,0) (m,n) (same set of paths)
     have hpaths_eq : pathsFromTo a b = pathsFromTo (0, 0) ((m : ℤ), (n : ℤ)) := by
       ext path
-      simp only [pathsFromTo, Set.mem_setOf_eq]
+      simp only [pathsFromTo, Set.mem_ofPred_eq]
       rw [isPathFromTo_iff', isPathFromTo_iff']
       simp only [sub_zero]
       constructor
@@ -899,7 +899,7 @@ theorem numPaths_eq_card (a b : LatticePoint)
 theorem no_paths_when_sum_decreases (a b : LatticePoint)
     (h : b.coordSum < a.coordSum) : pathsFromTo a b = ∅ := by
   ext path
-  simp only [pathsFromTo, Set.mem_setOf_eq, Set.mem_empty_iff_false, iff_false]
+  simp only [pathsFromTo, Set.mem_ofPred_eq, Set.mem_empty_iff_false, iff_false]
   intro hp
   have hsum := LatticePath.coordSum_endpoint path a
   unfold LatticePath.isPathFromTo at hp
@@ -971,7 +971,7 @@ theorem pathTuplesFromTo_finite {k : ℕ} (A B : kVertex k) :
   have h_eq : pathTuplesFromTo A B =
       (fun (pt : PathTuple k A B) => pt.paths) ⁻¹' {f | ∀ i, f i ∈ pathsFromTo (A i) (B i)} := by
     ext pt
-    simp only [pathTuplesFromTo, Set.mem_univ, Set.mem_preimage, Set.mem_setOf_eq, true_iff]
+    simp only [pathTuplesFromTo, Set.mem_univ, Set.mem_preimage, Set.mem_ofPred_eq, true_iff]
     exact pt.valid
   rw [h_eq]
   exact h_paths_finite.preimage h_inj.injOn
@@ -1013,7 +1013,7 @@ def PathTuple.isCrowded {k : ℕ} {A B : kVertex k} (pt : PathTuple k A B) (v : 
 theorem PathTuple.isIntersecting_iff_exists_crowded {k : ℕ} {A B : kVertex k} (pt : PathTuple k A B) :
     pt.isIntersecting ↔ ∃ v, pt.isCrowded v := by
   unfold isIntersecting isNonIntersecting isCrowded
-  push_neg
+  push Not
   constructor
   · intro ⟨i, j, hij, hnotdisj⟩
     rw [Set.not_disjoint_iff] at hnotdisj
@@ -1082,7 +1082,7 @@ lemma PathTuple.crowdedVerticesOnMinPath_nonempty {k : ℕ} {A B : kVertex k}
   rw [Set.not_disjoint_iff] at hnotdisj
   obtain ⟨v, hvi, hvj⟩ := hnotdisj
   use v
-  simp only [crowdedVerticesOnPath, Set.mem_setOf_eq]
+  simp only [crowdedVerticesOnPath, Set.mem_ofPred_eq]
   exact ⟨hvi, j, hij, hvj⟩
 
 /-- The vertices on a path form a finite set -/
@@ -2195,7 +2195,7 @@ theorem signedPathTuples2_finite (A A' B B' : LatticePoint) :
   have hrange : f '' signedPathTuples2 A A' B B' ⊆ S0 ×ˢ S1 ×ˢ (Set.univ : Set Bool) := by
     intro x hx
     obtain ⟨spt, _, rfl⟩ := hx
-    simp only [Set.mem_prod, Set.mem_union, Set.mem_univ, and_true, f, S0, S1, pathsFromTo, Set.mem_setOf_eq]
+    simp only [Set.mem_prod, Set.mem_union, Set.mem_univ, and_true, f, S0, S1, pathsFromTo, Set.mem_ofPred_eq]
     refine ⟨?_, ?_⟩
     · cases hb : spt.toBB'
       · have := spt.valid0; simp only [hb, Bool.false_eq_true, ↓reduceIte] at this; right; exact this
@@ -2265,14 +2265,14 @@ theorem sum_signedPathTuples2 (A A' B B' : LatticePoint)
     let f : { spt : SignedPathTuple2 A A' B B' // spt ∈ hfin.toFinset.filter (·.toBB' = true) } →
             hfin_AB.toFinset × hfin_A'B'.toFinset := fun ⟨spt, hspt⟩ =>
       ⟨⟨spt.path0, by
-        simp only [Set.Finite.mem_toFinset, pathsFromTo, Set.mem_setOf_eq]
+        simp only [Set.Finite.mem_toFinset, pathsFromTo, Set.mem_ofPred_eq]
         simp only [Finset.mem_filter, Set.Finite.mem_toFinset, signedPathTuples2,
                    Set.mem_univ, true_and] at hspt
         have h := spt.valid0
         simp only [hspt, ↓reduceIte] at h
         exact h⟩,
        ⟨spt.path1, by
-        simp only [Set.Finite.mem_toFinset, pathsFromTo, Set.mem_setOf_eq]
+        simp only [Set.Finite.mem_toFinset, pathsFromTo, Set.mem_ofPred_eq]
         simp only [Finset.mem_filter, Set.Finite.mem_toFinset, signedPathTuples2,
                    Set.mem_univ, true_and] at hspt
         have h := spt.valid1
@@ -2282,10 +2282,10 @@ theorem sum_signedPathTuples2 (A A' B B' : LatticePoint)
             { spt : SignedPathTuple2 A A' B B' // spt ∈ hfin.toFinset.filter (·.toBB' = true) } :=
       fun ⟨⟨p0, hp0⟩, ⟨p1, hp1⟩⟩ =>
         ⟨⟨p0, p1, true, by
-          simp only [Set.Finite.mem_toFinset, pathsFromTo, Set.mem_setOf_eq] at hp0
+          simp only [Set.Finite.mem_toFinset, pathsFromTo, Set.mem_ofPred_eq] at hp0
           simp only [↓reduceIte]
           exact hp0, by
-          simp only [Set.Finite.mem_toFinset, pathsFromTo, Set.mem_setOf_eq] at hp1
+          simp only [Set.Finite.mem_toFinset, pathsFromTo, Set.mem_ofPred_eq] at hp1
           simp only [↓reduceIte]
           exact hp1⟩, by
           simp only [Finset.mem_filter, Set.Finite.mem_toFinset, signedPathTuples2,
@@ -2311,14 +2311,14 @@ theorem sum_signedPathTuples2 (A A' B B' : LatticePoint)
     let f : { spt : SignedPathTuple2 A A' B B' // spt ∈ hfin.toFinset.filter (·.toBB' = false) } →
             hfin_AB'.toFinset × hfin_A'B.toFinset := fun ⟨spt, hspt⟩ =>
       ⟨⟨spt.path0, by
-        simp only [Set.Finite.mem_toFinset, pathsFromTo, Set.mem_setOf_eq]
+        simp only [Set.Finite.mem_toFinset, pathsFromTo, Set.mem_ofPred_eq]
         simp only [Finset.mem_filter, Set.Finite.mem_toFinset, signedPathTuples2,
                    Set.mem_univ, true_and] at hspt
         have h := spt.valid0
         simp only [hspt, Bool.false_eq_true, ↓reduceIte] at h
         exact h⟩,
        ⟨spt.path1, by
-        simp only [Set.Finite.mem_toFinset, pathsFromTo, Set.mem_setOf_eq]
+        simp only [Set.Finite.mem_toFinset, pathsFromTo, Set.mem_ofPred_eq]
         simp only [Finset.mem_filter, Set.Finite.mem_toFinset, signedPathTuples2,
                    Set.mem_univ, true_and] at hspt
         have h := spt.valid1
@@ -2328,10 +2328,10 @@ theorem sum_signedPathTuples2 (A A' B B' : LatticePoint)
             { spt : SignedPathTuple2 A A' B B' // spt ∈ hfin.toFinset.filter (·.toBB' = false) } :=
       fun ⟨⟨p0, hp0⟩, ⟨p1, hp1⟩⟩ =>
         ⟨⟨p0, p1, false, by
-          simp only [Set.Finite.mem_toFinset, pathsFromTo, Set.mem_setOf_eq] at hp0
+          simp only [Set.Finite.mem_toFinset, pathsFromTo, Set.mem_ofPred_eq] at hp0
           simp only [Bool.false_eq_true, ↓reduceIte]
           exact hp0, by
-          simp only [Set.Finite.mem_toFinset, pathsFromTo, Set.mem_setOf_eq] at hp1
+          simp only [Set.Finite.mem_toFinset, pathsFromTo, Set.mem_ofPred_eq] at hp1
           simp only [Bool.false_eq_true, ↓reduceIte]
           exact hp1⟩, by
           simp only [Finset.mem_filter, Set.Finite.mem_toFinset, signedPathTuples2,
@@ -2362,24 +2362,24 @@ theorem sum_signedIpats2_eq_zero (A A' B B' : LatticePoint)
   -- Define the involution function g on the finite set
   let g : ∀ spt ∈ hfin.toFinset, SignedPathTuple2 A A' B B' := fun spt hspt =>
     ipatInvolution spt (by
-      simp only [Set.Finite.mem_toFinset, signedIpats2, Set.mem_setOf_eq] at hspt
+      simp only [Set.Finite.mem_toFinset, signedIpats2, Set.mem_ofPred_eq] at hspt
       exact hspt)
   -- Prove that g maps elements back into the set
   have g_mem : ∀ spt hspt, g spt hspt ∈ hfin.toFinset := fun spt hspt => by
-    simp only [Set.Finite.mem_toFinset, signedIpats2, Set.mem_setOf_eq] at hspt ⊢
+    simp only [Set.Finite.mem_toFinset, signedIpats2, Set.mem_ofPred_eq] at hspt ⊢
     simp only [g]
     exact ipatInvolution_isIntersecting spt hspt
   -- Apply Finset.sum_involution
   refine Finset.sum_involution g ?hg₁ ?hg₃ g_mem ?hg₄
   case hg₁ => -- Signs sum to zero: spt.sign + (g spt).sign = 0
     intro spt hspt
-    simp only [Set.Finite.mem_toFinset, signedIpats2, Set.mem_setOf_eq] at hspt
+    simp only [Set.Finite.mem_toFinset, signedIpats2, Set.mem_ofPred_eq] at hspt
     simp only [g]
     have h := ipatInvolution_sign spt hspt
     omega
   case hg₃ => -- g is not the identity on non-zero elements
     intro spt hspt hne
-    simp only [Set.Finite.mem_toFinset, signedIpats2, Set.mem_setOf_eq] at hspt
+    simp only [Set.Finite.mem_toFinset, signedIpats2, Set.mem_ofPred_eq] at hspt
     simp only [g]
     intro heq
     have h := ipatInvolution_sign spt hspt
@@ -2388,7 +2388,7 @@ theorem sum_signedIpats2_eq_zero (A A' B B' : LatticePoint)
     omega
   case hg₄ => -- g is an involution: g (g spt) = spt
     intro spt hspt
-    simp only [Set.Finite.mem_toFinset, signedIpats2, Set.mem_setOf_eq] at hspt
+    simp only [Set.Finite.mem_toFinset, signedIpats2, Set.mem_ofPred_eq] at hspt
     simp only [g]
     have h := ipatInvolution_involutive spt hspt
     obtain ⟨h', heq⟩ := h
@@ -2423,26 +2423,26 @@ private lemma signedNipats2_true_ncard_eq (A A' B B' : LatticePoint) :
       fin_cases i
       · convert spt.valid0 using 1 <;> simp [htoBB']
       · convert spt.valid1 using 1 <;> simp [htoBB']
-    · simp only [nipatsFromTo, Set.mem_setOf_eq, PathTuple.isNonIntersecting]
+    · simp only [nipatsFromTo, Set.mem_ofPred_eq, PathTuple.isNonIntersecting]
       intro i j hij
       fin_cases i <;> fin_cases j
       · exact (hij rfl).elim
       · rw [Set.disjoint_iff]
         intro v ⟨hv0, hv1⟩
-        simp only [PathTuple.verticesOf, Set.mem_setOf_eq] at hv0 hv1
+        simp only [PathTuple.verticesOf, Set.mem_ofPred_eq] at hv0 hv1
         exact hni ⟨v, hv0, hv1⟩
       · rw [Set.disjoint_iff]
         intro v ⟨hv1, hv0⟩
-        simp only [PathTuple.verticesOf, Set.mem_setOf_eq] at hv0 hv1
+        simp only [PathTuple.verticesOf, Set.mem_ofPred_eq] at hv0 hv1
         exact hni ⟨v, hv0, hv1⟩
       · exact (hij rfl).elim
   case invFun =>
     intro ⟨pt, hpt⟩
-    simp only [nipatsFromTo, Set.mem_setOf_eq] at hpt
+    simp only [nipatsFromTo, Set.mem_ofPred_eq] at hpt
     refine ⟨⟨pt.paths 0, pt.paths 1, true, ?_, ?_⟩, ?_, rfl⟩
     · simp only [↓reduceIte]; exact pt.valid 0
     · simp only [↓reduceIte]; exact pt.valid 1
-    · simp only [signedNipats2, Set.mem_setOf_eq, SignedPathTuple2.isIntersecting, not_exists, not_and]
+    · simp only [signedNipats2, Set.mem_ofPred_eq, SignedPathTuple2.isIntersecting, not_exists, not_and]
       intro v hv0 hv1
       have hdisj := hpt 0 1 (by decide)
       simp only [PathTuple.verticesOf, Set.disjoint_iff] at hdisj
@@ -2474,26 +2474,26 @@ private lemma signedNipats2_false_ncard_eq (A A' B B' : LatticePoint) :
       fin_cases i
       · convert spt.valid0 using 1 <;> simp [htoBB']
       · convert spt.valid1 using 1 <;> simp [htoBB']
-    · simp only [nipatsFromTo, Set.mem_setOf_eq, PathTuple.isNonIntersecting]
+    · simp only [nipatsFromTo, Set.mem_ofPred_eq, PathTuple.isNonIntersecting]
       intro i j hij
       fin_cases i <;> fin_cases j
       · exact (hij rfl).elim
       · rw [Set.disjoint_iff]
         intro v ⟨hv0, hv1⟩
-        simp only [PathTuple.verticesOf, Set.mem_setOf_eq] at hv0 hv1
+        simp only [PathTuple.verticesOf, Set.mem_ofPred_eq] at hv0 hv1
         exact hni ⟨v, hv0, hv1⟩
       · rw [Set.disjoint_iff]
         intro v ⟨hv1, hv0⟩
-        simp only [PathTuple.verticesOf, Set.mem_setOf_eq] at hv0 hv1
+        simp only [PathTuple.verticesOf, Set.mem_ofPred_eq] at hv0 hv1
         exact hni ⟨v, hv0, hv1⟩
       · exact (hij rfl).elim
   case invFun =>
     intro ⟨pt, hpt⟩
-    simp only [nipatsFromTo, Set.mem_setOf_eq] at hpt
+    simp only [nipatsFromTo, Set.mem_ofPred_eq] at hpt
     refine ⟨⟨pt.paths 0, pt.paths 1, false, ?_, ?_⟩, ?_, rfl⟩
     · simp only [Bool.false_eq_true, ↓reduceIte]; exact pt.valid 0
     · simp only [Bool.false_eq_true, ↓reduceIte]; exact pt.valid 1
-    · simp only [signedNipats2, Set.mem_setOf_eq, SignedPathTuple2.isIntersecting, not_exists, not_and]
+    · simp only [signedNipats2, Set.mem_ofPred_eq, SignedPathTuple2.isIntersecting, not_exists, not_and]
       intro v hv0 hv1
       have hdisj := hpt 0 1 (by decide)
       simp only [PathTuple.verticesOf, Set.disjoint_iff] at hdisj
@@ -2548,11 +2548,11 @@ theorem sum_signedNipats2 (A A' B B' : LatticePoint)
   have h_filter_true_eq : hfin.toFinset.filter (·.toBB' = true) = hfin_true.toFinset := by
     ext spt
     simp only [Finset.mem_filter, Set.Finite.mem_toFinset, signedNipats2, signedNipats2_true,
-               Set.mem_setOf_eq]
+               Set.mem_ofPred_eq]
   have h_filter_false_eq : hfin.toFinset.filter (·.toBB' = false) = hfin_false.toFinset := by
     ext spt
     simp only [Finset.mem_filter, Set.Finite.mem_toFinset, signedNipats2, signedNipats2_false,
-               Set.mem_setOf_eq]
+               Set.mem_ofPred_eq]
   rw [h_filter_true_eq, h_filter_false_eq]
   -- Use Set.ncard_eq_toFinset_card
   rw [← Set.ncard_eq_toFinset_card (signedNipats2_true A A' B B') hfin_true]
@@ -2565,7 +2565,7 @@ private lemma signedPathTuples2_eq_union (A A' B B' : LatticePoint) :
     signedPathTuples2 A A' B B' = signedNipats2 A A' B B' ∪ signedIpats2 A A' B B' := by
   ext spt
   simp only [signedPathTuples2, signedNipats2, signedIpats2, Set.mem_univ, Set.mem_union,
-             Set.mem_setOf_eq, true_iff]
+             Set.mem_ofPred_eq, true_iff]
   tauto
 
 /-- signedNipats2 and signedIpats2 are disjoint. -/
@@ -2573,7 +2573,7 @@ private lemma signedNipats2_disjoint_signedIpats2 (A A' B B' : LatticePoint) :
     Disjoint (signedNipats2 A A' B B') (signedIpats2 A A' B B') := by
   rw [Set.disjoint_iff]
   intro spt ⟨hni, hi⟩
-  simp only [signedNipats2, signedIpats2, Set.mem_setOf_eq] at hni hi
+  simp only [signedNipats2, signedIpats2, Set.mem_ofPred_eq] at hni hi
   exact hni hi
 
 /-- Sum over all = sum over nipats + sum over ipats.
@@ -2597,13 +2597,13 @@ private lemma sum_partition (A A' B B' : LatticePoint) :
     apply Finset.sum_congr
     · ext spt
       simp only [Finset.mem_filter, Set.Finite.mem_toFinset, signedPathTuples2, Set.mem_univ,
-                 true_and, signedNipats2, Set.mem_setOf_eq]
+                 true_and, signedNipats2, Set.mem_ofPred_eq]
     · intros; rfl
   · -- Show filter of complement equals hfin_i.toFinset
     apply Finset.sum_congr
     · ext spt
       simp only [Finset.mem_filter, Set.Finite.mem_toFinset, signedPathTuples2, signedNipats2,
-                 signedIpats2, Set.mem_univ, Set.mem_setOf_eq, true_and, not_not]
+                 signedIpats2, Set.mem_univ, Set.mem_ofPred_eq, true_and, not_not]
     · intros; rfl
 
 /-- The LGV lemma for two paths.
@@ -2752,7 +2752,7 @@ theorem baby_jordan_curve (A A' B B' : LatticePoint)
   unfold isWeaklyNorthwestOf LatticePoint.x LatticePoint.y at hA hB
   have hstrict : A'.2 > A.2 ∨ A'.1 < A.1 := by
     by_contra h
-    push_neg at h
+    push Not at h
     have h1 : A'.1 = A.1 := le_antisymm hA.1 h.2
     have h2 : A'.2 = A.2 := le_antisymm h.1 hA.2
     exact hAA' (Prod.ext h1.symm h2.symm)
@@ -2878,7 +2878,7 @@ theorem no_nipats_under_nw (A A' B B' : LatticePoint)
   suffices h : nipatsFromTo ![A, A'] ![B', B] = ∅ by
     rw [h, Set.ncard_empty]
   ext pt
-  simp only [nipatsFromTo, Set.mem_setOf_eq, Set.mem_empty_iff_false, iff_false]
+  simp only [nipatsFromTo, Set.mem_ofPred_eq, Set.mem_empty_iff_false, iff_false]
   intro hni
   -- pt is a path tuple from ![A, A'] to ![B', B]
   -- path 0 goes from A to B', path 1 goes from A' to B
@@ -2927,7 +2927,7 @@ theorem binom_log_concave (n k : ℕ) (hk : 1 ≤ k) :
     have h1 : n.choose k = 0 := Nat.choose_eq_zero_of_lt hkn
     have h2 : n.choose (k + 1) = 0 := Nat.choose_eq_zero_of_lt (Nat.lt_add_right 1 hkn)
     simp [h1, h2]
-  · push_neg at hkn
+  · push Not at hkn
     -- Main case: 1 ≤ k ≤ n
     have hk_pos : 0 < k := hk
 
@@ -3057,7 +3057,7 @@ theorem pathTuplesFromTo_ncard_eq_prod {k : ℕ} (A B : kVertex k) :
   have hset_eq : { f : Fin k → LatticePath | ∀ i, f i ∈ pathsFromTo (A i) (B i) } =
                  Set.pi Set.univ (fun i => pathsFromTo (A i) (B i)) := by
     ext f
-    simp only [Set.mem_setOf_eq, Set.mem_pi, Set.mem_univ, true_implies]
+    simp only [Set.mem_ofPred_eq, Set.mem_pi, Set.mem_univ, true_implies]
 
   have hfin_pi : (Set.pi Set.univ (fun i => pathsFromTo (A i) (B i))).Finite :=
     Set.Finite.pi (fun i => pathsFromTo_finite (A i) (B i))
@@ -3268,7 +3268,7 @@ private theorem pathTupleToLatticePath'Tuple_verticesOf {k : ℕ} {A B : kVertex
     (pt : PathTuple k A B) (i : Fin k) :
     (pathTupleToLatticePath'Tuple pt).verticesOf i = pt.verticesOf i := by
   ext v
-  simp only [LGV.LatticePath'Tuple.verticesOf, PathTuple.verticesOf, Set.mem_setOf_eq]
+  simp only [LGV.LatticePath'Tuple.verticesOf, PathTuple.verticesOf, Set.mem_ofPred_eq]
   simp only [pathTupleToLatticePath'Tuple, latticePathToLatticePath'_toVertices]
 
 /-- The intersection property is preserved by the equivalence -/
@@ -3447,7 +3447,7 @@ lemma lgv_involution_cancellation {k : ℕ} (A B : kVertex k) :
     intro A' B'
     ext pt
     simp only [pathTuplesFromTo, nipatsFromTo, ipatsFromTo, Set.mem_univ, Set.mem_union,
-               Set.mem_setOf_eq, true_iff]
+               Set.mem_ofPred_eq, true_iff]
     exact em pt.isNonIntersecting
   -- Helper: nipats and ipats are disjoint
   have nipats_ipats_disjoint : ∀ A' B' : kVertex k,
@@ -3455,7 +3455,7 @@ lemma lgv_involution_cancellation {k : ℕ} (A B : kVertex k) :
     intro A' B'
     rw [Set.disjoint_iff]
     intro pt ⟨hni, hi⟩
-    simp only [nipatsFromTo, ipatsFromTo, Set.mem_setOf_eq, PathTuple.isIntersecting] at hni hi
+    simp only [nipatsFromTo, ipatsFromTo, Set.mem_ofPred_eq, PathTuple.isIntersecting] at hni hi
     exact hi hni
   -- Key lemma 1: product rule + partition
   -- ∏_i numPaths(A_i, B_{σ(i)}) = numNipatsK A B σ + numIpatsK A B σ

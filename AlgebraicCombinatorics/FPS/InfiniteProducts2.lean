@@ -218,7 +218,7 @@ example : EssentiallyFiniteSeq (fun n : ℕ+ =>
   · intro n hn
     simp only [ne_eq, Set.mem_insert_iff, Set.mem_singleton_iff, Function.mem_support] at *
     by_contra h
-    push_neg at h
+    push Not at h
     simp only [h.1, ↓reduceIte, h.2.1, h.2.2, not_true_eq_false] at hn
 
 /-- Example: The alternating sequence (0, 1, 0, 1, 0, 1, ...) is NOT essentially finite. -/
@@ -227,7 +227,7 @@ example : ¬ EssentiallyFinite (fun n : ℕ => if n % 2 = 0 then 0 else 1) := by
   have hfin : {n : ℕ | n % 2 = 1}.Finite := by
     apply Set.Finite.subset h
     intro n hn
-    simp only [Set.mem_setOf_eq, Function.mem_support] at *
+    simp only [Set.mem_ofPred_eq, Function.mem_support] at *
     simp only [hn, ↓reduceIte, ne_eq, one_ne_zero, not_false_eq_true]
   have hinf : {n : ℕ | n % 2 = 1}.Infinite := by
     apply Set.infinite_of_injective_forall_mem (f := fun n => 2 * n + 1)
@@ -235,7 +235,7 @@ example : ¬ EssentiallyFinite (fun n : ℕ => if n % 2 = 0 then 0 else 1) := by
       simp only at hmn
       omega
     · intro n
-      simp only [Set.mem_setOf_eq]
+      simp only [Set.mem_ofPred_eq]
       omega
   exact hinf hfin
 
@@ -358,12 +358,12 @@ theorem summable_finProd_discrete [DiscreteTopology K] {n : ℕ} {S : Fin n → 
     Summable (fun f : (i : Fin n) → S i => ∏ i : Fin n, p i (f i)) := by
   rw [PowerSeries.WithPiTopology.summable_iff_summable_coeff]
   intro d
-  apply summable_of_finite_support
+  apply summable_of_hasFiniteSupport
   -- Get finite support for each factor at each coefficient
   have hp_coeff : ∀ i m, (Function.support (fun k => coeff m (p i k))).Finite := by
     intro i m
     have := (PowerSeries.WithPiTopology.summable_iff_summable_coeff (f := p i)).mp (hp i) m
-    exact this.finite_support_of_discreteTopology
+    exact this.hasFiniteSupport_of_discreteTopology
   -- Define the "relevant" elements for each i
   let T : (i : Fin n) → Set (S i) := fun i =>
     ⋃ m ∈ Iic d, Function.support (fun k => coeff m (p i k))
@@ -377,7 +377,7 @@ theorem summable_finProd_discrete [DiscreteTopology K] {n : ℕ} {S : Fin n → 
   -- The support is contained in {f | ∀ i, f i ∈ T i}
   apply h_finite.subset
   intro f hf
-  simp only [Function.mem_support, ne_eq, Set.mem_setOf_eq] at hf ⊢
+  simp only [Function.mem_support, ne_eq, Set.mem_ofPred_eq] at hf ⊢
   intro i
   by_contra h_not_in
   have h_coeff_zero : ∀ m ≤ d, coeff m (p i (f i)) = 0 := by
@@ -399,15 +399,15 @@ lemma summable_prod_of_summable_discrete [DiscreteTopology K] {α β : Type*}
   rw [PowerSeries.WithPiTopology.summable_iff_summable_coeff]
   intro d
   simp only [coeff_mul]
-  apply summable_of_finite_support
+  apply summable_of_hasFiniteSupport
   have hf_coeff : ∀ n, (Function.support (fun a => coeff n (f a))).Finite := by
     intro n
     have := (PowerSeries.WithPiTopology.summable_iff_summable_coeff (f := f)).mp hf n
-    exact this.finite_support_of_discreteTopology
+    exact this.hasFiniteSupport_of_discreteTopology
   have hg_coeff : ∀ n, (Function.support (fun b => coeff n (g b))).Finite := by
     intro n
     have := (PowerSeries.WithPiTopology.summable_iff_summable_coeff (f := g)).mp hg n
-    exact this.finite_support_of_discreteTopology
+    exact this.hasFiniteSupport_of_discreteTopology
   let S := ⋃ (p : ℕ × ℕ) (_ : p ∈ antidiagonal d),
       (Function.support (fun a => coeff p.1 (f a))) ×ˢ 
       (Function.support (fun b => coeff p.2 (g b)))
@@ -420,7 +420,7 @@ lemma summable_prod_of_summable_discrete [DiscreteTopology K] {α β : Type*}
   simp only [Function.mem_support, ne_eq] at hab ⊢
   simp only [S, Set.mem_iUnion, Set.mem_prod_eq, Function.mem_support, ne_eq]
   by_contra h_all_zero
-  push_neg at h_all_zero
+  push Not at h_all_zero
   apply hab
   apply Finset.sum_eq_zero
   intro ⟨i, j⟩ hij
@@ -477,7 +477,7 @@ private lemma summable_ps_finite_support_coeff [DiscreteTopology K] {α : Type*}
     (f : α → K⟦X⟧) (hf : Summable f) (d : ℕ) :
     (Function.support (fun a => coeff d (f a))).Finite := by
   have h := (PowerSeries.WithPiTopology.summable_iff_summable_coeff (f := f)).mp hf d
-  exact h.finite_support_of_discreteTopology
+  exact h.hasFiniteSupport_of_discreteTopology
 
 omit [IsTopologicalRing K] [T2Space K] in
 /-- For discrete K, the product of two summable power series families is summable. -/
@@ -487,14 +487,14 @@ private lemma summable_prod_of_summable [DiscreteTopology K] {α β : Type*}
     Summable (fun p : α × β => f p.1 * g p.2) := by
   rw [PowerSeries.WithPiTopology.summable_iff_summable_coeff]
   intro d
-  apply summable_of_finite_support
+  apply summable_of_hasFiniteSupport
   classical
   let Tf : Set α := {a | ∃ i ≤ d, coeff i (f a) ≠ 0}
   let Tg : Set β := {b | ∃ j ≤ d, coeff j (g b) ≠ 0}
   have hTf_finite : Tf.Finite := by
     have h_union : Tf = ⋃ i ∈ Finset.Iic d, {a | coeff i (f a) ≠ 0} := by
       ext a
-      simp only [Set.mem_setOf_eq, Set.mem_iUnion, Finset.mem_Iic]
+      simp only [Set.mem_ofPred_eq, Set.mem_iUnion, Finset.mem_Iic]
       constructor
       · intro ⟨i, hi, hne⟩; exact ⟨i, hi, hne⟩
       · intro ⟨i, hi, hne⟩; exact ⟨i, hi, hne⟩
@@ -506,7 +506,7 @@ private lemma summable_prod_of_summable [DiscreteTopology K] {α β : Type*}
   have hTg_finite : Tg.Finite := by
     have h_union : Tg = ⋃ j ∈ Finset.Iic d, {b | coeff j (g b) ≠ 0} := by
       ext b
-      simp only [Set.mem_setOf_eq, Set.mem_iUnion, Finset.mem_Iic]
+      simp only [Set.mem_ofPred_eq, Set.mem_iUnion, Finset.mem_Iic]
       constructor
       · intro ⟨j, hj, hne⟩; exact ⟨j, hj, hne⟩
       · intro ⟨j, hj, hne⟩; exact ⟨j, hj, hne⟩
@@ -553,7 +553,7 @@ private lemma summable_prod_fin [DiscreteTopology K] {n : ℕ} {S : Fin n → Ty
     Summable (fun f : (i : Fin n) → S i => ∏ i : Fin n, p i (f i)) := by
   rw [PowerSeries.WithPiTopology.summable_iff_summable_coeff]
   intro d
-  apply summable_of_finite_support
+  apply summable_of_hasFiniteSupport
   classical
   let T : (i : Fin n) → Set (S i) := fun i =>
     {k | ∃ m ≤ d, coeff m (p i k) ≠ 0}
@@ -561,7 +561,7 @@ private lemma summable_prod_fin [DiscreteTopology K] {n : ℕ} {S : Fin n → Ty
     intro i
     have h_union : T i = ⋃ m ∈ Finset.Iic d, {k | coeff m (p i k) ≠ 0} := by
       ext k
-      simp only [Set.mem_setOf_eq, Set.mem_iUnion, Finset.mem_Iic]
+      simp only [Set.mem_ofPred_eq, Set.mem_iUnion, Finset.mem_Iic]
       constructor
       · intro ⟨m, hm, hne⟩; exact ⟨m, hm, hne⟩
       · intro ⟨m, hm, hne⟩; exact ⟨m, hm, hne⟩
@@ -573,7 +573,7 @@ private lemma summable_prod_fin [DiscreteTopology K] {n : ℕ} {S : Fin n → Ty
   have h_support : Function.support (fun f : (i : Fin n) → S i => coeff d (∏ i, p i (f i))) ⊆
       {f | ∀ i, f i ∈ T i} := by
     intro f hf
-    simp only [Function.mem_support, ne_eq, Set.mem_setOf_eq] at hf ⊢
+    simp only [Function.mem_support, ne_eq, Set.mem_ofPred_eq] at hf ⊢
     intro i
     by_contra h_not_in
     have h_coeff_zero : ∀ m ≤ d, coeff m (p i (f i)) = 0 := by
@@ -838,7 +838,7 @@ lemma multipliable_of_essentiallyFinite
   have hfin : (Function.mulSupport fun i => p i (f.val i)).Finite := by
     rw [Filter.eventually_cofinite] at h
     exact h
-  exact multipliable_of_finite_mulSupport hfin
+  exact multipliable_of_hasFiniteMulSupport hfin
 
 /-! ### Technical Helper Lemmas
 
@@ -851,12 +851,12 @@ This is used for proving that fibers of summable families are summable. -/
 lemma summable_comp_injective_of_discrete [DiscreteTopology K] {α β : Type*}
     {f : α → K} (hf : Summable f) {g : β → α} (hg : Function.Injective g) :
     Summable (f ∘ g) := by
-  apply summable_of_finite_support
+  apply summable_of_hasFiniteSupport
   have h : (Function.support (f ∘ g)) ⊆ g ⁻¹' (Function.support f) := by
     intro x hx
     simp only [Function.mem_support, Function.comp_apply, Set.mem_preimage] at hx ⊢
     exact hx
-  exact Set.Finite.subset (hf.finite_support_of_discreteTopology.preimage hg.injOn) h
+  exact Set.Finite.subset (hf.hasFiniteSupport_of_discreteTopology.preimage hg.injOn) h
 
 omit [IsTopologicalRing K] [T2Space K] in
 /-- For discrete K, T'_n = {(i,k) : k ≠ 0, ∃ m ≤ n, coeff m (p i k) ≠ 0} is finite.
@@ -871,11 +871,11 @@ lemma T'n_finite_of_discrete [DiscreteTopology K]
     fun m => (PowerSeries.WithPiTopology.summable_iff_summable_coeff _).mp hp_summable m
   have hp_finite : ∀ m, (Function.support fun ik : Σ i, { k : S i // k ≠ 0 } =>
       coeff m (p ik.1 ik.2.1)).Finite :=
-    fun m => (hp_coeff m).finite_support_of_discreteTopology
+    fun m => (hp_coeff m).hasFiniteSupport_of_discreteTopology
   have h_eq : { ik : Σ i, { k : S i // k ≠ 0 } | ∃ m ≤ n, coeff m (p ik.1 ik.2.val) ≠ 0 } =
       ⋃ m ∈ Finset.Iic n, Function.support fun ik : Σ i, { k : S i // k ≠ 0 } => coeff m (p ik.1 ik.2.1) := by
     ext ik
-    simp only [Set.mem_setOf_eq, Set.mem_iUnion, Function.mem_support]
+    simp only [Set.mem_ofPred_eq, Set.mem_iUnion, Function.mem_support]
     constructor
     · rintro ⟨m, hm, hne⟩; exact ⟨m, Finset.mem_Iic.mpr hm, hne⟩
     · rintro ⟨m, hm, hne⟩; exact ⟨m, Finset.mem_Iic.mp hm, hne⟩
@@ -997,7 +997,7 @@ lemma summable_fiber_discrete [DiscreteTopology K]
     rw [h_eq]
     exact summable_comp_injective_of_discrete hp_coeff he_inj
   have h_zero_summable : Summable (fun k : S i => if k = 0 then coeff n (p i 0) else 0) := by
-    apply summable_of_finite_support
+    apply summable_of_hasFiniteSupport
     apply Set.Finite.subset (Set.finite_singleton 0)
     intro k hk
     simp only [Function.mem_support, Set.mem_singleton_iff] at hk ⊢
@@ -1007,7 +1007,7 @@ lemma summable_fiber_discrete [DiscreteTopology K]
     have h_eq : (fun k : S i => if k = 0 then 0 else coeff n (p i k)) =
         Set.indicator {k : S i | k ≠ 0} (fun k => coeff n (p i k)) := by
       ext k
-      simp only [Set.indicator, Set.mem_setOf_eq]
+      simp only [Set.indicator, Set.mem_ofPred_eq]
       split_ifs with h1 h2
       · exact (h2 h1).elim
       · rfl
@@ -1073,14 +1073,14 @@ lemma summable_tsum_nonzero_fiber_discrete [DiscreteTopology K]
     let coeffCLM : K⟦X⟧ →L[K] K := ⟨coeff n, WithPiTopology.continuous_coeff K n⟩
     exact coeffCLM.map_tsum h_summable
   simp_rw [h_tsum_coeff]
-  apply summable_of_finite_support
+  apply summable_of_hasFiniteSupport
   have h_support : (Function.support fun i => ∑' k : { k : S i // k ≠ 0 }, coeff n (p i k.1)) ⊆
       Sigma.fst '' (Function.support fun ik : Σ i, { k : S i // k ≠ 0 } => coeff n (p ik.1 ik.2.1)) := by
     intro i hi
     simp only [Function.mem_support] at hi
     simp only [Set.mem_image]
     by_contra h_all_zero
-    push_neg at h_all_zero
+    push Not at h_all_zero
     have h_tsum_zero : ∑' k : { k : S i // k ≠ 0 }, coeff n (p i k.1) = 0 := by
       have h_all : ∀ k : { k : S i // k ≠ 0 }, coeff n (p i k.1) = 0 := by
         intro ⟨k, hk⟩
@@ -1092,7 +1092,7 @@ lemma summable_tsum_nonzero_fiber_discrete [DiscreteTopology K]
         exact h_all_zero ⟨i, ⟨k, hk⟩⟩ hmem rfl
       simp only [h_all, tsum_zero]
     exact hi h_tsum_zero
-  exact Set.Finite.subset (hp_coeff.finite_support_of_discreteTopology.image _) h_support
+  exact Set.Finite.subset (hp_coeff.hasFiniteSupport_of_discreteTopology.image _) h_support
 
 /-- Helper lemma: In a complete uniform additive group, indicator of summable is summable. -/
 private lemma Summable.indicator_complete {α R : Type*} [AddCommGroup R] [UniformSpace R]
@@ -1176,12 +1176,12 @@ lemma summable_fiber
     let e : { k : S i // k ≠ 0 } ≃ fiber_set := {
       toFun := fun k => ⟨⟨i, k⟩, rfl⟩
       invFun := fun ⟨⟨j, k⟩, hj⟩ => by
-        simp only [Set.mem_setOf_eq, fiber_set] at hj
+        simp only [Set.mem_ofPred_eq, fiber_set] at hj
         subst hj
         exact k
       left_inv := fun k => rfl
       right_inv := fun ⟨⟨j, k⟩, hj⟩ => by
-        simp only [Set.mem_setOf_eq, fiber_set] at hj
+        simp only [Set.mem_ofPred_eq, fiber_set] at hj
         subst hj
         rfl
     }
@@ -1194,7 +1194,7 @@ lemma summable_fiber
 
   -- Now extend from {k ≠ 0} to all of S i
   have h_zero_summable : Summable (fun k : S i => if k = 0 then coeff n (p i 0) else 0) := by
-    apply summable_of_finite_support
+    apply summable_of_hasFiniteSupport
     apply Set.Finite.subset (Set.finite_singleton 0)
     intro k hk
     simp only [Function.mem_support, Set.mem_singleton_iff] at hk ⊢
@@ -1205,7 +1205,7 @@ lemma summable_fiber
     have h_eq : (fun k : S i => if k = 0 then 0 else coeff n (p i k)) =
         Set.indicator {k : S i | k ≠ 0} (fun k => coeff n (p i k)) := by
       ext k
-      simp only [Set.indicator, Set.mem_setOf_eq]
+      simp only [Set.indicator, Set.mem_ofPred_eq]
       split_ifs with h1 h2
       · exact (h2 h1).elim
       · rfl
@@ -1250,7 +1250,7 @@ lemma multipliable_tsum_fiber_discrete [DiscreteTopology K]
   -- For discrete K, summability implies finite support
   have hp_finite : ∀ m, (Function.support fun ik : Σ i, { k : S i // k ≠ 0 } =>
       coeff m (p ik.1 ik.2.1)).Finite :=
-    fun m => (hp_coeff m).finite_support_of_discreteTopology
+    fun m => (hp_coeff m).hasFiniteSupport_of_discreteTopology
 
   -- Each fiber is summable (use summable_fiber_discrete)
   have hp_summable_i : ∀ i, Summable (p i) := fun i => summable_fiber_discrete p hp_summable i
@@ -1267,7 +1267,7 @@ lemma multipliable_tsum_fiber_discrete [DiscreteTopology K]
     rw [← tsum_subtype_eq_of_support_subset]
     · congr 1; funext k; have hk : (k : S i) ≠ 0 := k.prop; simp only [hk, ↓reduceIte]
     · intro k hk; simp only [Function.mem_support] at hk ⊢
-      intro h; rw [h, if_pos rfl] at hk; exact hk rfl
+      intro h; rw [h, ite_eq_left rfl] at hk; exact hk rfl
 
   have heq : (fun i => 1 + ∑' k : S i, if k = 0 then 0 else p i k) =
              (fun i => 1 + ∑' k : { k : S i // k ≠ 0 }, p i k.val) := by
@@ -1280,7 +1280,7 @@ lemma multipliable_tsum_fiber_discrete [DiscreteTopology K]
   -- Need: Summable (fun s : Finset I => ∏ i ∈ s, ∑' k : {k // k ≠ 0}, p i k.val)
   rw [PowerSeries.WithPiTopology.summable_iff_summable_coeff]
   intro n
-  apply summable_of_finite_support
+  apply summable_of_hasFiniteSupport
   classical
 
   -- Define T'_n and I_n
@@ -1299,7 +1299,7 @@ lemma multipliable_tsum_fiber_discrete [DiscreteTopology K]
   have h_support : Function.support (fun s : Finset I => coeff n (∏ i ∈ s, ∑' k : { k : S i // k ≠ 0 }, p i k.val)) ⊆
       {s : Finset I | ↑s ⊆ I_n} := by
     intro s hs
-    simp only [Function.mem_support, ne_eq, Set.mem_setOf_eq] at hs ⊢
+    simp only [Function.mem_support, ne_eq, Set.mem_ofPred_eq] at hs ⊢
     intro i hi
     by_contra h_not_in
     -- If i ∉ I_n, then for all k ≠ 0, coeff m (p i k) = 0 for m ≤ n
@@ -1307,7 +1307,7 @@ lemma multipliable_tsum_fiber_discrete [DiscreteTopology K]
       intro ⟨k, hk⟩ m hm
       by_contra hne
       apply h_not_in
-      simp only [I_n, Set.mem_setOf_eq]
+      simp only [I_n, Set.mem_ofPred_eq]
       exact ⟨⟨k, hk⟩, ⟨m, hm, hne⟩⟩
     -- The fiber sum has all coefficients up to n zero
     have h_fiber_summable : Summable (fun k : { k : S i // k ≠ 0 } => p i k.val) := by
@@ -1318,7 +1318,7 @@ lemma multipliable_tsum_fiber_discrete [DiscreteTopology K]
         intro ⟨k1, hk1⟩ ⟨k2, hk2⟩ heq
         simp only [e, Sigma.mk.injEq] at heq
         obtain ⟨_, h2⟩ := heq; simp only [heq_eq_eq] at h2; exact h2
-      apply summable_of_finite_support
+      apply summable_of_hasFiniteSupport
       have h : (Function.support (fun k : { k : S i // k ≠ 0 } => coeff j (p i k.val))) ⊆
           e ⁻¹' (Function.support (fun ik : Σ l, { k : S l // k ≠ 0 } => coeff j (p ik.1 ik.2.1))) := by
         intro x hx; simp only [Function.mem_support, Set.mem_preimage] at hx ⊢; exact hx
@@ -1351,7 +1351,7 @@ lemma multipliable_tsum_fiber_discrete [DiscreteTopology K]
   have h_finsets_finite : {s : Finset I | ↑s ⊆ I_n}.Finite := by
     obtain ⟨I_n', hI_n'⟩ := hI_n_finite.exists_finset_coe
     have : {t : Finset I | ↑t ⊆ I_n} = {t : Finset I | t ⊆ I_n'} := by
-      ext t; simp only [Set.mem_setOf_eq, ← hI_n', Finset.coe_subset]
+      ext t; simp only [Set.mem_ofPred_eq, ← hI_n', Finset.coe_subset]
     rw [this]
     exact I_n'.powerset.finite_toSet.subset (fun t ht => by simpa using ht)
 
@@ -1370,7 +1370,7 @@ lemma summable_prod_essentiallyFinite_discrete [DiscreteTopology K]
       ∏' i : I, p i (f.val i) := by
   rw [PowerSeries.WithPiTopology.summable_iff_summable_coeff]
   intro n
-  apply summable_of_finite_support
+  apply summable_of_hasFiniteSupport
   classical
   let T'n : Set (Σ i, { k : S i // k ≠ 0 }) :=
     { ik | ∃ m ≤ n, coeff m (p ik.1 ik.2.val) ≠ 0 }
@@ -1381,7 +1381,7 @@ lemma summable_prod_essentiallyFinite_discrete [DiscreteTopology K]
       { f | ∀ i, (hi : f.val i ≠ 0) → ⟨i, ⟨f.val i, hi⟩⟩ ∈ T'n } := by
     intro f hf
     simp only [Function.mem_support, ne_eq] at hf
-    simp only [Set.mem_setOf_eq]
+    simp only [Set.mem_ofPred_eq]
     intro i hi
     by_contra h_not_in
     have h_coeff_zero : ∀ m ≤ n, coeff m (p i (f.val i)) = 0 := by
@@ -1563,7 +1563,7 @@ lemma extendToI_essentiallyFinite {I_n : Set I} (hI_n_finite : I_n.Finite)
   apply Filter.eventually_of_mem (hI_n_finite.toFinset.finite_toSet.compl_mem_cofinite)
   intro i hi
   simp only [extendToI, Set.mem_compl_iff, Finset.mem_coe] at hi ⊢
-  exact dif_neg hi
+  exact dite_eq_right hi
 
 /-- Package the extension as a subtype of essentially finite functions. -/
 def extendToI_subtype {I_n : Set I} (hI_n_finite : I_n.Finite)
@@ -1583,7 +1583,7 @@ lemma restrictToI_n_extendToI_subtype {I_n : Set I} (hI_n_finite : I_n.Finite)
     restrictToI_n hI_n_finite (extendToI_subtype hI_n_finite f) = f := by
   classical
   ext ⟨i, hi⟩
-  simp only [restrictToI_n, extendToI_subtype, extendToI, dif_pos hi]
+  simp only [restrictToI_n, extendToI_subtype, extendToI, dite_eq_left hi]
 
 /-- For f with support in I_n, restriction followed by extension is the identity. -/
 lemma extendToI_subtype_restrictToI_n {I_n : Set I} (hI_n_finite : I_n.Finite)
@@ -1594,8 +1594,8 @@ lemma extendToI_subtype_restrictToI_n {I_n : Set I} (hI_n_finite : I_n.Finite)
   ext i
   simp only [extendToI_subtype, extendToI, restrictToI_n]
   by_cases hi : i ∈ hI_n_finite.toFinset
-  · simp only [dif_pos hi]
-  · simp only [dif_neg hi]
+  · simp only [dite_eq_left hi]
+  · simp only [dite_eq_right hi]
     by_contra hne
     apply hi
     rw [Set.Finite.mem_toFinset]
@@ -1613,14 +1613,14 @@ lemma prod_eq_tprod_extendToI {I_n : Set I} (hI_n_finite : I_n.Finite)
   classical
   -- The tprod is multipliable because all but finitely many factors are 1
   have h_mult : Multipliable fun i => p i (extendToI hI_n_finite f i) := by
-    apply multipliable_of_finite_mulSupport
+    apply multipliable_of_hasFiniteMulSupport
     apply Set.Finite.subset hI_n_finite.toFinset.finite_toSet
     intro i hi
     simp only [Function.mem_mulSupport] at hi
     by_contra h_not_in
     simp only [Finset.mem_coe] at h_not_in
     unfold extendToI at hi
-    rw [dif_neg h_not_in] at hi
+    rw [dite_eq_right h_not_in] at hi
     exact hi (hp_zero i)
   -- Convert tprod to finite product
   symm
@@ -1629,7 +1629,7 @@ lemma prod_eq_tprod_extendToI {I_n : Set I} (hI_n_finite : I_n.Finite)
     apply Finset.prod_congr rfl
     intro ⟨i, hi⟩ _
     unfold extendToI
-    rw [dif_pos hi]
+    rw [dite_eq_left hi]
   · simp only [Function.mem_mulSupport, extendToI] at hi
     split_ifs at hi with h
     · exact h
@@ -1796,7 +1796,7 @@ theorem tprod_tsum_eq_tsum_prod_essentiallyFinite
       { f | ∀ i, (hi : f.val i ≠ 0) → ⟨i, ⟨f.val i, hi⟩⟩ ∈ T'n } := by
     intro f hf
     simp only [Function.mem_support, ne_eq] at hf
-    simp only [Set.mem_setOf_eq]
+    simp only [Set.mem_ofPred_eq]
     intro i hi
     by_contra h_not_in
     -- If (i, f.val i) ∉ T'n, then coeff m (p i (f.val i)) = 0 for all m ≤ n
@@ -1883,7 +1883,7 @@ theorem tprod_tsum_eq_tsum_prod_essentiallyFinite
     · intro k hk
       simp only [Function.mem_support] at hk ⊢
       intro h
-      rw [h, if_pos rfl] at hk
+      rw [h, ite_eq_left rfl] at hk
       exact hk rfl
 
   -- Rewrite LHS using the split
@@ -2039,7 +2039,7 @@ theorem tprod_tsum_eq_tsum_prod_essentiallyFinite
       ∏ i : hI_n_finite.toFinset, p i (f i)) := by
     rw [PowerSeries.WithPiTopology.summable_iff_summable_coeff]
     intro d
-    apply summable_of_finite_support
+    apply summable_of_hasFiniteSupport
     -- The support is finite because each p i has finite support at each coefficient
     -- and the product only depends on finitely many f i values
     -- This is the same argument as in summable_finProd_discrete
@@ -2047,7 +2047,7 @@ theorem tprod_tsum_eq_tsum_prod_essentiallyFinite
     have hp_coeff' : ∀ i ∈ hI_n_finite.toFinset, ∀ m, (Function.support (fun k => coeff m (p i k))).Finite := by
       intro i hi m
       have := (PowerSeries.WithPiTopology.summable_iff_summable_coeff (f := p i)).mp (h_summable_in_I_n i hi) m
-      exact this.finite_support_of_discreteTopology
+      exact this.hasFiniteSupport_of_discreteTopology
     -- Define the "relevant" elements for each j : hI_n_finite.toFinset
     let T' : (j : hI_n_finite.toFinset) → Set (S j) := fun ⟨i, hi⟩ =>
       ⋃ m ∈ Finset.Iic d, Function.support (fun k => coeff m (p i k))
@@ -2061,7 +2061,7 @@ theorem tprod_tsum_eq_tsum_prod_essentiallyFinite
     -- The support is contained in {f | ∀ j, f j ∈ T' j}
     apply h_finite'.subset
     intro f hf
-    simp only [Function.mem_support, ne_eq, Set.mem_setOf_eq] at hf ⊢
+    simp only [Function.mem_support, ne_eq, Set.mem_ofPred_eq] at hf ⊢
     intro ⟨i, hi⟩
     by_contra h_not_in
     have h_coeff_zero' : ∀ m ≤ d, coeff m (p i (f ⟨i, hi⟩)) = 0 := by
@@ -2136,7 +2136,7 @@ theorem tprod_tsum_eq_tsum_prod_essentiallyFinite
     have hp_coeff'' : ∀ i ∈ hI_n_finite.toFinset, ∀ m, (Function.support (fun k => coeff m (p i k))).Finite := by
       intro i hi m
       have := (PowerSeries.WithPiTopology.summable_iff_summable_coeff (f := p i)).mp (h_summable_in_I_n i hi) m
-      exact this.finite_support_of_discreteTopology
+      exact this.hasFiniteSupport_of_discreteTopology
     let T'' : (j : hI_n_finite.toFinset) → Set (S j) := fun ⟨i, hi⟩ =>
       ⋃ m ∈ Finset.Iic n, Function.support (fun k => coeff m (p i k))
     have hT''_finite : ∀ j : hI_n_finite.toFinset, (T'' j).Finite := by
@@ -2147,7 +2147,7 @@ theorem tprod_tsum_eq_tsum_prod_essentiallyFinite
     have h_finite'' : {f : (j : hI_n_finite.toFinset) → S j | ∀ j, f j ∈ T'' j}.Finite := Set.Finite.pi' hT''_finite
     apply h_finite''.subset
     intro f hf
-    simp only [Function.mem_support, ne_eq, Set.mem_setOf_eq] at hf ⊢
+    simp only [Function.mem_support, ne_eq, Set.mem_ofPred_eq] at hf ⊢
     intro ⟨i, hi⟩
     by_contra h_not_in
     have h_coeff_zero'' : ∀ m ≤ n, coeff m (p i (f ⟨i, hi⟩)) = 0 := by
@@ -2176,12 +2176,12 @@ theorem tprod_tsum_eq_tsum_prod_essentiallyFinite
       extendToI_subtype hI_n_finite f ∈ h_finite_funcs.toFinset := by
     intro f hf
     rw [h_finite_funcs.mem_toFinset]
-    simp only [Set.mem_setOf_eq]
+    simp only [Set.mem_ofPred_eq]
     intro i hi
     -- Need to show: ⟨i, ⟨(extendToI_subtype hI_n_finite f).val i, hi⟩⟩ ∈ T'n
     simp only [extendToI_subtype, extendToI] at hi ⊢
     by_cases h_in : i ∈ hI_n_finite.toFinset
-    · simp only [dif_pos h_in] at hi ⊢
+    · simp only [dite_eq_left h_in] at hi ⊢
       -- f ⟨i, h_in⟩ ≠ 0, and coeff n (∏ ...) ≠ 0
       -- So (i, f ⟨i, h_in⟩) must be in T'n (otherwise the product would have coeff n = 0)
       by_contra h_not_in_T'n
@@ -2204,7 +2204,7 @@ theorem tprod_tsum_eq_tsum_prod_essentiallyFinite
         have ha : a ≤ n := by simp only [Finset.HasAntidiagonal.mem_antidiagonal] at hab; omega
         rw [h_coeff_zero_factor a ha, zero_mul]
       exact hf h_prod_zero
-    · simp only [dif_neg h_in] at hi
+    · simp only [dite_eq_right h_in] at hi
       exact (hi rfl).elim
 
   -- Step 4c: The key insight is that both sums are over the same terms (up to the bijection)
@@ -2517,7 +2517,7 @@ Maps `j ↦ 2j - 2` so that `(2j-2) + 1 = 2j - 1` is odd. -/
 private def pnatEquivEvenNat : ℕ+ ≃ {i : ℕ | Odd (i + 1)} where
   toFun j := ⟨2 * j - 2, by
     have hj := j.pos
-    simp only [Set.mem_setOf_eq]
+    simp only [Set.mem_ofPred_eq]
     have h : 2 * (j : ℕ) - 2 + 1 = 2 * j - 1 := by omega
     rw [h]
     have h2 : 1 ≤ 2 * (j : ℕ) := by omega
@@ -2525,7 +2525,7 @@ private def pnatEquivEvenNat : ℕ+ ≃ {i : ℕ | Odd (i + 1)} where
     simp⟩
   invFun i := ⟨(i.val + 2) / 2, by
     have hi := i.prop
-    simp only [Set.mem_setOf_eq] at hi
+    simp only [Set.mem_ofPred_eq] at hi
     obtain ⟨k, hk⟩ := hi
     have h : (i.val + 2) / 2 = k + 1 := by omega
     rw [h]
@@ -2538,7 +2538,7 @@ private def pnatEquivEvenNat : ℕ+ ≃ {i : ℕ | Odd (i + 1)} where
   right_inv i := by
     apply Subtype.ext
     have hi := i.prop
-    simp only [Set.mem_setOf_eq] at hi
+    simp only [Set.mem_ofPred_eq] at hi
     obtain ⟨k, hk⟩ := hi
     simp only [PNat.mk_coe]
     omega
@@ -2603,7 +2603,7 @@ theorem euler_odd_parts_identity :
     rw [h]
     apply tprod_congr
     intro i
-    simp only [Set.mulIndicator, Set.mem_setOf_eq]
+    simp only [Set.mulIndicator, Set.mem_ofPred_eq]
   rw [hRHS]
 
   -- Step 7: Use the bijection pnatEquivEvenNat to reindex
@@ -2781,7 +2781,7 @@ theorem binary_product_rule (a : ℕ → K⟦X⟧) (ha : Summable a) [DiscreteTo
   -- In discrete topology, summable implies finite support
   have ha_finite : ∀ m, (Function.support (fun i => coeff m (a i))).Finite := by
     intro m
-    exact (ha_coeff m).finite_support_of_discreteTopology
+    exact (ha_coeff m).hasFiniteSupport_of_discreteTopology
 
   -- The union of supports for m ≤ n is finite
   have hS : (⋃ m ∈ Iic n, Function.support (fun i => coeff m (a i))).Finite := by
@@ -2789,7 +2789,7 @@ theorem binary_product_rule (a : ℕ → K⟦X⟧) (ha : Summable a) [DiscreteTo
     · exact (Iic n).finite_toSet
     · intro m _; exact ha_finite m
 
-  apply summable_of_finite_support
+  apply summable_of_hasFiniteSupport
 
   let T : Set ℕ := ⋃ m ∈ Iic n, Function.support (fun i => coeff m (a i))
   have hT_finite : T.Finite := hS
@@ -2798,7 +2798,7 @@ theorem binary_product_rule (a : ℕ → K⟦X⟧) (ha : Summable a) [DiscreteTo
   have h_support_subset : Function.support (fun s : Finset ℕ => coeff n (∏ i ∈ s, a i)) ⊆
       {s : Finset ℕ | ↑s ⊆ T} := by
     intro s hs
-    simp only [Function.mem_support, Set.mem_setOf_eq] at hs ⊢
+    simp only [Function.mem_support, Set.mem_ofPred_eq] at hs ⊢
     intro i hi
     -- If i ∈ s and coeff n (∏ j ∈ s, a j) ≠ 0, then i must be in T
     by_contra hi_not_T
@@ -2828,7 +2828,7 @@ theorem binary_product_rule (a : ℕ → K⟦X⟧) (ha : Summable a) [DiscreteTo
     have hT_finset : ∃ T' : Finset ℕ, ↑T' = T := hT_finite.exists_finset_coe
     obtain ⟨T', hT'⟩ := hT_finset
     have : {t : Finset ℕ | ↑t ⊆ T} = {t : Finset ℕ | t ⊆ T'} := by
-      ext t; simp only [Set.mem_setOf_eq, ← hT', Finset.coe_subset]
+      ext t; simp only [Set.mem_ofPred_eq, ← hT', Finset.coe_subset]
     rw [this]
     exact T'.powerset.finite_toSet.subset (fun t ht => by simpa using ht)
 
