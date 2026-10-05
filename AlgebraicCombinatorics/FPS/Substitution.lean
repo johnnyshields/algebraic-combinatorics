@@ -294,13 +294,8 @@ theorem fps_subs_X_left (g : K⟦X⟧) (hg : constantCoeff g = 0) :
 /-- **Proposition 7.3.4(g)** (prop.fps.subs.rules)
 g ∘ X = g -/
 theorem fps_subs_X_right (g : K⟦X⟧) :
-    PowerSeries.subst X g = g := by
-  have ha : HasSubst (X : K⟦X⟧) := HasSubst.X'
-  ext n
-  rw [coeff_subst' ha g n]
-  simp only [coeff_X_pow, smul_eq_mul]
-  rw [finsum_eq_single _ n (fun d hd => by simp [hd.symm])]
-  simp
+    PowerSeries.subst X g = g :=
+  PowerSeries.X_subst g
 
 /-- **Proposition 7.3.4(h)** (prop.fps.subs.rules) - Finite sum version
 For a finite sum (∑ᵢ∈s fᵢ), we have (∑ᵢ∈s fᵢ) ∘ g = ∑ᵢ∈s (fᵢ ∘ g). -/
