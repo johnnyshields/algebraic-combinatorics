@@ -6,9 +6,6 @@ import Mathlib
 import AlgebraicCombinatorics.SymmetricFunctions.SchurBasics
 import AlgebraicCombinatorics.SymmetricFunctions.PieriJacobiTrudi
 
--- Many proofs here unify through semireducible definitions; opt out of the stricter check.
-set_option backward.isDefEq.respectTransparency false
-
 /-!
 # Equivalence Between SSYT Definitions
 

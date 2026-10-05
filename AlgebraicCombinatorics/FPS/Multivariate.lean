@@ -4,9 +4,6 @@ All rights reserved.
 -/
 import Mathlib
 
--- Many proofs here unify through semireducible definitions; opt out of the stricter check.
-set_option backward.isDefEq.respectTransparency false
-
 /-!
 # Multivariate Formal Power Series
 
@@ -328,6 +325,7 @@ lemma coeff_partialDeriv {σ : Type*} [DecidableEq σ] (i : σ) (f : MvPowerSeri
   simp only [partialDeriv, LinearMap.coe_mk, AddHom.coe_mk]
   rfl
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The map `(a, b) ↦ (a + single i 1, b)` gives a bijection from `antidiagonal m` to
     the subset of `antidiagonal (m + single i 1)` where `single i 1 ≤ a`. -/
 lemma antidiag_shift_fst {σ : Type*} [DecidableEq σ] (i : σ) (m : σ →₀ ℕ) :
@@ -352,6 +350,7 @@ lemma antidiag_shift_fst {σ : Type*} [DecidableEq σ] (i : σ) (m : σ →₀ �
       exact add_right_cancel this
     · rw [tsub_add_cancel_of_le hle]
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The map `(a, b) ↦ (a, b + single i 1)` gives a bijection from `antidiagonal m` to
     the subset of `antidiagonal (m + single i 1)` where `single i 1 ≤ b`. -/
 lemma antidiag_shift_snd {σ : Type*} [DecidableEq σ] (i : σ) (m : σ →₀ ℕ) :
@@ -398,6 +397,7 @@ lemma sum_filter_zero_snd {σ : Type*} [DecidableEq σ] (i : σ) (m : σ →₀ 
   have : p.2 i = 0 := by omega
   simp [this]
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The partial derivative satisfies the product rule. -/
 theorem partialDeriv_mul {σ : Type*} [DecidableEq σ] (i : σ)
     (f g : MvPowerSeries σ R) :

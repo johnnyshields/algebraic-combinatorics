@@ -6,9 +6,6 @@ import Mathlib
 import AlgebraicCombinatorics.Fin.SkipTwo
 import AlgebraicCombinatorics.Determinants.PermFinset
 
--- Many proofs here unify through semireducible definitions; opt out of the stricter check.
-set_option backward.isDefEq.respectTransparency false
-
 /-!
 # Determinants: Factor Hunting and Desnanot-Jacobi Identity
 
@@ -1580,6 +1577,7 @@ private lemma prod_ite_eq_neg_one_pow {α : Type*} [DecidableEq α] (s : Finset 
     · have hfilter : a ∉ s'.filter (fun x => ¬P x) := by simp [ha]
       rw [card_insert_of_notMem hfilter, pow_succ, mul_comm, ih]
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The inversion pairs (i,j) with i ∈ Pᶜ, j ∈ P, i < j have cardinality ∑_{j ∈ P} |{i ∈ Pᶜ : i < j}|. -/
 private lemma card_inversion_pairs {m : ℕ} (P : Finset (Fin m)) :
     (filter (fun p : (Fin m) × (Fin m) => p.1 ∉ P ∧ p.2 ∈ P ∧ p.1 < p.2) 
@@ -1770,6 +1768,7 @@ private noncomputable def restrictToPerm {m : ℕ} (P Q : Finset (Fin m)) (hPQ :
     rfl
   exact Equiv.ofBijective f ⟨hf_inj, hf_surj⟩
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Key property of restrictToPerm: σ (eP k) = eQ (τ k) after appropriate casting. -/
 private lemma restrictToPerm_spec {m : ℕ} (P Q : Finset (Fin m)) (hPQ : P.card = Q.card) 
     (σ : Equiv.Perm (Fin m)) (hσ : PermFinset.imageFinset σ P = Q) (k : Fin P.card) :
@@ -1844,6 +1843,7 @@ private lemma constructPermFromPair_image {m : ℕ} (P Q : Finset (Fin m)) (hPQ 
       simp only [k, j, Equiv.apply_symm_apply, finCongr_apply, Fin.cast_cast,
                  Fin.cast_eq_self, OrderIso.apply_symm_apply, Subtype.coe_mk]
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The bijection between permutations mapping P to Q and pairs of permutations.
     
     Given σ with σ(P) = Q, we can extract:
@@ -5013,6 +5013,7 @@ private lemma sortEquiv_composition_maps_Q_to_P {m : ℕ} (P Q : Finset (Fin m))
     rfl
   rw [h1, sortEquivPQ_inl]
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The sign of the composition of sorting equivalences equals (-1)^(∑P + ∑Q).
     This is the key sign calculation for the complementary minor theorem.
     
@@ -5859,7 +5860,6 @@ private lemma desnanot_jacobi_direct {m : ℕ} (A : Matrix (Fin (m + 2)) (Fin (m
         -- For 5×5 and larger matrices, we use the field of fractions approach.
         -- The matrix has size m''' + 1 + 1 + 1 + 2 = m''' + 5
         -- We embed MvPolynomial into its field of fractions and prove the identity there.
-        set_option backward.isDefEq.respectTransparency true in
         let ι := algebraMap (MvPolynomial (Fin (m''' + 1 + 1 + 1 + 2) × Fin (m''' + 1 + 1 + 1 + 2)) ℤ)
                             (FractionRing (MvPolynomial (Fin (m''' + 1 + 1 + 1 + 2) × Fin (m''' + 1 + 1 + 1 + 2)) ℤ))
         let A'' := A'.map ι
@@ -6268,6 +6268,7 @@ lemma cauchy_det_zero {K : Type*} [Field K] (x y : Fin 0 → K) (h : ∀ i j, x 
     (cauchyMat x y h).det = cauchyNumerator x y / cauchyDenominator x y := by
   simp [cauchyMat, det_fin_zero, cauchyNumerator, cauchyDenominator]
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Cauchy determinant for n = 1: det = 1/(x_0 + y_0) -/
 lemma cauchy_det_one {K : Type*} [Field K] (x y : Fin 1 → K) (h : ∀ i j, x i + y j ≠ 0) :
     (cauchyMat x y h).det = cauchyNumerator x y / cauchyDenominator x y := by

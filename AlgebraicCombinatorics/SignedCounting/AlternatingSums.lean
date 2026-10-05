@@ -8,9 +8,6 @@ Copyright (c) 2025. All rights reserved.
 import Mathlib
 import AlgebraicCombinatorics.QBinomialBasic
 
--- Many proofs here unify through semireducible definitions; opt out of the stricter check.
-set_option backward.isDefEq.respectTransparency false
-
 /-!
 # Cancellations in Alternating Sums
 

@@ -8,9 +8,6 @@ import AlgebraicCombinatorics.SymmetricFunctions.OmegaInvolution
 import AlgebraicCombinatorics.SymmetricFunctions.NPartition
 import AlgebraicCombinatorics.SymmetricFunctions.LittlewoodRichardson
 
--- Many proofs here unify through semireducible definitions; opt out of the stricter check.
-set_option backward.isDefEq.respectTransparency false
-
 /-!
 # The Pieri Rules and Jacobi-Trudi Identities
 
@@ -556,6 +553,7 @@ def symToWeaklyIncreasing (n : ℕ) (s : Sym (Fin N) n) :
   apply sorted_weakly_increasing
   exact hij
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The monomial from a Sym equals the product over its weakly increasing representation.
     This is a key lemma for connecting h_n to Schur polynomials. -/
 theorem sym_monomial_eq_weaklyIncreasing_prod {R : Type*} [CommRing R] (n : ℕ) (s : Sym (Fin N) n) :
@@ -2413,6 +2411,7 @@ private lemma list_map_prod_eq_finset_prod {α : Type*} [DecidableEq α] {M : Ty
     congr 1
     exact ih hnodup'
 
+set_option backward.isDefEq.respectTransparency false in
 /-- finsetToColSSYT preserves monomials -/
 theorem finsetToColSSYT_toMonomial (n : ℕ) (hn : n ≤ N) (s : Finset (Fin N)) (hs : s.card = n) :
     (finsetToColSSYT n hn s hs).toMonomial (R := R) = ∏ i ∈ s, MvPolynomial.X i := by

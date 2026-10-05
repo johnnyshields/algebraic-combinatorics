@@ -9,9 +9,6 @@ Authors: AlgebraicCombinatorics Contributors
 import Mathlib
 import AlgebraicCombinatorics.Permutations.Inversions1
 
--- Many proofs here unify through semireducible definitions; opt out of the stricter check.
-set_option backward.isDefEq.respectTransparency false
-
 /-!
 # Signs of Permutations
 

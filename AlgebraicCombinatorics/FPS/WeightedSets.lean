@@ -4,9 +4,6 @@ All rights reserved.
 -/
 import Mathlib
 
--- Many proofs here unify through semireducible definitions; opt out of the stricter check.
-set_option backward.isDefEq.respectTransparency false
-
 /-!
 # The Generating Function of a Weighted Set
 
@@ -510,6 +507,7 @@ private lemma countOfWeight_zero : PositiveIntegers.countOfWeight positiveIntege
   simp only [PositiveIntegers, Set.mem_setOf_eq, Set.mem_empty_iff_false, iff_false]
   exact x.2.ne'
 
+set_option backward.isDefEq.respectTransparency false in
 private lemma countOfWeight_pos (n : ℕ) (hn : 0 < n) :
     PositiveIntegers.countOfWeight positiveIntegers_isFiniteType n = 1 := by
   simp only [WeightedSet.countOfWeight]
@@ -1103,6 +1101,7 @@ theorem tiling_1_2_faultfree : isFaultfree 1 tiling_1_2 := by
   · intro k ⟨hk1, hk2, _⟩
     omega
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Every tiling of the 1×2 rectangle equals tiling_1_2 -/
 theorem tiling_1_2_unique (T : Tiling (Rectangle 1 2)) : T = tiling_1_2 := by
   -- Prove equality by showing dominos are equal
@@ -1412,6 +1411,7 @@ private lemma faultfree_width2_dominos_eq (T : Tiling (Rectangle 2 2)) (hff : is
     · exact hh1
     · exact hh2
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Any faultfree tiling of Rectangle 2 2 equals twoHorizontalDominos -/
 theorem faultfree_tiling_width2_unique (T : Tiling (Rectangle 2 2)) (hff : isFaultfree 2 T) :
     T = twoHorizontalDominos := by
@@ -1798,6 +1798,7 @@ private lemma point_in_some_component (k : ℕ) (_hk : k ≥ 1)
       exact_mod_cast hi_hi
     omega
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The composition function: given a tuple of faultfree tilings, concatenate them
     horizontally to produce a single tiling.
     
@@ -1997,6 +1998,7 @@ theorem composeTilings_one_isFaultfree
     simp only [composeTilings] at hfault ⊢
     exact hfault
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Helper lemma: The width of composeTilings with a prepended element equals
     the first width plus the sum of the remaining widths.
     This is used in proving composeTilings_decomposeTiling. -/
@@ -2828,6 +2830,7 @@ theorem decomposeTiling_hasFault_fst (n : ℕ) (T : Tiling (Rectangle (n + 1) 2)
     (decomposeTiling (n + 1) T).1 = (decomposeTiling (n + 1 - k) right).1 + 1 := by
   simp only [decomposeTiling, dif_pos hne]
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Decomposition followed by composition gives back the original tiling -/
 theorem composeTilings_decomposeTiling (n : ℕ) (T : Tiling (Rectangle n 2)) :
     let ⟨k, ts⟩ := decomposeTiling n T
@@ -3185,6 +3188,7 @@ private lemma sigma_fin_fun_ext {α : Type*} (n m : ℕ) (h : n = m)
   conv_lhs => rw [← hi_eq']
   exact hfg ⟨i.val, by omega⟩
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Composition followed by decomposition gives back the original tuple.
     
     This theorem proves that composing faultfree tilings and then decomposing 

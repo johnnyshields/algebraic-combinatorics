@@ -9,9 +9,6 @@ Authors: AlgebraicCombinatorics Project Contributors
 import Mathlib
 import AlgebraicCombinatorics.Partitions.Basics
 
--- Many proofs here unify through semireducible definitions; opt out of the stricter check.
-set_option backward.isDefEq.respectTransparency false
-
 /-!
 # Euler's Pentagonal Number Theorem and Jacobi's Triple Product Identity
 
@@ -529,6 +526,7 @@ private lemma genFun_term_mul_euler_term_eq_one (k : ℕ) :
   ring
 
 -- Intermediate lemma: the product of all terms equals 1
+set_option backward.isDefEq.respectTransparency false in
 private lemma eulerProduct_mul_eulerProductInv_aux :
     (∏' k, (1 - (PowerSeries.X : ℤ⟦X⟧) ^ (k + 1))) *
     (∏' k, (1 + ∑' j, (1 : ℤ) • PowerSeries.X ^ ((k + 1) * (j + 1)))) = 1 := by
@@ -1862,6 +1860,7 @@ private lemma jacobi_product_eq_map_int_product_aux :
   intro k
   exact (map_genFun_term_aux k).symm
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The ℤ⟦X⟧ product equals expand 2 (genFun (fun _ _ => 1)). -/
 private lemma int_product_eq_expand_genFun_aux :
     letI : TopologicalSpace ℤ := ⊥
@@ -1919,6 +1918,7 @@ private lemma coeff_jacobi_product_eq_card_partition_aux (n : ℕ) :
   rw [PowerSeries.coeff_expand_mul]
   simp [Nat.Partition.coeff_genFun, algebraMap_int_eq]
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Key lemma 2: partitionGenFunJacobi * QProduct = 1 (Euler product identity).
 This is the key cancellation: the partition generating function times the
 Euler product equals 1, which is the classical identity
@@ -7478,6 +7478,7 @@ private lemma strictDecr_diff_ge (L : List ℤ) (hstrict : L.Pairwise (· > ·))
     simp only [Nat.succ_eq_add_one] at hstep ⊢
     omega
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Every state with particle number ℓ can be written as an excited state.
 This is the "unjumping" operation: given S with parnum = ℓ, we find the unique
 partition μ such that E_{ℓ,μ} = S by comparing S to the ground state G_ℓ
@@ -11384,6 +11385,7 @@ private lemma partition_sum_count_mul_Icc (n : ℕ) (p : Nat.Partition n) :
         simp [hd.2]
     _ = n := by rw [add_zero, h]
 
+set_option backward.isDefEq.respectTransparency false in
 /-- **Key Combinatorial Identity**: n * p(n) = ∑_{k=1}^n σ_1(k) * p(n-k)
 
 This identity relates the partition function p(n) to the sum of divisors function σ_1.

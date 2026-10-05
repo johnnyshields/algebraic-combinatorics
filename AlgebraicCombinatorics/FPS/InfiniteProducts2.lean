@@ -8,9 +8,6 @@ Authors:
 -/
 import Mathlib
 
--- Many proofs here unify through semireducible definitions; opt out of the stricter check.
-set_option backward.isDefEq.respectTransparency false
-
 /-!
 # Product Rules (Generalized Distributive Laws) for Infinite Products
 

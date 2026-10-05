@@ -7,9 +7,6 @@ import AlgebraicCombinatorics.SymmetricFunctions.LittlewoodRichardson
 import AlgebraicCombinatorics.SymmetricFunctions.NPartition
 import AlgebraicCombinatorics.Permutations.Basics
 
--- Many proofs here unify through semireducible definitions; opt out of the stricter check.
-set_option backward.isDefEq.respectTransparency false
-
 /-!
 # Schur Polynomials
 
@@ -567,6 +564,7 @@ theorem sum_occurrences_eq_card (T : YoungTableau lam) :
     intro c ⟨_, hck⟩ ⟨_, hck'⟩
     exact hkk' (hck.symm.trans hck')
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The total degree of x_T equals the number of cells in the Young diagram.
     This is |Y(λ)| = λ₁ + λ₂ + ... + λ_N. -/
 theorem monomial_totalDegree (T : YoungTableau lam) :
@@ -587,6 +585,7 @@ theorem monomial_totalDegree (T : YoungTableau lam) :
   -- Use Finsupp.equivFunOnFinite_symm_sum to convert
   exact Finsupp.equivFunOnFinite_symm_sum (fun k => T.occurrences k)
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The monomial x_T is indeed a monomial in the MvPolynomial sense
     (a single term with coefficient 1). -/
 theorem monomial_isMonomial (T : YoungTableau lam) :
@@ -687,6 +686,7 @@ def schurPoly {N : ℕ} [NeZero N] (lam : NPartition N) : MvPolynomial (Fin N) �
 
 /-! ## Examples of Schur Polynomials -/
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The Schur polynomial s_{(n,0,...,0)} equals the complete homogeneous symmetric
     polynomial h_n. Example \ref{exa.sf.schur-h-e}(a) in the source.
 
@@ -901,6 +901,7 @@ lemma col_partition_ssyt_iff {N : ℕ} [NeZero N] (n : ℕ) (hn : n ≤ N) (lam 
       rw [hc1_eq, hc2_eq]
       exact hstrict (by simp only [Fin.lt_def]; exact hrow)
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The Schur polynomial s_{(1,1,...,1,0,...,0)} (with n ones) equals the elementary
     symmetric polynomial e_n. Example \ref{exa.sf.schur-h-e}(b) in the source.
 
@@ -2312,6 +2313,7 @@ def fillingMonomial {N : ℕ} [NeZero N] {lam mu : NPartition N}
     (f : SkewFilling lam mu) : MvPolynomial (Fin N) ℤ :=
   ∏ c : { c // c ∈ skewYoungDiagram lam mu }, X (f c)
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The content of a filling: the number of cells with each entry value.
     content(f)(i) = |{c ∈ Y(λ/μ) : f(c) = i}|
     
@@ -2323,6 +2325,7 @@ def fillingContent {N : ℕ} [NeZero N] {lam mu : NPartition N}
     (f : SkewFilling lam mu) : Fin N → ℕ :=
   fun i => Finset.univ.filter (fun c : { c // c ∈ skewYoungDiagram lam mu } => f c = i) |>.card
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The fillingMonomial equals the product of X i raised to the content power. -/
 lemma fillingMonomial_eq_prod_pow {N : ℕ} [NeZero N] {lam mu : NPartition N}
     (f : SkewFilling lam mu) :
@@ -2336,6 +2339,7 @@ lemma fillingMonomial_eq_prod_pow {N : ℕ} [NeZero N] {lam mu : NPartition N}
   simp only [Finset.mem_filter, Finset.mem_univ, true_and] at hc
   rw [hc]
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Content bridge: the content of a filling equals the content of the corresponding tableau
     under the skewFillingEquiv bijection.
     
@@ -2665,6 +2669,7 @@ lemma benderKnuthInvol_content_swap_spec {N : ℕ} [NeZero N] (lam mu : NPartiti
     convert h3' using 1
     simp only [Equiv.apply_symm_apply]
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The monomial effect of the Bender-Knuth involution:
     x_{BK_k(f)} = (swap x_k x_{k+1}) · x_f
     

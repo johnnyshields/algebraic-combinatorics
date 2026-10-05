@@ -4,9 +4,6 @@ All rights reserved.
 -/
 import Mathlib
 
--- Many proofs here unify through semireducible definitions; opt out of the stricter check.
-set_option backward.isDefEq.respectTransparency false
-
 /-!
 # The Cycle Decomposition
 
@@ -525,6 +522,7 @@ lemma cycleToCanonicalList_ne_nil (c : Perm α) (hc : c.IsCycle) :
   exact cycleMinElem_mem_support c hc
 
 
+set_option backward.isDefEq.respectTransparency false in
 omit [Inhabited α] in
 /-- The first element of the canonical list is the minimum. -/
 lemma cycleToCanonicalList_head (c : Perm α) (hc : c.IsCycle) :

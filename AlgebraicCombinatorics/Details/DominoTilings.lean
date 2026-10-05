@@ -4,9 +4,6 @@ All rights reserved.
 -/
 import Mathlib
 
--- Many proofs here unify through semireducible definitions; opt out of the stricter check.
-set_option backward.isDefEq.respectTransparency false
-
 /-!
 # Domino Tilings of Height-3 Rectangles
 
@@ -73,6 +70,7 @@ def Rectangle (n m : ℕ) : Finset Cell :=
 lemma card_Rectangle (n m : ℕ) : (Rectangle n m).card = n * m := by
   simp [Rectangle, Finset.card_map, Finset.card_product]
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Membership characterization for Rectangle. -/
 lemma mem_Rectangle {n m : ℕ} {c : Cell} :
     c ∈ Rectangle n m ↔ c.1 ≥ 1 ∧ c.1 ≤ n ∧ c.2 ≥ 1 ∧ c.2 ≤ m := by
@@ -2345,6 +2343,7 @@ noncomputable def tiling_2_to_sum (T : DominoTiling (n + 2) 2) :
 def tiling_2_from_sum : (DominoTiling n 2) ⊕ (DominoTiling (n + 1) 2) → DominoTiling (n + 2) 2 :=
   Sum.elim prependHorizontalPair prependVertical
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The roundtrip `tiling_2_to_sum (tiling_2_from_sum x) = x`.
     This is the key property establishing that `tiling_2_from_sum` is a right inverse
     of `tiling_2_to_sum`, which proves surjectivity of `tiling_2_to_sum` and
@@ -2706,6 +2705,7 @@ def topDominos (n : ℕ) : Finset Domino :=
     simp only [Domino.mk.injEq, Prod.mk.injEq] at hab
     omega⟩
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Tiling A_n for even positive n ≥ 2.
 
     This is the faultfree tiling of R_{n,3} with:
@@ -3398,6 +3398,7 @@ def bottomDominosB (n : ℕ) : Finset Domino :=
     simp only [Domino.mk.injEq, Prod.mk.injEq] at hab
     omega⟩
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Tiling B_n for even positive n ≥ 2.
 
     This is the reflection of A_n across the horizontal axis.
@@ -4221,6 +4222,7 @@ private lemma reflectCell3_surjective_on_rect {n : ℕ} {c : Cell}
   · simp only [reflectCell3]
     ext <;> omega
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Reflect a tiling of R_{n,3} across the horizontal axis.
     This operation is well-defined and produces a valid tiling. -/
 noncomputable def reflectTiling3 {n : ℕ} (T : DominoTiling n 3) : DominoTiling n 3 where
@@ -4349,6 +4351,7 @@ theorem reflectTiling3_isFaultfree {n : ℕ} (T : DominoTiling n 3) (hfree : T.i
   -- But T is faultfree, contradiction
   exact hfree k hk_ge1 hk_lt_n hfault_T
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Reflection swaps top and bottom vertical dominos. -/
 theorem reflectTiling3_hasTopVertical_iff_hasBottomVertical {n : ℕ} (T : DominoTiling n 3) (c : ℕ) :
     (reflectTiling3 T).hasTopVerticalInCol c ↔ T.hasBottomVerticalInCol c := by
@@ -4399,6 +4402,7 @@ theorem reflectTiling3_hasTopVertical_iff_hasBottomVertical {n : ℕ} (T : Domin
       · right; constructor <;> omega
       · left; constructor <;> omega
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Reflection is an involution. -/
 theorem reflectTiling3_involutive {n : ℕ} (T : DominoTiling n 3) :
     reflectTiling3 (reflectTiling3 T) = T := by
@@ -4457,6 +4461,7 @@ theorem reflectTiling3_involutive {n : ℕ} (T : DominoTiling n 3) :
       subst h
       rfl
 
+set_option backward.isDefEq.respectTransparency false in
 /-- reflectTiling3 preserves TilingEquiv: if T₁ ≃ T₂ (same cell images),
     then reflectTiling3 T₁ ≃ reflectTiling3 T₂. -/
 theorem reflectTiling3_preserves_TilingEquiv {n : ℕ} (T₁ T₂ : DominoTiling n 3)
@@ -4500,6 +4505,7 @@ theorem reflectTiling3_preserves_TilingEquiv {n : ℕ} (T₁ T₂ : DominoTiling
     · exact ⟨d₁, hd₁, rfl⟩
     · rw [reflectDomino3_cells, hcells]
 
+set_option backward.isDefEq.respectTransparency false in
 /-- TilingB is the reflection of TilingA. -/
 theorem TilingB_eq_reflectTiling3_TilingA (n : ℕ) (hn : Even n) (hn_ge : n ≥ 2) :
     TilingB n hn hn_ge = reflectTiling3 (TilingA n hn hn_ge) := by
@@ -6145,6 +6151,7 @@ theorem faultfree_no_vertical_unique (T : DominoTiling 2 3)
       · rw [Finset.mem_image]; exact ⟨d, hd_mem, hr_cells⟩
       · rw [Finset.mem_image]; exact ⟨d, hd_mem, hr_cells⟩
 
+set_option backward.isDefEq.respectTransparency false in
 /-- (prop.gf.weighted-set.domino.Rn3.ABC (a))
     The faultfree domino tilings of a height-3 rectangle with a vertical domino in
     the top two squares of column 1 are precisely A_2, A_4, A_6, ...
@@ -6500,6 +6507,7 @@ theorem faultfree_bottom_vertical_classification (n : ℕ) (T : DominoTiling n 3
     -- This follows because reflectTiling3 preserves TilingEquiv
     exact reflectTiling3_preserves_TilingEquiv T' (TilingA n hn_even hn_ge) hT'
 
+set_option backward.isDefEq.respectTransparency false in
 /-- For height 3, a vertical domino in column 1 must be either in the top two squares
     (rows 2-3) or the bottom two squares (rows 1-2). There's no other option since
     a vertical domino covers 2 adjacent rows and we only have 3 rows. -/

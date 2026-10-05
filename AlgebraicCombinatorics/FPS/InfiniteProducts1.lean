@@ -10,9 +10,6 @@ import Mathlib
 import AlgebraicCombinatorics.FPS.InfiniteProducts
 import AlgebraicCombinatorics.FPS.XnEquivalence
 
--- Many proofs here unify through semireducible definitions; opt out of the stricter check.
-set_option backward.isDefEq.respectTransparency false
-
 /-!
 # Infinite Products of Formal Power Series (Part 1)
 

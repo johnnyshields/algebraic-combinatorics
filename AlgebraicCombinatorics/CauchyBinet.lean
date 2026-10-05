@@ -5,9 +5,6 @@ All rights reserved.
 import Mathlib
 import AlgebraicCombinatorics.Determinants.PermFinset
 
--- Many proofs here unify through semireducible definitions; opt out of the stricter check.
-set_option backward.isDefEq.respectTransparency false
-
 /-!
 # Determinants: Cauchy-Binet and Related Formulas
 
@@ -334,6 +331,7 @@ private lemma orderIsoOfFin_symm_orderEmbOfFin {n m : ℕ} (S : Finset (Fin m)) 
   simp only [OrderIso.apply_symm_apply]
   ext; rfl
 
+set_option backward.isDefEq.respectTransparency false in
 /-- For a fixed S with |S| = n, injective functions with image S correspond bijectively 
     to permutations of Fin n. This allows us to transform the sum over such functions 
     into a sum over permutations. -/
@@ -771,6 +769,7 @@ private lemma orderIsoOfFin_empty_compl_symm {n : ℕ} (x : (((∅ : Finset (Fin
   simp only [h_sort, List.finRange]
   exact idxOf_ofFn_id x.val
 
+set_option backward.isDefEq.respectTransparency false in
 /-- When P = Q = ∅, extractBeta is conjugate to σ by the natural bijection Fin n ≃ Fin (∅ᶜ.card).
     Therefore sign(extractBeta ∅ ∅ _ σ _) = sign(σ). -/
 private lemma sign_extractBeta_empty {n : ℕ} (hcard : (∅ : Finset (Fin n)).card = (∅ : Finset (Fin n)).card)
@@ -797,6 +796,7 @@ private lemma sign_extractBeta_empty {n : ℕ} (hcard : (∅ : Finset (Fin n)).c
   rw [orderIsoOfFin_empty_compl_symm]
   simp only [h3]
 
+set_option backward.isDefEq.respectTransparency false in
 /-- When P = Q = univ, extractAlpha is conjugate to σ by the natural bijection Fin n ≃ Fin (univ.card).
     Therefore sign(extractAlpha univ univ _ σ _) = sign(σ). -/
 private lemma sign_extractAlpha_univ {n : ℕ} 
@@ -882,6 +882,7 @@ noncomputable def constructSigma {n : ℕ} (P Q : Finset (Fin n)) (hcard : P.car
       exact this
   exact Equiv.ofBijective f ⟨hf_inj, Finite.injective_iff_surjective.mp hf_inj⟩
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The constructed permutation maps P to Q. -/
 lemma constructSigma_imageFinset {n : ℕ} (P Q : Finset (Fin n)) (hcard : P.card = Q.card)
     (α : Equiv.Perm (Fin P.card)) (β : Equiv.Perm (Fin Pᶜ.card)) :
@@ -2088,6 +2089,7 @@ lemma swap_orderEmbOfFin_eq {n : ℕ} (P : Finset (Fin n)) (i : Fin n) (hi : i.v
   have huniq := Finset.orderEmbOfFin_unique (Finset.card_map _ : P'.card = P.card) h_mem h_strict
   exact (congrFun huniq j).symm
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Key insight: extractAlpha is preserved under left shifts.
     
     When we apply a left shift:
@@ -2158,6 +2160,7 @@ lemma extractAlpha_leftShift_eq {n : ℕ} (P Q : Finset (Fin n)) (hcard : P.card
     (extractAlpha P Q hcard σ hσ) h_perm_eq
   rw [hsign]
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Key insight: extractBeta is also preserved under left shifts.
     
     Similar reasoning to extractAlpha: the complement P'ᶜ has the same structure
@@ -2443,6 +2446,7 @@ lemma imageFinset_leftCoShift_eq {n : ℕ} (P Q : Finset (Fin n)) (σ : Equiv.Pe
     refine ⟨p, hp, ?_⟩
     simp only [Equiv.Perm.coe_mul, Function.comp_apply, hpq, hqx]
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Key insight: extractAlpha is preserved under left co-shifts.
     
     When we apply a left co-shift:
@@ -2507,6 +2511,7 @@ lemma extractAlpha_leftCoShift_eq {n : ℕ} (P Q : Finset (Fin n)) (hcard : P.ca
   simp only [Equiv.Perm.coe_mul, Function.comp_apply, σ']
   convert h_goal using 1
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Key insight: extractBeta is also preserved under left co-shifts.
     
     Similar reasoning to extractAlpha: the complement Q'ᶜ has the same structure
@@ -2967,6 +2972,7 @@ lemma extractBeta_spec {n : ℕ} (P Q : Finset (Fin n)) (hcard : P.card = Q.card
              OrderEmbedding.subtype_apply, Finset.coe_orderIsoOfFin_apply]
   exact (congrArg Subtype.val hiso).symm
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Round-trip lemma: extractAlpha of constructSigma equals the original α. -/
 lemma extractAlpha_constructSigma {n : ℕ} (P Q : Finset (Fin n)) (hcard : P.card = Q.card)
     (α : Equiv.Perm (Fin P.card)) (β : Equiv.Perm (Fin Pᶜ.card)) 
@@ -2996,6 +3002,7 @@ lemma extractAlpha_constructSigma {n : ℕ} (P Q : Finset (Fin n)) (hcard : P.ca
   simp only [Fin.val_inj]
   exact h_goal
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Round-trip lemma: extractBeta of constructSigma equals the original β. -/
 lemma extractBeta_constructSigma {n : ℕ} (P Q : Finset (Fin n)) (hcard : P.card = Q.card)
     (α : Equiv.Perm (Fin P.card)) (β : Equiv.Perm (Fin Pᶜ.card)) 
@@ -3028,6 +3035,7 @@ lemma extractBeta_constructSigma {n : ℕ} (P Q : Finset (Fin n)) (hcard : P.car
   simp only [Fin.val_inj]
   exact h_goal
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Round-trip lemma: constructSigma of (extractAlpha, extractBeta) equals the original σ.
     This is the other direction of the bijection, showing that extract ∘ construct = id. -/
 lemma constructSigma_extract {n : ℕ} (P Q : Finset (Fin n)) (hcard : P.card = Q.card)

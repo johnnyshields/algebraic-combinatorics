@@ -5,9 +5,6 @@ All rights reserved.
 import Mathlib
 import AlgebraicCombinatorics.FPS.Limits
 
--- Many proofs here unify through semireducible definitions; opt out of the stricter check.
-set_option backward.isDefEq.respectTransparency false
-
 /-!
 # Infinite Products of Formal Power Series
 
@@ -1696,6 +1693,7 @@ lemma isXnApproximator_inter_subfamily {a : I → PowerSeries R}
   
   exact coeff_eq_of_mul_eq_unit hP_unit h_eq_all m hm
 
+set_option backward.isDefEq.respectTransparency false in
 /-- If `(a_i)_{i ∈ I}` is a multipliable family of invertible FPS, then any
 subfamily is also multipliable.
 (Label: prop.fps.prods-mulable-subfams) -/

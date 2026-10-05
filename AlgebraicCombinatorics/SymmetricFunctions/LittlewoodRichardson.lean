@@ -6,9 +6,6 @@ import Mathlib
 import AlgebraicCombinatorics.SymmetricFunctions.NPartition
 import AlgebraicCombinatorics.SymmetricFunctions.MonomialSymmetric
 
--- Many proofs here unify through semireducible definitions; opt out of the stricter check.
-set_option backward.isDefEq.respectTransparency false
-
 /-!
 # The Littlewood-Richardson Rule
 
@@ -361,6 +358,7 @@ scoped notation "cont" => contentTableau
 
 /-! ### Content API lemmas (def.sf.content) -/
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Alternative characterization: content counts cells using Finset.card. -/
 theorem contentTableau_eq_card {lam mu : Fin N → ℕ} (T : Tableau lam mu) (i : Fin N) :
     contentTableau T i = Finset.card (Finset.univ.filter (fun c => T c = i)) := by
@@ -9835,6 +9833,7 @@ theorem stembridgeInvolutionMatching_semistandard {lam mu : Fin N → ℕ}
   -- Apply the semistandard theorem
   exact benderKnuthPrefixMatching_semistandard_stembridge hlam hmu nu k hk j hj_pos T hT hbeta hk_misstep
 
+set_option backward.isDefEq.respectTransparency false in
 /-- stembridgeInvolutionMatching is an involution on non-Yamanouchi tableaux.
 
     This theorem uses `benderKnuthPrefixMatching_involutive_stembridge` which is

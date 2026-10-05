@@ -5,9 +5,6 @@ All rights reserved.
 import Mathlib
 import AlgebraicCombinatorics.SymmetricFunctions.NPartition
 
--- Many proofs here unify through semireducible definitions; opt out of the stricter check.
-set_option backward.isDefEq.respectTransparency false
-
 /-!
 # N-partitions and Monomial Symmetric Polynomials
 
@@ -565,6 +562,7 @@ def sortTuple (a : Fin N → ℕ) : NPartition N where
 ### API for monomialExp (Definition def.sf.sort (a))
 -/
 
+set_option backward.isDefEq.respectTransparency false in
 /-- `monomialExp` equals the Mathlib monomial with the given exponent. -/
 theorem monomialExp_eq_monomial (a : Fin N → ℕ) :
     (monomialExp a : MvPolynomial (Fin N) R) = monomial (Finsupp.equivFunOnFinite.symm a) 1 := by
@@ -588,6 +586,7 @@ theorem monomialExp_coeff_ne (a b : Fin N → ℕ) (h : a ≠ b) :
   apply h
   exact Finsupp.equivFunOnFinite.symm.injective heq
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The total degree of monomialExp a is the sum of entries of a (when nonzero). -/
 theorem monomialExp_totalDegree [Nontrivial R] (a : Fin N → ℕ) :
     (monomialExp a : MvPolynomial (Fin N) R).totalDegree = ∑ i, a i := by
@@ -1037,6 +1036,7 @@ private def singleTuple (i : Fin N) (n : ℕ) : Fin N → ℕ := fun j => if j =
 /-- The count tuple for a Sym element. -/
 private def countTuple {n : ℕ} (s : Sym (Fin N) n) : Fin N → ℕ := fun i => Multiset.count i s.1
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The indicator tuple of an n-element subset sorts to onesThenZeros n. -/
 private lemma sortTuple_indicatorTuple {n : ℕ} (S : Finset (Fin N)) (hn : S.card = n) (hn' : n ≤ N) :
     sortTuple (indicatorTuple S) = onesThenZeros n hn' := by
@@ -1195,6 +1195,7 @@ private lemma indicatorTuple_mem_sortPreimage {n : ℕ} (S : Finset (Fin N)) (hn
       omega
   · exact sortTuple_indicatorTuple S hn hn'
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Single tuple is in sortPreimage of singletonPartition. -/
 private lemma singleTuple_mem_sortPreimage (i : Fin N) (n : ℕ) (hN : 0 < N) :
     singleTuple i n ∈ sortPreimage (singletonPartition n hN) := by
@@ -1300,6 +1301,7 @@ private lemma mem_sortPreimage_singletonPartition_exists_singleTuple (a : Fin N 
 private def indicatorSupport (a : Fin N → ℕ) : Finset (Fin N) :=
   Finset.univ.filter (fun i => a i = 1)
 
+set_option backward.isDefEq.respectTransparency false in
 /-- indicatorSupport ∘ indicatorTuple = id -/
 private lemma indicatorSupport_indicatorTuple (S : Finset (Fin N)) :
     indicatorSupport (indicatorTuple S) = S := by

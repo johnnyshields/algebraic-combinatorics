@@ -5,9 +5,6 @@ All rights reserved.
 import Mathlib
 import AlgebraicCombinatorics.Permutations.Basics
 
--- Many proofs here unify through semireducible definitions; opt out of the stricter check.
-set_option backward.isDefEq.respectTransparency false
-
 /-!
 # Definitions and Examples of Symmetric Polynomials
 
@@ -118,8 +115,6 @@ noncomputable instance permMulAction : MulAction (Equiv.Perm (Fin N)) (P K N) wh
     show permAction (σ * τ) f = permAction σ (permAction τ f)
     exact permAction_mul σ τ f
 
--- Instance search for this `rfl` times out when transparency checks are relaxed.
-set_option backward.isDefEq.respectTransparency true in
 /-- The Mathlib smul action agrees with our permAction notation.
     Label: prop.sf.SN-acts -/
 @[simp]

@@ -5,9 +5,6 @@ All rights reserved.
 import Mathlib
 import AlgebraicCombinatorics.Determinants.LGV2
 
--- Many proofs here unify through semireducible definitions; opt out of the stricter check.
-set_option backward.isDefEq.respectTransparency false
-
 /-!
 # The Lindström-Gessel-Viennot Lemma: Part 1
 
@@ -233,6 +230,7 @@ We formalize paths as lists of steps rather than lists of vertices, which makes
 it easier to work with path concatenation and step counting.
 -/
 
+set_option backward.isDefEq.respectTransparency false in
 /-- A step on the integer lattice: either east (right) or north (up).
     - east: (i,j) → (i+1,j)
     - north: (i,j) → (i,j+1)
@@ -2406,6 +2404,7 @@ private lemma PathTuple.ext' {k : ℕ} {A B : kVertex k} {pt1 pt2 : PathTuple k 
     (h : pt1.paths = pt2.paths) : pt1 = pt2 := by
   cases pt1; cases pt2; simp only at h; subst h; rfl
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Key lemma: signedNipats2_true has the same ncard as nipatsFromTo ![A, A'] ![B, B'] -/
 private lemma signedNipats2_true_ncard_eq (A A' B B' : LatticePoint) :
     (signedNipats2_true A A' B B').ncard = (nipatsFromTo (![A, A'] : kVertex 2) ![B, B']).ncard := by
@@ -2456,6 +2455,7 @@ private lemma signedNipats2_true_ncard_eq (A A' B B' : LatticePoint) :
     apply PathTuple.ext'
     funext i; fin_cases i <;> rfl
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Key lemma: signedNipats2_false has the same ncard as nipatsFromTo ![A, A'] ![B', B] -/
 private lemma signedNipats2_false_ncard_eq (A A' B B' : LatticePoint) :
     (signedNipats2_false A A' B B').ncard = (nipatsFromTo (![A, A'] : kVertex 2) ![B', B]).ncard := by
@@ -3230,6 +3230,7 @@ private def latticePath'TupleToPathTuple {k : ℕ} {A B : kVertex k}
     rw [key]
     exact h
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The two conversions are inverses -/
 private theorem pathTuple_latticePath'Tuple_left_inv {k : ℕ} {A B : kVertex k}
     (pt : PathTuple k A B) : latticePath'TupleToPathTuple (pathTupleToLatticePath'Tuple pt) = pt := by

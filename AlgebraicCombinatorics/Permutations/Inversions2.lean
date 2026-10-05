@@ -9,9 +9,6 @@ import Mathlib
 import AlgebraicCombinatorics.Permutations.Inversions1
 import AlgebraicCombinatorics.Permutations.Basics
 
--- Many proofs here unify through semireducible definitions; opt out of the stricter check.
-set_option backward.isDefEq.respectTransparency false
-
 /-!
 # More about lengths and simples
 
@@ -532,6 +529,7 @@ def setBelow (σ : Perm (Fin n)) (i j : Fin n) : Finset (Fin n) :=
 def setAbove (σ : Perm (Fin n)) (i j : Fin n) : Finset (Fin n) :=
   Finset.filter (fun k => i < k ∧ k < j ∧ σ i ≤ σ k) Finset.univ
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Key symmetry: Q for σ * swap i j equals R for σ (when σ(i) < σ(j)).
 This allows us to reduce the case σ(i) < σ(j) to the case σ(i) > σ(j). -/
 lemma setQ_swap_eq_setR (σ : Perm (Fin n)) (i j : Fin n) :
@@ -591,6 +589,7 @@ lemma setQ_setB_disjoint (σ : Perm (Fin n)) (i j : Fin n) :
   intro ⟨_, ha_lt_j, _, _⟩ hj_lt_a
   exact absurd ha_lt_j (not_lt.mpr (le_of_lt hj_lt_a))
 
+set_option backward.isDefEq.respectTransparency false in
 /-- For k ∈ Q: (i, k) is a lost inversion. -/
 lemma ik_lost_for_k_in_Q (σ : Perm (Fin n)) (i j k : Fin n)
     (hk : k ∈ setQ σ i j) : (i, k) ∈ inversions σ \ inversions (σ * Equiv.swap i j) := by
@@ -605,6 +604,7 @@ lemma ik_lost_for_k_in_Q (σ : Perm (Fin n)) (i j k : Fin n)
     simp only [Equiv.swap_apply_left, Equiv.swap_apply_of_ne_of_ne hk_ne_i hk_ne_j]
     exact le_of_lt hk.2.2.1
 
+set_option backward.isDefEq.respectTransparency false in
 /-- For k ∈ Q: (k, j) is a lost inversion. -/
 lemma kj_lost_for_k_in_Q (σ : Perm (Fin n)) (i j k : Fin n)
     (hk : k ∈ setQ σ i j) : (k, j) ∈ inversions σ \ inversions (σ * Equiv.swap i j) := by
@@ -619,6 +619,7 @@ lemma kj_lost_for_k_in_Q (σ : Perm (Fin n)) (i j k : Fin n)
     simp only [Equiv.swap_apply_right, Equiv.swap_apply_of_ne_of_ne hk_ne_i hk_ne_j]
     exact le_of_lt hk.2.2.2
 
+set_option backward.isDefEq.respectTransparency false in
 /-- (i, j) is a lost inversion when σ(j) < σ(i). -/
 lemma ij_lost (σ : Perm (Fin n)) (i j : Fin n) (hij : i < j) (h : σ j < σ i) :
     (i, j) ∈ inversions σ \ inversions (σ * Equiv.swap i j) := by
@@ -628,6 +629,7 @@ lemma ij_lost (σ : Perm (Fin n)) (i j : Fin n) (hij : i < j) (h : σ j < σ i) 
   · exact ⟨hij, h⟩
   · intro _; exact le_of_lt h
 
+set_option backward.isDefEq.respectTransparency false in
 /-- For a ∈ A: (a, i) is a gained inversion. -/
 lemma ai_gained_for_a_in_A (σ : Perm (Fin n)) (i j a : Fin n) (hij : i < j)
     (ha : a ∈ setA σ i j) : (a, i) ∈ inversions (σ * Equiv.swap i j) \ inversions σ := by
@@ -643,6 +645,7 @@ lemma ai_gained_for_a_in_A (σ : Perm (Fin n)) (i j a : Fin n) (hij : i < j)
       exact ha.2.1
   · intro _; exact le_of_lt ha.2.2
 
+set_option backward.isDefEq.respectTransparency false in
 /-- For b ∈ B: (j, b) is a gained inversion. -/
 lemma jb_gained_for_b_in_B (σ : Perm (Fin n)) (i j b : Fin n) (hij : i < j)
     (hb : b ∈ setB σ i j) : (j, b) ∈ inversions (σ * Equiv.swap i j) \ inversions σ := by
@@ -1237,6 +1240,7 @@ private lemma wordProd_flatten (L : List (Word n)) :
     simp only [List.flatten_cons, List.prod_append, List.map_cons, List.prod_cons]
     rw [ih]
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Length of identity is 0. -/
 private lemma length_one : ℓ (1 : Perm (Fin n)) = 0 := by
   simp only [length, inversions, Perm.one_apply]
@@ -1475,6 +1479,7 @@ theorem exists_reduced_word (σ : Perm (Fin n)) :
       simp only [τ]
       rw [mul_assoc, simpleTransposition_sq, mul_one]
 
+set_option backward.isDefEq.respectTransparency false in
 /-- **Theorem thm.perm.len.redword1 (b)**: The length ℓ(σ) is the minimum number
 of simple transpositions needed to express σ.
 

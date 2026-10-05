@@ -4,9 +4,6 @@ All rights reserved.
 -/
 import Mathlib
 
--- Many proofs here unify through semireducible definitions; opt out of the stricter check.
-set_option backward.isDefEq.respectTransparency false
-
 /-!
 # The Lindström-Gessel-Viennot Lemma: Weighted and Generalized Versions
 
@@ -775,6 +772,7 @@ noncomputable def nipatSet {V : Type*} [DecidableEq V] {D : SimpleDigraph V} {k 
     (A B : kVertex V k) : Set (PathTuple D k A B) :=
   {pt | pt.isNonIntersecting}
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The set of nipats is finite (follows from path-finiteness) -/
 noncomputable def nipatSetFinite {V : Type*} [DecidableEq V] {D : SimpleDigraph V}
     (hpf : D.IsPathFinite) {k : ℕ} (A B : kVertex V k) : Set.Finite (nipatSet (D := D) A B) := by
@@ -3365,6 +3363,7 @@ def allPathTupleSet {V : Type*} [DecidableEq V] {D : SimpleDigraph V} {k : ℕ}
     (A B : kVertex V k) : Set (PathTuple D k A B) :=
   Set.univ
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The set of all path tuples is finite (follows from path-finiteness) -/
 noncomputable def allPathTupleSetFinite {V : Type*} [DecidableEq V] {D : SimpleDigraph V}
     (hpf : D.IsPathFinite) {k : ℕ} (A B : kVertex V k) : 
@@ -3698,6 +3697,7 @@ theorem sum_allPathTupleWithPerm_eq_sum_nipat_add_sum_ipat {V : Type*} [Decidabl
       (Equiv.Perm.sign sp.1 : K) * pathTupleWeight w sp.2.paths := by
   rw [← nipatWithPermFinset_union_ipatWithPermFinset_sum hpf A B]
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The sum over nipats with permutation equals the sum over permutations of nipatWeightSum -/
 theorem sum_nipatWithPerm_eq_sum_nipatWeightSum {V : Type*} [DecidableEq V] 
     {D : SimpleDigraph V} (hpf : D.IsPathFinite) {k : ℕ} (w : ArcWeight D K) 
@@ -3734,6 +3734,7 @@ theorem sum_nipatWithPerm_eq_sum_nipatWeightSum {V : Type*} [DecidableEq V]
         intro σ _
         simp only [nipatWeightSum, Units.smul_def, zsmul_eq_mul]
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The determinant can be written as a sum over all path tuples with permutation -/
 theorem det_eq_sum_allPathTupleWithPerm {V : Type*} [DecidableEq V] {D : SimpleDigraph V}
     (hpf : D.IsPathFinite) {k : ℕ} (w : ArcWeight D K) (A B : kVertex V k) :
@@ -5051,6 +5052,7 @@ theorem nipatWeightSum_unitArcWeight_nonneg {k : ℕ} (A B : kVertex (ℤ × ℤ
   rw [nipatWeightSum_unitArcWeight]
   exact Int.natCast_nonneg _
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The ipatWithPermFinset can be decomposed as a sigma type over permutations.
     This is the ipat analogue of the decomposition used for nipats. -/
 theorem ipatWithPermFinset_eq_sigma {k : ℕ} (A B : kVertex (ℤ × ℤ) k) :
@@ -5478,6 +5480,7 @@ lemma dyckPathToSteps_length (p : SimpleDigraph.Path dyckDigraph) :
     (dyckPathToSteps p).length = p.vertices.length - 1 := by
   simp [dyckPathToSteps]
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Key lemma: the y-coordinate at position i equals #U - #D in the first i steps (as integers). -/
 private lemma dyckPath_y_eq_count_diff_int (p : SimpleDigraph.Path dyckDigraph) (i : ℕ)
     (hi : i < p.vertices.length) (hstart : p.start = (0, 0)) :

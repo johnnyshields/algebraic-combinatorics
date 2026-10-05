@@ -9,9 +9,6 @@ Authors: AlgebraicCombinatorics contributors
 import Mathlib
 import AlgebraicCombinatorics.LaurentSeries
 
--- Many proofs here unify through semireducible definitions; opt out of the stricter check.
-set_option backward.isDefEq.respectTransparency false
-
 /-!
 # Laurent Power Series
 
@@ -666,6 +663,7 @@ theorem laurentPolynomialToSeries_one :
   rw [laurentPoly_one_coeff]
   congr
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The embedding is multiplicative. -/
 theorem laurentPolynomialToSeries_mul (p q : K[T;T⁻¹]) :
     laurentPolynomialToSeries (p * q) =

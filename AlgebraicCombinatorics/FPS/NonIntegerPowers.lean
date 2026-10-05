@@ -5,9 +5,6 @@ All rights reserved.
 import Mathlib
 import AlgebraicCombinatorics.FPS.ExpLog
 
--- Many proofs here unify through semireducible definitions; opt out of the stricter check.
-set_option backward.isDefEq.respectTransparency false
-
 /-!
 # Non-integer Powers of Formal Power Series
 
@@ -1438,6 +1435,7 @@ noncomputable def f_series' (n : K) : K⟦X⟧ :=
 /-- The series g = (1+x)^n = binomialSeries K n -/
 noncomputable def g_series' (n : K) : K⟦X⟧ := binomialSeries K n
 
+set_option backward.isDefEq.respectTransparency false in
 omit [Algebra ℚ K] [CharZero K] in
 /-- The coefficient of x^k in f * g equals the LHS of the binomial identity -/
 theorem coeff_f_mul_g' (n : K) (k : ℕ) :

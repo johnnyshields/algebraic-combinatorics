@@ -8,9 +8,6 @@ Authors: AlgebraicCombinatorics contributors
 -/
 import Mathlib
 
--- Many proofs here unify through semireducible definitions; opt out of the stricter check.
-set_option backward.isDefEq.respectTransparency false
-
 /-!
 # Partition basics
 
@@ -680,6 +677,7 @@ example : partsCount 5 5 = 1 := by native_decide
 /-- The number of parts of a partition equals the cardinality of its parts multiset. -/
 def numParts {n : ℕ} (p : Partition n) : ℕ := Multiset.card p.parts
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Alternative characterization: `partsCount k n` counts partitions with `numParts = k`. -/
 theorem partsCount_eq_filter_numParts (k n : ℕ) :
     partsCount k n = ((Finset.univ : Finset (Partition n)).filter (fun p => p.numParts = k)).card := by
@@ -1102,6 +1100,7 @@ private def castPartition {n m : ℕ} (h : n = m) (p : Partition n) : Partition 
 private lemma castPartition_parts {n m : ℕ} (h : n = m) (p : Partition n) :
     (castPartition h p).parts = p.parts := rfl
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Bijection: partsWithOne k n ↔ partitions of (n-1) into (k-1) parts. -/
 lemma partsWithOne_card_eq {k n : ℕ} (hk : k > 0) (hn : n > 0) :
     (partsWithOne k n).card = partsCount (k - 1) (n - 1) := by

@@ -4,9 +4,6 @@ All rights reserved.
 -/
 import Mathlib
 
--- Many proofs here unify through semireducible definitions; opt out of the stricter check.
-set_option backward.isDefEq.respectTransparency false
-
 /-!
 # N-Partitions
 
@@ -364,6 +361,7 @@ instance instPartialOrder : PartialOrder (NPartition N) where
 
 /-! ## Fintype instances for bounded partitions -/
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The set of N-partitions with entries bounded by M is finite.
     This is useful for cardinality arguments in symmetric function theory. -/
 noncomputable instance instFintypeBounded (M : ℕ) :
@@ -577,6 +575,7 @@ def toPartition (μ : NPartition N) : Nat.Partition μ.size where
     rw [← h]
     exact filter_ne_zero_sum _
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The size of ofPartition p equals n (the sum of the original partition).
     (Proposition prop.sf.Npar-as-par, well-definedness)
 
@@ -751,6 +750,7 @@ instance youngDiagram_decidableMem (μ : NPartition N) :
     DecidablePred (· ∈ μ.youngDiagram) := fun c =>
   decidable_of_iff (c.2 < μ.parts c.1) mem_youngDiagram.symm
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The total number of cells in the Young diagram equals the size of the partition. -/
 theorem youngDiagram_card (μ : NPartition N) : μ.youngDiagram.card = μ.size := by
   simp only [size]
@@ -887,6 +887,7 @@ instance skewYoungDiagram_decidableMem (lam mu : NPartition N) :
     DecidablePred (· ∈ skewYoungDiagram lam mu) := fun c =>
   decidable_of_iff (mu.parts c.1 ≤ c.2 ∧ c.2 < lam.parts c.1) mem_skewYoungDiagram.symm
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The cardinality of a skew Young diagram. -/
 theorem skewYoungDiagram_card (lam mu : NPartition N) :
     (skewYoungDiagram lam mu).card = ∑ i, (lam.parts i - mu.parts i) := by

@@ -30,9 +30,6 @@ This module provides the canonical location for the `Fin.skipTwo` definition and
 API lemmas. Files that need `skipTwo` functionality (such as `DesnanotJacobi.lean`)
 import this module and may define local abbreviations for convenience.
 
--- Many proofs here unify through semireducible definitions; opt out of the stricter check.
-set_option backward.isDefEq.respectTransparency false
-
 ## References
 
 The `skipTwo` function is the natural generalization of `Fin.succAbove` (which skips one index)

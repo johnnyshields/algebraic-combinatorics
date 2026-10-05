@@ -5,9 +5,6 @@ All rights reserved.
 import Mathlib
 import AlgebraicCombinatorics.FPS.InfiniteProducts2
 
--- Many proofs here unify through semireducible definitions; opt out of the stricter check.
-set_option backward.isDefEq.respectTransparency false
-
 /-!
 # Formal Power Series: Definition and Basic Properties
 
@@ -592,6 +589,7 @@ noncomputable def essFinSum {ι : Type*} (f : ι → R) (hf : EssentiallyFinite 
 theorem essFinSum_eq_finset_sum {ι : Type*} (f : ι → R) (hf : EssentiallyFinite f) :
     essFinSum f hf = ∑ i ∈ hf.toFinset, f i := rfl
 
+set_option backward.isDefEq.respectTransparency false in
 /-- If a family has finite support contained in a finset S, the essentially finite sum
     equals the sum over S -/
 theorem essFinSum_eq_sum_of_support_subset {ι : Type*} (f : ι → R) (hf : EssentiallyFinite f)
@@ -613,6 +611,7 @@ theorem essFinSum_eq_zero_of_forall_zero {ι : Type*} {f : ι → R} (hf : Essen
     (h : ∀ i, f i = 0) : essFinSum f hf = 0 := by
   simp [essFinSum, h]
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The essentially finite sum can be computed using any finset containing the support -/
 theorem essFinSum_eq_sum_finset {ι : Type*} (f : ι → R) (hf : EssentiallyFinite f)
     (S : Finset ι) (hS : ∀ i, f i ≠ 0 → i ∈ S) :
@@ -639,12 +638,14 @@ noncomputable def essentiallyFiniteToFinsupp {ι : Type*} (f : ι → R) (hf : E
 theorem essentiallyFiniteToFinsupp_apply {ι : Type*} (f : ι → R) (hf : EssentiallyFinite f) (i : ι) :
     essentiallyFiniteToFinsupp f hf i = f i := rfl
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The essentially finite sum equals the Finsupp sum -/
 theorem essFinSum_eq_finsupp_sum {ι : Type*} (f : ι → R) (hf : EssentiallyFinite f) :
     essFinSum f hf = (essentiallyFiniteToFinsupp f hf).sum (fun _ r => r) := by
   simp only [essFinSum, essentiallyFiniteToFinsupp, Finsupp.ofSupportFinite,
              Finsupp.sum, Finsupp.coe_mk]
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Additivity: the essentially finite sum of a sum is the sum of essentially finite sums -/
 theorem essFinSum_add {ι : Type*} [DecidableEq ι] {f g : ι → R}
     (hf : EssentiallyFinite f) (hg : EssentiallyFinite g)
@@ -681,6 +682,7 @@ theorem essFinSum_add {ι : Type*} [DecidableEq ι] {f g : ι → R}
             simp only [Set.Finite.mem_toFinset, Function.mem_support, not_not] at hx
             exact hx
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Scalar multiplication: c * (∑ aᵢ) = ∑ (c * aᵢ) -/
 theorem essFinSum_smul {ι : Type*} {f : ι → R} (c : R) (hf : EssentiallyFinite f)
     (hcf : EssentiallyFinite (fun i => c * f i)) :

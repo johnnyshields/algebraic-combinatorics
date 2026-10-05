@@ -9,9 +9,6 @@ Authors: AlgebraicCombinatorics contributors
 import Mathlib
 import AlgebraicCombinatorics.DividingFPS
 
--- Many proofs here unify through semireducible definitions; opt out of the stricter check.
-set_option backward.isDefEq.respectTransparency false
-
 /-!
 # Commutative Rings and Modules
 

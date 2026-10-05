@@ -68,9 +68,6 @@ Both represent the same mathematical object; use whichever is more convenient fo
 
 import Mathlib
 
--- Many proofs here unify through semireducible definitions; opt out of the stricter check.
-set_option backward.isDefEq.respectTransparency false
-
 set_option maxHeartbeats 400000
 
 namespace AlgebraicCombinatorics
@@ -161,6 +158,7 @@ theorem invCount_le_choose (σ : Equiv.Perm (Fin n)) : invCount σ ≤ n.choose 
           exact hp.1
       _ = n.choose 2 := hcard
 
+set_option backward.isDefEq.respectTransparency false in
 /--
 The only permutation σ ∈ S_n with ℓ(σ) = 0 is the identity map.
 
@@ -203,6 +201,7 @@ theorem invCount_eq_zero_iff (σ : Equiv.Perm (Fin n)) : invCount σ = 0 ↔ σ 
     intro hij
     exact le_of_lt hij
 
+set_option backward.isDefEq.respectTransparency false in
 /--
 The identity permutation has no inversions.
 
@@ -257,6 +256,7 @@ theorem invCount_inv (σ : Equiv.Perm (Fin n)) : invCount σ⁻¹ = invCount σ 
     intro ⟨i, j⟩ _
     simp
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The inversion count of a product is bounded by the sum of inversion counts.
     This is not an equality in general (the triangle inequality for inversions). -/
 theorem invCount_mul_le (σ τ : Equiv.Perm (Fin n)) :
@@ -342,6 +342,7 @@ theorem longestElement_eq_revPerm : longestElement n = Fin.revPerm := by
   simp only [longestElement, Equiv.coe_fn_mk, Fin.revPerm_apply, Fin.rev]
   omega
 
+set_option backward.isDefEq.respectTransparency false in
 /--
 The set of inversions of the longest element w₀ is exactly the set of all pairs (i, j)
 with i < j. That is, every pair is an inversion.
@@ -387,6 +388,7 @@ theorem invCount_longestElement : invCount (longestElement n) = n.choose 2 := by
     intro i hi; simp only [Finset.mem_range] at hi; omega
   rw [h4, Finset.sum_range_id]
 
+set_option backward.isDefEq.respectTransparency false in
 /--
 The only permutation σ ∈ S_n with ℓ(σ) = n choose 2 is w₀.
 
@@ -579,6 +581,7 @@ private lemma unique_inv_adjacent {m : ℕ} (σ : Equiv.Perm (Fin m)) (a b : Fin
       rw [hab] at hinv'; simp only [Finset.mem_singleton, Prod.mk.injEq] at hinv'
       exact (Fin.ne_of_lt hac) hinv'.1.symm
 
+set_option backward.isDefEq.respectTransparency false in
 /-- If inv σ = {(a, b)} with adjacent a, b, then σ = swap a b -/
 private lemma eq_swap_of_unique_adjacent_inv {m : ℕ} (σ : Equiv.Perm (Fin m)) (a b : Fin m)
     (hab : inv σ = {(a, b)}) (hadj : b.val = a.val + 1) : σ = Equiv.swap a b := by
@@ -1083,6 +1086,7 @@ private lemma card_typeB_helper (m : ℕ) :
       have : j.val = j.val + 2 := Fin.mk.inj heq
       omega
 
+set_option backward.isDefEq.respectTransparency false in
 theorem card_invCount_eq_two (hn : 2 ≤ n) :
     (Finset.univ.filter (fun σ : Equiv.Perm (Fin n) => invCount σ = 2)).card =
     (n - 2) * (n + 1) / 2 := by

@@ -9,9 +9,6 @@ Authors: AlgebraicCombinatorics Contributors
 import Mathlib
 import AlgebraicCombinatorics.QBinomialBasic
 
--- Many proofs here unify through semireducible definitions; opt out of the stricter check.
-set_option backward.isDefEq.respectTransparency false
-
 /-!
 # q-Binomial Formulas
 
@@ -1102,6 +1099,7 @@ private lemma multiset_sum_sub_one (m : Multiset ℕ) (h : ∀ x ∈ m, x ≥ 1)
     have hsum_ge : s.sum ≥ s.card := multiset_sum_ge_card hs
     omega
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Partitions in a (k+1) × m box split into those with ≤ k parts and those with exactly k+1 parts. -/
 private lemma partitionsInBox_succ_split (size k m : ℕ) :
     partitionsInBox size (k + 1) m =
@@ -1121,6 +1119,7 @@ private lemma partitionsInBox_succ_split (size k m : ℕ) :
     · exact ⟨by omega, hlp⟩
     · exact ⟨by omega, hlp⟩
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The two sets in the partition split are disjoint. -/
 private lemma partitionsInBox_disjoint (size k m : ℕ) :
     Disjoint (partitionsInBox size k m) (partitionsInBoxExact size (k + 1) m) := by
@@ -1194,6 +1193,7 @@ private noncomputable def subtractOnePartition (s k m : ℕ) (p : Nat.Partition 
     rw [multiset_sum_sub_one p.parts hpos, p.parts_sum, hparts]
   exact Nat.Partition.ofSums (s - (k + 1)) newParts hsum
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The forward bijection lands in the target box. -/
 private lemma subtractOnePartition_mem (s k m : ℕ) (p : Nat.Partition s)
     (hp : p ∈ partitionsInBoxExact s (k + 1) m) (hm : m ≥ 1) :
@@ -1223,6 +1223,7 @@ private lemma subtractOnePartition_mem (s k m : ℕ) (p : Nat.Partition s)
       exact hp.2 j hj_mem
     omega
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Inverse bijection for q-Pascal: add 1 to each part and pad with 1s to get exactly k+1 parts. -/
 private noncomputable def addOnePartition (t k m : ℕ) (q : Nat.Partition t)
     (hq : q ∈ partitionsInBox t (k + 1) (m - 1)) : Nat.Partition (t + (k + 1)) := by
@@ -1254,6 +1255,7 @@ private noncomputable def addOnePartition (t k m : ℕ) (q : Nat.Partition t)
       omega
   exact ⟨newParts, @hpos, hsum⟩
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The inverse bijection lands in the target set. -/
 private lemma addOnePartition_mem (t k m : ℕ) (q : Nat.Partition t)
     (hq : q ∈ partitionsInBox t (k + 1) (m - 1)) (hm : m ≥ 1) :
@@ -1400,6 +1402,7 @@ private lemma subtract_after_add (m : Multiset ℕ) (n : ℕ) (hm : ∀ x ∈ m,
   rw [Multiset.filter_eq_self]
   exact hm
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Key cardinality equality: partitions with exactly k+1 parts in (k+1) × m box biject with
     partitions with at most k+1 parts in (k+1) × (m-1) box, via the "subtract 1 from each part"
     bijection. This is the combinatorial heart of the q-Pascal identity.
@@ -1504,6 +1507,7 @@ noncomputable def qBinomialPolyDef (n k : ℕ) : Polynomial ℤ :=
 theorem qBinomialPolyDef_of_gt (n k : ℕ) (h : k > n) : qBinomialPolyDef n k = 0 := by
   simp only [qBinomialPolyDef, show ¬(k ≤ n) by omega, ↓reduceIte]
 
+set_option backward.isDefEq.respectTransparency false in
 /-- `[n choose 0]_q = 1` for all n. -/
 @[simp]
 theorem qBinomialPolyDef_zero_right (n : ℕ) : qBinomialPolyDef n 0 = 1 := by
@@ -1610,6 +1614,7 @@ private lemma sum_range_extend_zero {R : Type*} [AddCommMonoid R] (f : ℕ → R
     exact hzero i hi.1 hi.2
   simp [hzero_sum]
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The q-Pascal identity for qBinomialPolyDef (polynomial version).
     This is the combinatorial heart of the proof connecting the two definitions.
 
@@ -2189,6 +2194,7 @@ private lemma range_init_eq_image_lt {n : ℕ} (v : Fin (n + 1) → V) :
   · rintro ⟨j, hj, rfl⟩
     exact ⟨⟨j.val, hj⟩, by simp [Fin.castSucc]⟩
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Lemma lem.linalg.lin-ind-via-span: A k-tuple (v₁, v₂, ..., vₖ) is linearly independent
     if and only if each vᵢ ∉ span{v₁, ..., vᵢ₋₁}.
 

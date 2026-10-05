@@ -4,9 +4,6 @@ All rights reserved.
 -/
 import Mathlib
 
--- Many proofs here unify through semireducible definitions; opt out of the stricter check.
-set_option backward.isDefEq.respectTransparency false
-
 /-!
 # q-Binomial Coefficients: Basic Definitions and Properties
 
@@ -565,6 +562,7 @@ private theorem monotone_sort_eq (k m : ℕ) (f : Fin k → Fin (m + 1)) (hf : M
     rw [h1, Multiset.map_coe, Multiset.coe_sort, List.mergeSort_eq_self _ h_sorted]
   simp only [h_eq, List.getElem_map, List.getElem_finRange, Fin.cast_mk]
 
+set_option backward.isDefEq.respectTransparency false in
 /-- For any Sym, converting to monotone function and back gives the same Sym -/
 private theorem sym_monotone_sort_eq (k m : ℕ) (s : Sym (Fin (m + 1)) k) :
     monotoneToSym k m (symToMonotone k m s) = s := by
