@@ -451,11 +451,6 @@ theorem parts_card_zero (p : Partition 0) : p.parts.card = 0 := by
 theorem indiscrete_parts_card {n : ℕ} (hn : n ≠ 0) : (indiscrete n).parts.card = 1 := by
   simp only [indiscrete_parts hn, Multiset.card_singleton]
 
-/-- The parts of the indiscrete partition (n) for n > 0.
-    (Example of Definition \ref{def.pars.parts}) -/
-theorem indiscrete_parts' {n : ℕ} (hn : n ≠ 0) : (indiscrete n).parts = {n} :=
-  indiscrete_parts hn
-
 /-- Constructing a partition from a list of positive integers.
     (Definition \ref{def.pars.parts} (a) - the tuple representation)
 

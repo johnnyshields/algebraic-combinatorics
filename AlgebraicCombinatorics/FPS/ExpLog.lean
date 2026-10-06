@@ -125,9 +125,6 @@ These lemmas verify that our definitions match the textbook formulas:
 theorem logbar_eq_sum_alternating : logbar K = mk fun n =>
     if n = 0 then 0 else algebraMap ℚ K ((-1 : ℚ) ^ (n - 1) / n) := rfl
 
-/-- `exp` has constant term 1. This is part of Definition 7.8.2 (def.fps.exp-log). -/
-theorem exp_constantCoeff : constantCoeff (exp K) = 1 := constantCoeff_exp
-
 /-- `logbar` has constant term 0. This is part of Definition 7.8.2 (def.fps.exp-log). -/
 theorem logbar_constantCoeff : constantCoeff (logbar K) = 0 := constantCoeff_logbar
 
@@ -947,15 +944,8 @@ theorem isUnit_of_constantCoeff_eq_one {f : R⟦X⟧} (hf : constantCoeff f = 1)
 
 /-- An FPS is invertible iff its constant coefficient is a unit.
 This is a more general version of `isUnit_of_constantCoeff_eq_one`. -/
-theorem isUnit_iff_constantCoeff_isUnit {f : R⟦X⟧} : IsUnit f ↔ IsUnit (constantCoeff f) := by
-  constructor
-  · intro h
-    exact h.map constantCoeff
-  · intro h
-    rw [isUnit_iff_exists_inv]
-    use f⁻¹
-    have h' : constantCoeff f ≠ 0 := h.ne_zero
-    exact PowerSeries.mul_inv_cancel f h'
+theorem isUnit_iff_constantCoeff_isUnit {f : R⟦X⟧} : IsUnit f ↔ IsUnit (constantCoeff f) :=
+  isUnit_iff_constantCoeff
 
 /-- For FPS with constant term 1, we have `f * f⁻¹ = 1`.
 This is a key property used in the definition of `loder`. -/
